@@ -19,7 +19,7 @@ We distribute our `EkoChat` sdk and its dependency `Realm` as an `.xcframework` 
 
 ## Api Key
 
-You can add your `api-key` in `info.plist` file under `EKOChatAPIKey` settings. 
+You can add your `api-key` in `info.plist` file for the sample app. Replace the content of this property `EkoChatApiKey` with your api key.
 
 
 ## License
