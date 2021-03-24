@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.3" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina5_5" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="lVy-pW-6wk" userLabel="SampleAppTableViewCell" customClass="SampleAppTableViewCell" customModule="SampleApp" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalCompressionResistancePriority="751" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lek-BZ-VIt" userLabel="Title Label">
+                    <rect key="frame" x="16" y="8" width="45" height="693"/>
+                    <constraints>
+                        <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="20" id="p5n-35-780"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="18"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="e96-ro-gAc" userLabel="Subtitle Label">
+                    <rect key="frame" x="16.000000000000004" y="702" width="37.333333333333343" height="18"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                    <color key="textColor" systemColor="secondaryLabelColor" red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="w2j-4c-1rz" userLabel="Detail Label">
+                    <rect key="frame" x="358.33333333333331" y="358.33333333333331" width="39.666666666666686" height="19.333333333333314"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="vSK-Q8-VCF" firstAttribute="bottom" secondItem="e96-ro-gAc" secondAttribute="bottom" constant="16" id="57f-xQ-lQb"/>
+                <constraint firstItem="vSK-Q8-VCF" firstAttribute="trailing" secondItem="w2j-4c-1rz" secondAttribute="trailing" constant="16" id="7Py-MC-JTa"/>
+                <constraint firstItem="w2j-4c-1rz" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Lek-BZ-VIt" secondAttribute="trailing" constant="8" id="AEC-Wt-5Yh"/>
+                <constraint firstItem="e96-ro-gAc" firstAttribute="top" secondItem="Lek-BZ-VIt" secondAttribute="bottom" constant="1" id="DNw-Be-6PD"/>
+                <constraint firstItem="Lek-BZ-VIt" firstAttribute="leading" secondItem="vSK-Q8-VCF" secondAttribute="leading" constant="16" id="LF5-ID-HST"/>
+                <constraint firstItem="e96-ro-gAc" firstAttribute="leading" secondItem="Lek-BZ-VIt" secondAttribute="leading" id="NYe-L9-xfK"/>
+                <constraint firstItem="w2j-4c-1rz" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="vSK-Q8-VCF" secondAttribute="leading" id="eIn-ci-eZb"/>
+                <constraint firstItem="Lek-BZ-VIt" firstAttribute="top" secondItem="vSK-Q8-VCF" secondAttribute="top" constant="8" id="nqT-vt-TPT"/>
+                <constraint firstItem="w2j-4c-1rz" firstAttribute="centerY" secondItem="vSK-Q8-VCF" secondAttribute="centerY" id="pxB-0M-kCw"/>
+                <constraint firstItem="w2j-4c-1rz" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="e96-ro-gAc" secondAttribute="trailing" id="uGP-fw-dSI"/>
+            </constraints>
+            <nil key="simulatedTopBarMetrics"/>
+            <nil key="simulatedBottomBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <viewLayoutGuide key="safeArea" id="vSK-Q8-VCF"/>
+            <connections>
+                <outlet property="detailLabel" destination="w2j-4c-1rz" id="brP-8b-0vT"/>
+                <outlet property="subtitleLabel" destination="e96-ro-gAc" id="dBG-VM-rfU"/>
+                <outlet property="titleLabel" destination="Lek-BZ-VIt" id="oyP-4g-Dir"/>
+            </connections>
+            <point key="canvasLocation" x="-1362" y="-612"/>
+        </view>
+    </objects>
+</document>
