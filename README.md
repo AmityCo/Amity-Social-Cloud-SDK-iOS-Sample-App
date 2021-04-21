@@ -7,7 +7,7 @@ This sample app is designed to showcase our Amity iOS SDK.
 
 
 ## Getting Started
-We distribute our `EkoChat` sdk and its dependency `Realm` as an `.xcframework` file. You can download it from [Download Link](https://docs.amity.co/changelog-1/ios)
+We distribute our `EkoChat` sdk and its dependency `Realm` as an `.xcframework` file. You can download it from [Download Link](https://s3-ap-southeast-1.amazonaws.com/ekosdk-release/ios/ekosdk.zip)
 
 ## Installation
 
