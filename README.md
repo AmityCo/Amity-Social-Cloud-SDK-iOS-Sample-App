@@ -3,11 +3,11 @@
   <img src="https://global-uploads.webflow.com/5eddccffdb3c6a27f79757c1/5ff5db45969f34cbb904c786_amity-social-cloud-logo.svg" alt="Amity Social Cloud" title="Amity Social Cloud SDK">
 </p>
 
-This sample app is designed to showcase our Amity iOS SDK. If you are checking out sample app for sdk version below 5.0.0, please follow this [Readme-Old](/README-OLD.md)
+This sample app is designed to showcase our Amity iOS SDK. If you are checking out sample app for sdk version below 5.0.0, please follow this [README for sdk version < 5.0.0](/README-OLD.md)
 
 
 ## Getting Started
-We distribute our `EkoChat` sdk and its dependency `Realm` as an `.xcframework` file. You can download it from [Download Link](https://s3-ap-southeast-1.amazonaws.com/ekosdk-release/ios/ekosdk.zip)
+We distribute our `AmitySDK` and its dependency `Realm` as an `.xcframework` file. You can download it from [Download Link](https://s3-ap-southeast-1.amazonaws.com/ekosdk-release/ios/amitysdk.zip)
 
 ## Installation
 
