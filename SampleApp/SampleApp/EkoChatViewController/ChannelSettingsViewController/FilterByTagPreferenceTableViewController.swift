@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import EkoChat
+import AmitySDK
 
 private let reuseTagIdentifier = "channelTagCell"
 private let addTagIdentifier = "AddTagTableViewCell"

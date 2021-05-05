@@ -48,6 +48,7 @@ class UIKitImagePicker: NSObject, UIImagePickerControllerDelegate, UINavigationC
         imagePicker.delegate = self
         imagePicker.sourceType = sourceType
         imagePicker.allowsEditing = false
+        imagePicker.mediaTypes = ["public.image", "public.movie"]
         self.viewController?.present(imagePicker, animated: true, completion: nil)
     }
     

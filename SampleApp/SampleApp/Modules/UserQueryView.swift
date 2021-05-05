@@ -70,14 +70,14 @@ struct UserQueryView_Previews: PreviewProvider {
 
 class UserQueryViewModel {
     
-    var token: EkoNotificationToken?
-    var fetchedUser: EkoObject<EkoUser>?
+    var token: AmityNotificationToken?
+    var fetchedUser: AmityObject<AmityUser>?
     
-    let userRepo = EkoUserRepository(client: EkoManager.shared.client!)
+    let userRepo = AmityUserRepository(client: AmityManager.shared.client!)
     
     func fetchUserInfo(id: String, completion:@escaping (String) -> Void) {
         
-        fetchedUser = userRepo.user(forId: id)
+        fetchedUser = userRepo.getUser(id)
         token = fetchedUser?.observe { (user, error) in
             
             let dataStatus = user.dataStatus == .local ? "Local" : "Fresh"
@@ -111,24 +111,22 @@ class UserQueryViewModel {
     func fetchUserAvatar(completion: @escaping (String) -> Void) {
         guard let user = fetchedUser else { return }
         
-        user.object?.getAvatarInfo({ imageData in
+        let avatarData = user.object?.getAvatarInfo()
+        if let imageData = avatarData {
+            let fileId = imageData.fileId
+            let fileAttributes = imageData.attributes.description
             
-            if let imageData = imageData {
-                let fileId = imageData.fileId
-                let fileAttributes = imageData.attributes.description
-                
-                let fileInfo =
-                """
-                Mapped Data:
-                
-                FileId: \(fileId)
-                Attributes: \(fileAttributes)
-                """
-                
-                completion(fileInfo)
-            } else {
-                completion("\n\nThis user doesnot contains any avatar")
-            }
-        })
+            let fileInfo =
+            """
+            Mapped Data:
+            
+            FileId: \(fileId)
+            Attributes: \(fileAttributes)
+            """
+            
+            completion(fileInfo)
+        } else {
+            completion("\n\nThis user doesnot contains any avatar")
+        }
     }
 }

@@ -7,7 +7,53 @@
 //
 
 import Foundation
-import EkoChat
+import AmitySDK
+
+class CommunityNotification {
+    let events: [CommunityNotificationEvent]
+    let isPushEnabled: Bool
+    let isUserEnabled: Bool
+    
+    init(notification: AmityCommunityNotificationSettings) {
+        self.isPushEnabled = notification.isEnabled
+        self.isUserEnabled = notification.isUserEnabled
+        self.events = notification.events.map(CommunityNotificationEvent.init)
+    }
+    
+}
+
+class CommunityNotificationEvent: Identifiable {
+    
+    var id: String {
+        return name
+    }
+    
+    let name: String
+    let isNetworkEnabled: Bool
+    let isPushEnabled: Bool
+    let roles: [String]
+    let eventType: AmityCommunityNotificationEventType
+    
+    init(notificationEvent: AmityCommunityNotificationEvent) {
+        self.name = notificationEvent.eventName
+        self.isNetworkEnabled = notificationEvent.isNetworkEnabled
+        self.isPushEnabled = notificationEvent.isEnabled
+        self.roles = notificationEvent.roleFilter?.roleIds ?? []
+        self.eventType = notificationEvent.eventType
+    }
+    
+    var tittle: String {
+        switch eventType {
+        case .postCreated: return "New Posts"
+        case .postReacted: return "Reacts Posts"
+        case .commentReacted: return "Reacts Comments"
+        case .commentCreated: return "Comments"
+        case .commentReplied: return "Replies"
+        @unknown default:
+            fatalError()
+        }
+    }
+}
 
 struct CommunityPostModel: Identifiable, Equatable {
     static func == (lhs: CommunityPostModel, rhs: CommunityPostModel) -> Bool {
@@ -26,17 +72,19 @@ struct CommunityPostModel: Identifiable, Equatable {
 // Concrete implementor
 class CommunityDetailViewModel: ObservableObject {
 
-    private let feedRepository = EkoFeedRepository(client: EkoManager.shared.client!)
+    private let feedRepository = AmityFeedRepository(client: AmityManager.shared.client!)
+    private let communityRepository = AmityCommunityRepository(client: AmityManager.shared.client!)
     
-    private var token: EkoNotificationToken?
-    private var postCollection: EkoCollection<EkoPost>?
+    private var token: AmityNotificationToken?
+    private var postCollection: AmityCollection<AmityPost>?
     
-    private var filter: EkoCommunityQueryFilter = .all
-    private var sort: EkoCommunityFeedSortOption = .firstCreated
+    private var filter: AmityCommunityQueryFilter = .all
+    private var sort: AmityCommunityFeedSortOption = .firstCreated
     var community: CommunityListModel
     
     @Published var feed = [CommunityPostModel]()
     @Published var updateFeed: Bool
+    @Published var communityNotification: CommunityNotification?
         
     init(community: CommunityListModel) {
         self.community = community
@@ -44,7 +92,7 @@ class CommunityDetailViewModel: ObservableObject {
         self.updateFeed = true
     }
     
-    func queryFeed(sort: EkoCommunityFeedSortOption) {
+    func queryFeed(sort: AmityCommunityFeedSortOption) {
         postCollection = feedRepository.getCommunityFeed(withCommunityId: community.id, sortBy: sort, includeDeleted: false)
         token = postCollection?.observe({ [weak self] (collection, _, _) in
             guard collection.dataStatus == .fresh, let strongSelf = self else { return }
@@ -62,6 +110,32 @@ class CommunityDetailViewModel: ObservableObject {
             strongSelf.feed = list
             strongSelf.updateFeed.toggle()
         })
+    }
+    
+    func queryNotificationSetting() {
+        let communityManager = communityRepository.notificationManager(forCommunityId: community.id)
+        
+        communityManager.getSettingsWithCompletion { [weak self] (model, error) in
+            guard let notification = model else { return }
+            self?.communityNotification = CommunityNotification(notification: notification)
+        }
+    }
+    
+    func updateNoticommunityRepositoryzfication(isPushEnabled: Bool, events: [AmityCommunityNotificationEvent]) {
+        let communityManager = communityRepository.notificationManager(forCommunityId: community.id)
+        if isPushEnabled {
+            communityManager.enable(for: events) { [weak self] (success, error) in
+                if success {
+                    self?.queryNotificationSetting()
+                }
+            }
+        } else {
+            communityManager.disable { [weak self] (success, error) in
+                if success {
+                    self?.queryNotificationSetting()
+                }
+            }
+        }
     }
     
     func fetchNextPage() {

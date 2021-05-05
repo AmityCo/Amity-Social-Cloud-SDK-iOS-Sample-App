@@ -10,8 +10,8 @@ import SwiftUI
 
 struct ChannelFilterView: View {
     
-    var channelTypes: [EkoChannelType] = EkoChannelType.allCases
-    var filterTypes: [EkoChannelQueryFilter] = [.all, .userIsMember, .userIsNotMember]
+    var channelTypes: [AmityChannelType] = AmityChannelType.allCases
+    var filterTypes: [AmityChannelQueryFilter] = [.all, .userIsMember, .userIsNotMember]
     
     @State var includedTags = UserDefaults.standard.includingTags.joined(separator: ",")
     @State var excludedTags = UserDefaults.standard.excludingTags.joined(separator: ",")
@@ -81,8 +81,8 @@ struct ChannelFilterView_Previews: PreviewProvider {
     }
 }
 
-extension EkoChannelType: CaseIterable {
-    public static var allCases: [EkoChannelType] {
+extension AmityChannelType: CaseIterable {
+    public static var allCases: [AmityChannelType] {
         return [.standard, .private, .broadcast, .conversation, .byTypes, .live, .community]
     }
 }

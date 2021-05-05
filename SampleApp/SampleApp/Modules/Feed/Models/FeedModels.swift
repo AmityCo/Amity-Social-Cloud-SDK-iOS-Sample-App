@@ -13,20 +13,18 @@ enum FeedCellItem {
     case footer
     case content(type: FeedItemType)
     case reaction
+    case comments
     
     var height: CGFloat {
         switch self {
         case .header:
             return 70
-        case .content(let type):
-            switch type {
-            case .text, .image, .file:
+        case .content, .comments:
                 return UITableView.automaticDimension
-            }
         case .reaction:
             return 40
         case .footer:
-            return 60
+            return 50
         }
     }
 }
@@ -60,12 +58,12 @@ struct TextFeedModel: FeedItemModel {
 struct ImageFeedModel: FeedItemModel {
     var type: FeedItemType = .image
     var count: Int = 0
-    var fileId: String
+    var fileURL: String
     var userName: String
     var date: String
     
-    init(fileId: String, userName: String, date: String) {
-        self.fileId = fileId
+    init(fileURL: String, userName: String, date: String) {
+        self.fileURL = fileURL
         self.userName = userName
         self.date = date
     }
@@ -74,12 +72,12 @@ struct ImageFeedModel: FeedItemModel {
 struct FileFeedModel: FeedItemModel {
     var type: FeedItemType = .file
     var count: Int = 0
-    var fileId: String
+    var fileURL: String
     var userName: String
     var date: String
     
-    init(fileId: String, userName: String, date: String) {
-        self.fileId = fileId
+    init(fileURL: String, userName: String, date: String) {
+        self.fileURL = fileURL
         self.userName = userName
         self.date = date
     }
@@ -198,5 +196,21 @@ enum CommentItemDefaultAction: FeedItemAction {
         case .flag(let isFlagged):
             return isFlagged ? "comment.unflag" : "comment.flag"
         }
+    }
+}
+
+struct PostCommentModel {
+    private var lastComments: [AmityComment]
+    
+    init(post: AmityPost) {
+        lastComments = post.latestComments
+    }
+    
+    var firstComment: String? {
+        return lastComments.count > 0 ? lastComments[0].data?["text"] as? String ?? "" : nil
+    }
+    
+    var secondComment: String? {
+        return lastComments.count > 1 ? lastComments[1].data?["text"] as? String ?? "" : nil
     }
 }

@@ -24,16 +24,16 @@ enum UserPostCommentItem {
 
 class UserPostCommentManager {
     
-    let client: EkoClient
-    let commentRepository: EkoCommentRepository
+    let client: AmityClient
+    let commentRepository: AmityCommentRepository
     
-    var commentCollection: EkoCollection<EkoComment>?
-    var commentCollectionToken: EkoNotificationToken?
+    var commentCollection: AmityCollection<AmityComment>?
+    var commentCollectionToken: AmityNotificationToken?
     
-    let reactionRepo: EkoReactionRepository
+    let reactionRepo: AmityReactionRepository
     
-    var editedComment: EkoComment?
-    var selectedComment: EkoComment?
+    var editedComment: AmityComment?
+    var selectedComment: AmityComment?
     let userId: String?
     let userName: String?
     let postId: String?
@@ -43,11 +43,11 @@ class UserPostCommentManager {
     
     private var items: [UserPostCommentItem] = []
     
-    var editor: EkoCommentEditor? {
-        return EkoCommentEditor(client: self.client, comment: self.editedComment!)
+    var editor: AmityCommentEditor? {
+        return AmityCommentEditor(client: self.client, comment: self.editedComment!)
     }
     
-    var flagger: EkoCommentFlagger?
+    var flagger: AmityCommentFlagger?
     
     lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -55,24 +55,25 @@ class UserPostCommentManager {
         return formatter
     }()
     
-    init(client: EkoClient, postId: String?, parentCommentId: String? = nil, userId: String?, userName: String? = nil) {
+    init(client: AmityClient, postId: String?, parentCommentId: String? = nil, userId: String?, userName: String? = nil) {
         self.client = client
         self.userId = userId
         self.userName = userName
         self.parentCommentId = parentCommentId
         self.postId = postId
-        self.commentRepository = EkoCommentRepository(client: client)
-        self.reactionRepo = EkoReactionRepository(client: client)
+        self.commentRepository = AmityCommentRepository(client: client)
+        self.reactionRepo = AmityReactionRepository(client: client)
     }
     
     // MARK:- Comment Observer
     
     // Listen to comment changes. Anytime a comment is created, observer
     // would be notified.
-    // Note: Retain that on EkoNotificationToken
+    // Note: Retain that on AmityNotificationToken
     func observeCommentFeedChanges(changeHandler:@escaping ()->()) {
-        let orderType: EkoOrderBy = isReversed ? .descending : .ascending
-        commentCollection = commentRepository.comments(withReferenceId: postId!, referenceType: .post, filterByParentId: true, parentId: parentCommentId, orderBy: orderType, includeDeleted: includeDeleted)
+        let orderType: AmityOrderBy = isReversed ? .descending : .ascending
+        
+        commentCollection = commentRepository.getCommentsWithReferenceId(postId!, referenceType: .post, filterByParentId: true, parentId: parentCommentId, orderBy: orderType, includeDeleted: includeDeleted)
         commentCollectionToken = commentCollection?.observe { [weak self] (collection, _, error) in
             
             Log.add(info: "[COMMENT] Change Observed in Comments \(collection.count())")
@@ -81,7 +82,7 @@ class UserPostCommentManager {
         }
     }
     
-    func toggleReactionForComment(comment: EkoComment) {
+    func toggleReactionForComment(comment: AmityComment) {
         let reactionName = "like"
         
         if comment.myReactions.contains(reactionName) {
@@ -99,15 +100,15 @@ class UserPostCommentManager {
     
     // MARK: CRUD Comment
     
-    var newComment: EkoObject<EkoComment>?
-    var newCommentToken: EkoNotificationToken?
+    var newComment: AmityObject<AmityComment>?
+    var newCommentToken: AmityNotificationToken?
     
     func createComment(text: String) {
         
         // Observe new comment here.
         newCommentToken?.invalidate()
         
-        newComment = commentRepository.createComment(withReferenceId: postId!, referenceType: .post, parentId: parentCommentId, text: text)
+        newComment = commentRepository.createComment(forReferenceId: postId!, referenceType: .post, parentId: parentCommentId, text: text)
         newCommentToken = newComment?.observe { (liveObject, error) in
             
             // Can check .syncState to determine if comment has been successfully created. In case of failure, you can
@@ -133,9 +134,9 @@ class UserPostCommentManager {
         guard let comment = commentCollection?.object(at: UInt(index)) else { return }
         editedComment = comment
         
-        editor?.delete(completion: { (success, _) in
+        commentRepository.delete(editedComment!) { (success, _) in
             onCompletion(success)
-        })
+        }
         
         editedComment = nil
     }
@@ -231,8 +232,8 @@ class UserPostCommentManager {
     }
     
     func isFlaggedByMe(onCompletion: @escaping (_ isSuccess: Bool)->()){
-        flagger = EkoCommentFlagger(client: client, commentId: selectedComment!.commentId)
-        flagger?.isFlagByMe(completion: { isFlagged in
+        flagger = AmityCommentFlagger(client: client, commentId: selectedComment!.commentId)
+        flagger?.isFlaggedByMe(completion: { isFlagged in
             onCompletion(isFlagged)
         })
     }
@@ -258,7 +259,7 @@ class UserPostCommentManager {
     
 }
 
-private extension EkoComment {
+private extension AmityComment {
     
     func asPostCommentModel() -> UserPostCommentModel {
         var textData = data?["text"] as? String ?? "-"

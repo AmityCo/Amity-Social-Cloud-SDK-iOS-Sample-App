@@ -10,16 +10,16 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Eko Messages Table View Controller-->
+        <!--Amity Messages Table View Controller-->
         <scene sceneID="uiv-vY-wTE">
             <objects>
-                <tableViewController id="rEQ-rH-FrF" customClass="EkoMessagesTableViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController id="rEQ-rH-FrF" customClass="AmityMessagesTableViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" keyboardDismissMode="onDrag" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="8Tx-uH-GDF">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="821"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ChatTextMeCell" rowHeight="80" id="jP5-ez-Lk2" userLabel="ChatTextMeCell" customClass="EkoChatTextTableViewCell" customModule="SampleApp" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ChatTextMeCell" rowHeight="80" id="jP5-ez-Lk2" userLabel="ChatTextMeCell" customClass="AmityChatTextTableViewCell" customModule="SampleApp" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="28" width="414" height="80"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="jP5-ez-Lk2" id="ERw-EA-L84">
@@ -97,7 +97,7 @@
                                     <outlet property="metadataLabel" destination="dyD-sW-YGt" id="Mlu-rU-4gH"/>
                                 </connections>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ChatTextOtherCell" rowHeight="80" id="wHx-gh-2YM" userLabel="ChatTextOtherCell" customClass="EkoChatTextTableViewCell" customModule="SampleApp" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ChatTextOtherCell" rowHeight="80" id="wHx-gh-2YM" userLabel="ChatTextOtherCell" customClass="AmityChatTextTableViewCell" customModule="SampleApp" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="108" width="414" height="80"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="wHx-gh-2YM" id="HLE-Bn-Gv8">
@@ -175,7 +175,7 @@
                                     <outlet property="metadataLabel" destination="5fu-Vc-anQ" id="zAi-7I-BfO"/>
                                 </connections>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ChatImageCell" id="Yvt-NC-6AJ" customClass="EkoChatImageTableViewCell" customModule="SampleApp" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ChatImageCell" id="Yvt-NC-6AJ" customClass="AmityChatImageTableViewCell" customModule="SampleApp" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="188" width="414" height="131"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Yvt-NC-6AJ" id="47T-87-b05">
@@ -245,7 +245,7 @@
                                     <outlet property="timeLabel" destination="d6p-4s-XrW" id="qFk-0O-bnc"/>
                                 </connections>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ChatFileCell" id="yIe-o8-hvY" customClass="EkoChatFileViewCell" customModule="SampleApp" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ChatFileCell" id="yIe-o8-hvY" customClass="AmityChatFileViewCell" customModule="SampleApp" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="319" width="414" height="112"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="yIe-o8-hvY" id="3ib-SA-EzU">
@@ -332,10 +332,10 @@
             </objects>
             <point key="canvasLocation" x="44.927536231884062" y="1740.7366071428571"/>
         </scene>
-        <!--Eko Edit Message View Controller-->
+        <!--Amity Edit Message View Controller-->
         <scene sceneID="IhJ-vd-4hC">
             <objects>
-                <viewController storyboardIdentifier="EkoEditMessageViewController" id="yPS-Vw-tgi" customClass="EkoEditMessageViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="AmityEditMessageViewController" id="yPS-Vw-tgi" customClass="AmityEditMessageViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Aob-eU-Bmc">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -382,10 +382,10 @@
             </objects>
             <point key="canvasLocation" x="992.75362318840587" y="1775.2232142857142"/>
         </scene>
-        <!--Eko Reactions View Controller-->
+        <!--Amity Reactions View Controller-->
         <scene sceneID="2Jo-4u-G7j">
             <objects>
-                <viewController storyboardIdentifier="EkoReactionsViewController" id="C2C-xN-yzo" customClass="EkoReactionsViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="AmityReactionsViewController" id="C2C-xN-yzo" customClass="AmityReactionsViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="wiU-07-lSN">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -412,10 +412,10 @@
             </objects>
             <point key="canvasLocation" x="1753.6231884057972" y="1760.4910714285713"/>
         </scene>
-        <!--Eko Chat View Controller-->
+        <!--Amity Chat View Controller-->
         <scene sceneID="39h-2p-ec5">
             <objects>
-                <viewController storyboardIdentifier="EkoComments" id="imo-4B-d9T" customClass="EkoChatViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="AmityComments" id="imo-4B-d9T" customClass="AmityChatViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="FZM-kJ-ZrH">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -513,10 +513,10 @@
             </objects>
             <point key="canvasLocation" x="-722" y="1110"/>
         </scene>
-        <!--Eko Comments Table View Controller-->
+        <!--Amity Comments Table View Controller-->
         <scene sceneID="Qf9-Zg-IEJ">
             <objects>
-                <tableViewController id="UyL-4C-74T" customClass="EkoCommentsTableViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController id="UyL-4C-74T" customClass="AmityCommentsTableViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" keyboardDismissMode="onDrag" dataMode="prototypes" style="plain" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="In7-Z2-fHt">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="821"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -604,10 +604,10 @@
             </objects>
             <point key="canvasLocation" x="-722" y="1750"/>
         </scene>
-        <!--Eko Chat View Controller-->
+        <!--Amity Chat View Controller-->
         <scene sceneID="rD8-h2-3gN">
             <objects>
-                <viewController storyboardIdentifier="EkoChat" id="dlU-ej-1g7" customClass="EkoChatViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="AmityChat" id="dlU-ej-1g7" customClass="AmityChatViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="qv9-KT-6tp">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -746,10 +746,10 @@
             </objects>
             <point key="canvasLocation" x="44.927536231884062" y="1109.5982142857142"/>
         </scene>
-        <!--Eko Custom View Controller-->
+        <!--Amity Custom View Controller-->
         <scene sceneID="LGd-td-Zdu">
             <objects>
-                <viewController storyboardIdentifier="EkoCustomViewController" id="VIE-RB-U4D" customClass="EkoCustomViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="AmityCustomViewController" id="VIE-RB-U4D" customClass="AmityCustomViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="OlN-9q-r1F">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -860,10 +860,10 @@
             </objects>
             <point key="canvasLocation" x="992.75362318840587" y="1111.6071428571429"/>
         </scene>
-        <!--Eko Add Reactions View Controller-->
+        <!--Amity Add Reactions View Controller-->
         <scene sceneID="27H-LA-otd">
             <objects>
-                <viewController storyboardIdentifier="EkoAddReactionsViewController" id="Ogv-vk-E13" customClass="EkoAddReactionsViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="AmityAddReactionsViewController" id="Ogv-vk-E13" customClass="AmityAddReactionsViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="0WB-JH-RF7">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

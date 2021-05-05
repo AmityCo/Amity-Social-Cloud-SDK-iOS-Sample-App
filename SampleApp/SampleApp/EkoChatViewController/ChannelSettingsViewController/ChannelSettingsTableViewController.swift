@@ -10,7 +10,7 @@ import UIKit
 
 class ChannelSettingsTableViewController: UITableViewController {
     /// To be injected.
-    @objc weak var client: EkoClient!
+    @objc weak var client: AmityClient!
     @objc var channelId: String!
 
     enum Rows: Int, CaseIterable {

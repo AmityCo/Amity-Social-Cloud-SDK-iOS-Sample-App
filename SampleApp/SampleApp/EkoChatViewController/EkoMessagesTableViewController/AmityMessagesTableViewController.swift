@@ -1,19 +1,19 @@
 //
-//  EkoMessagesTableViewController.swift
+//  AmityMessagesTableViewController.swift
 //  SampleApp
 //
 //  Created by Federico Zanetello on 5/13/19.
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import EkoChat
+import AmitySDK
 
 private let kContentOffsetY: CGFloat = 10
 private let kContentOffsetX: CGFloat = 0
 
-final class EkoMessagesTableViewController: UITableViewController, DataSourceListener, UIDocumentInteractionControllerDelegate, EkoEditMessageViewControllerDelegate, EkoCustomViewControllerDelegate, EkoAddReactionsDelegate, EkoChatTextTableViewCellDelegate {
+final class AmityMessagesTableViewController: UITableViewController, DataSourceListener, UIDocumentInteractionControllerDelegate, AmityEditMessageViewControllerDelegate, AmityCustomViewControllerDelegate, AmityAddReactionsDelegate, AmityChatTextTableViewCellDelegate {
     
-    @objc var client: EkoClient!
+    @objc var client: AmityClient!
     @objc var channelId: String!
     
     private var reversePreference: Bool {
@@ -23,14 +23,13 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
     
     private lazy var flagManager = FlagManager(client: client, viewController: self)
     private lazy var tagManager = TagManager(client: client, viewController: self)
-    private var messageReactors: [EkoMessageReactor] = []
     
     private var dataSource: MessageDataSource?
     private var reactionDataSource: ReactionDatasource?
     
-    private lazy var reactionRepo = EkoReactionRepository(client: client)
+    private lazy var reactionRepo = AmityReactionRepository(client: client)
     
-    var messageRepository: EkoMessageRepository?
+    var messageRepository: AmityMessageRepository?
     
     let audioManager = AudioMessageHandler()
     
@@ -38,20 +37,21 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
     /// message.
     var replyToMessageId: String?
     
+    let fileRepo = AmityFileRepository(client: AmityManager.shared.client!)
+    
     private func getReactionDatasource(messageId: String) -> ReactionDatasource? {
-        let reactionCollection: EkoCollection<EkoReaction>
+        let reactionCollection: AmityCollection<AmityReaction>
         
-        reactionCollection = reactionRepo.getAllReactions(messageId, referenceType: .message)
-        
+        reactionCollection = reactionRepo.getReactions(messageId, referenceType: .message, reactionName: nil)
         return ReactionDatasource(reactionsCollection: reactionCollection, reverse: false)
     }
     
-    private func getUserRepository() -> EkoUserRepository {
-        return EkoUserRepository(client: client)
+    private func getUserRepository() -> AmityUserRepository {
+        return AmityUserRepository(client: client)
     }
     
     private func observeMessages() {
-        messageRepository = EkoMessageRepository(client: client)
+        messageRepository = AmityMessageRepository(client: client)
         let userDefaults: UserDefaults = .standard
         
         let includingTags: [String] = userDefaults.channelPreferenceIncludingTags[channelId] ?? []
@@ -60,8 +60,8 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
         let filterByParentIdActive: Bool = userDefaults.channelPreferenceFilterByParentIdActive[channelId] ?? false
         let parentId: String? = userDefaults.channelPreferenceFilterByParentId[channelId]
         
-        let messagesCollection: EkoCollection<EkoMessage>
-        messagesCollection = messageRepository!.messages(withChannelId: channelId,
+        let messagesCollection: AmityCollection<AmityMessage>
+        messagesCollection = messageRepository!.getMessages(channelId: channelId,
                                                          includingTags: includingTags,
                                                          excludingTags: excludingTags,
                                                          filterByParentId: filterByParentIdActive,
@@ -103,23 +103,32 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard
-            let message: EkoMessage = getMessage(for: indexPath),
-            let cellIdentifier = cellIdentifier(for: message, client: client) else {
-                return UITableViewCell()
+        guard let message: AmityMessage = getMessage(for: indexPath), let cellIdentifier = cellIdentifier(for: message, client: client) else {
+            return UITableViewCell()
         }
         
         let cell: UITableViewCell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath)
-        (cell as? EkoChatTableViewCell)?.display(message, client: client)
-        (cell as? EkoChatTextTableViewCell)?.delegate = self
+        (cell as? AmityChatTableViewCell)?.display(message, client: client)
+        (cell as? AmityChatTextTableViewCell)?.delegate = self
+        
+        if message.messageType == .image {
+            Log.add(info: "-- List Item -- \n")
+            Log.add(info: "Message Id: \(message.messageId)")
+            Log.add(info: "Sync State: \(message.syncState.description)")
+            
+            let imageInfo = message.getImageInfo()
+            Log.add(info: "Image Id: \(imageInfo?.fileId)")
+            Log.add(info: "Image URL: \(imageInfo?.fileURL)")
+        }
+        
         return cell
     }
     
-    private func getMessage(for indexPath: IndexPath) -> EkoMessage? {
+    private func getMessage(for indexPath: IndexPath) -> AmityMessage? {
         return dataSource?.message(for: indexPath)
     }
     
-    private func cellIdentifier(for message: EkoMessage, client: EkoClient) -> String? {
+    private func cellIdentifier(for message: AmityMessage, client: AmityClient) -> String? {
         switch message.messageType {
         case .custom where message.userId == client.currentUserId:
             fallthrough
@@ -139,7 +148,7 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard let message: EkoMessage = getMessage(for: indexPath) else { return 0 }
+        guard let message: AmityMessage = getMessage(for: indexPath) else { return 0 }
         
         switch message.messageType {
         case .image:
@@ -219,7 +228,7 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
             self?.tagManager.displayTagAlertController(for: message)
             completion(true)
         }
-        tagAction.backgroundColor = UIColor(named: "EkoGreen")
+        tagAction.backgroundColor = UIColor(named: "AmityGreen")
         
         let filterByParentIdAction = UIContextualAction(style: .normal, title: "Filter Childs") { [weak self] (_, _, completion) in
             guard let channelId = self?.channelId, let message = self?.getMessage(for: indexPath) else { return }
@@ -231,7 +240,7 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
             
             completion(true)
         }
-        filterByParentIdAction.backgroundColor = UIColor(named: "EkoOrange")
+        filterByParentIdAction.backgroundColor = UIColor(named: "AmityOrange")
         
         let replyToAction = UIContextualAction(style: .normal, title: "Reply To") { [weak self] (_, _, completion) in
             guard let message = self?.getMessage(for: indexPath) else { return }
@@ -268,7 +277,7 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
         present(alert, animated: true, completion: nil)
     }
     
-    private func showAlertSheet(message: EkoMessage) {
+    private func showAlertSheet(message: AmityMessage) {
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { [weak self] _ in
             self?.deleteAction(forMessage: message)
@@ -338,7 +347,7 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
         present(alert, animated: true, completion: nil)
     }
     
-    private func deleteFailedMessage(message: EkoMessage) {
+    private func deleteFailedMessage(message: AmityMessage) {
         guard message.syncState == .error else { return }
         
         messageRepository?.deleteFailedMessage(message.messageId, completion: { (isSuccess, error) in
@@ -348,32 +357,31 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
     }
     
     // MARK: - Alert Sheet Action
-    private func deleteAction(forMessage message: EkoMessage) {
+    private func deleteAction(forMessage message: AmityMessage) {
         if message.userId != client.currentUserId {
             showRestrictionAlert()
         } else {
-            let editor = EkoMessageEditor(client: client, messageId: message.messageId)
-            editor.delete { [weak self] success, error in
+            messageRepository?.deleteMessage(withId: message.messageId, completion: { [weak self] (success, error) in
                 let alert = UIAlertController(title: nil, message: "Message succesfully deleted", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                 self?.present(alert, animated: true, completion: nil)
                 self?.tableView.reloadData()
-            }
+            })
         }
     }
     
-    private func updateAction(forMessage message: EkoMessage) {
+    private func updateAction(forMessage message: AmityMessage) {
         if message.userId != client.currentUserId {
             showRestrictionAlert()
         } else {
             if message.messageType == .text {
-                guard let vc = EkoEditMessageViewController.make() as? EkoEditMessageViewController else { return }
+                guard let vc = AmityEditMessageViewController.make() as? AmityEditMessageViewController else { return }
                 vc.delegate = self
                 vc.setMessage(message: message)
                 let nvc = UINavigationController(rootViewController: vc)
                 navigationController?.present(nvc, animated: true, completion: nil)
             } else if message.messageType == .custom {
-                guard let vc = EkoCustomViewController.makeViewController() as? EkoCustomViewController else { return }
+                guard let vc = AmityCustomViewController.makeViewController() as? AmityCustomViewController else { return }
                 vc.setMessage(message: message)
                 vc.delegate = self
                 let nvc = UINavigationController(rootViewController: vc)
@@ -386,24 +394,24 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
         }
     }
     
-    private func addReactionAction(forMessage message: EkoMessage) {
-        guard let vc = EkoAddReactionsViewController.makeViewController() as? EkoAddReactionsViewController else { return }
+    private func addReactionAction(forMessage message: AmityMessage) {
+        guard let vc = AmityAddReactionsViewController.makeViewController() as? AmityAddReactionsViewController else { return }
         vc.setupView(type: .add, message: message)
         vc.delegate = self
         let nvc = UINavigationController(rootViewController: vc)
         navigationController?.present(nvc, animated: true, completion: nil)
     }
     
-    private func removeReactionAction(forMessage message: EkoMessage) {
-        guard let vc = EkoAddReactionsViewController.makeViewController() as? EkoAddReactionsViewController else { return }
+    private func removeReactionAction(forMessage message: AmityMessage) {
+        guard let vc = AmityAddReactionsViewController.makeViewController() as? AmityAddReactionsViewController else { return }
         vc.setupView(type: .remove, message: message)
         vc.delegate = self
         let nvc = UINavigationController(rootViewController: vc)
         navigationController?.present(nvc, animated: true, completion: nil)
     }
     
-    private func showMyReactionAction(forMessage message: EkoMessage) {
-        guard let vc = EkoReactionsViewController.makeViewController() as? EkoReactionsViewController else { return }
+    private func showMyReactionAction(forMessage message: AmityMessage) {
+        guard let vc = AmityReactionsViewController.makeViewController() as? AmityReactionsViewController else { return }
         let myReactions = message.myReactions
         var reactionModel: [ReactionModel] = [ReactionModel]()
         for reaction in myReactions {
@@ -414,8 +422,8 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
         navigationController?.present(nvc, animated: true, completion: nil)
     }
     
-    private func showAllReactions(forMessage message: EkoMessage) {
-        guard let vc = EkoReactionsViewController.makeViewController() as? EkoReactionsViewController,
+    private func showAllReactions(forMessage message: AmityMessage) {
+        guard let vc = AmityReactionsViewController.makeViewController() as? AmityReactionsViewController,
             let datasource = getReactionDatasource(messageId: message.messageId) else { return }
         vc.setDatasource(datasource, userRepo: getUserRepository())
         let nvc = UINavigationController(rootViewController: vc)
@@ -436,88 +444,71 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
         scrollToBottom()
     }
     
-    // MARK: EkoEditMessageViewControllerDelegate
+    // MARK: AmityEditMessageViewControllerDelegate
     
-    func ekoEdit(_ viewController: EkoEditMessageViewController, willUpdateText text: String, onMessage message: EkoMessage?) {
+    func amityEdit(_ viewController: AmityEditMessageViewController, willUpdateText text: String, onMessage message: AmityMessage?) {
         guard let message = message else { return }
-        let editor = EkoMessageEditor(client: client, messageId: message.messageId)
+        let editor = AmityMessageEditor(client: client, messageId: message.messageId)
         editor.editText(text) { [weak self] success, error in
             self?.tableView.reloadData()
         }
     }
     
-    // MARK: EkoCustomViewControllerDelegate
+    // MARK: AmityCustomViewControllerDelegate
     
-    func ekoCustom(_ viewController: EkoCustomViewController, willSendCustomDataWithData data: [String : Any]) {
+    func amityCustom(_ viewController: AmityCustomViewController, willSendCustomDataWithData data: [String : Any]) {
         // Intentionally left empty
     }
     
-    func ekoCustom(_ viewController: EkoCustomViewController, willSendVoiceMessageWithData data: Data, fileName: String) {
+    func amityCustom(_ viewController: AmityCustomViewController, willSendVoiceMessageWithData audioFileURL: URL, fileName: String) {
         // Intentionally left empty
     }
     
-    func ekoCustom(_ viewController: EkoCustomViewController, willUpdateCustomDataWithData data: [String : Any], onMessage message: EkoMessage?) {
+    func amityCustom(_ viewController: AmityCustomViewController, willUpdateCustomDataWithData data: [String : Any], onMessage message: AmityMessage?) {
         guard let message = message else { return }
-        let editor = EkoMessageEditor(client: client, messageId: message.messageId)
+        let editor = AmityMessageEditor(client: client, messageId: message.messageId)
         editor.editCustomMessage(data) { [weak self] success, error in
             self?.tableView.reloadData()
         }
     }
     
-    // MARK: EkoAddReactionsDelegate
-    func didSendReaction(_ viewController: EkoAddReactionsViewController, withReactionName reaction: String, message: EkoMessage?) {
+    // MARK: AmityAddReactionsDelegate
+    func didSendReaction(_ viewController: AmityAddReactionsViewController, withReactionName reaction: String, message: AmityMessage?) {
         guard let message = message else { return }
         sendReaction(with: message, reaction: reaction)
     }
     
-    func didRemoveReaction(_ viewController: EkoAddReactionsViewController, withReactionName reaction: String, message: EkoMessage?) {
+    func didRemoveReaction(_ viewController: AmityAddReactionsViewController, withReactionName reaction: String, message: AmityMessage?) {
         guard let message = message else { return }
         removeReaction(with: message, reaction: reaction)
     }
     
-    private func sendReaction(with message: EkoMessage, reaction: String) {
-        let messageReactor: EkoMessageReactor?
-        if let index = messageReactors.firstIndex(where: { $0.message.messageId == message.messageId }) {
-            messageReactor = messageReactors[index]
-        } else {
-            messageReactor = EkoMessageReactor(client: client, message: message)
-        }
-        messageReactor?.addReaction(withReaction: reaction, completion: { [weak self] success, error in
+    private func sendReaction(with message: AmityMessage, reaction: String) {
+        reactionRepo.addReaction(reaction, referenceId: message.messageId, referenceType: .message) { [weak self] (success, error) in
             let title = success ? "Success" : "Error"
             let message = success ? "Reaction \(reaction) added" : "\(error?.localizedDescription ?? "Error")"
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
             let style: UIAlertAction.Style = success ? .default : .destructive
             alert.addAction(UIAlertAction(title: "OK", style: style, handler: nil))
             self?.present(alert, animated: true, completion: nil)
-        })
-        if !messageReactors.contains(where: { $0.message.messageId == message.messageId }) {
-            messageReactors.append(messageReactor!)
         }
     }
     
-    private func removeReaction(with message: EkoMessage, reaction: String) {
-        let messageReactor: EkoMessageReactor?
-        if let index = messageReactors.firstIndex(where: { $0.message.messageId == message.messageId }) {
-            messageReactor = messageReactors[index]
-        } else {
-            messageReactor = EkoMessageReactor(client: client, message: message)
-        }
-        messageReactor?.removeReaction(withReaction: reaction, completion: { [weak self] success, error in
+    private func removeReaction(with message: AmityMessage, reaction: String) {
+        reactionRepo.removeReaction(reaction, referenceId: message.messageId, referenceType: .message) { [weak self] (success, error) in
             let title = success ? "Success" : "Error"
             let message = success ? "Reaction \(reaction) removed" : "\(error?.localizedDescription ?? "Error")"
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
             let style: UIAlertAction.Style = success ? .default : .destructive
             alert.addAction(UIAlertAction(title: "OK", style: style, handler: nil))
             self?.present(alert, animated: true, completion: nil)
-        })
-        if !messageReactors.contains(where: { $0.message.messageId == message.messageId }) {
-            messageReactors.append(messageReactor!)
         }
     }
     
-    // MARK: EkoChatTextTableViewCellDelegate
     
-    func chatTextDidReact(_ cell: EkoChatTextTableViewCell, withReaction reaction: String) {
+    // MARK: AmityChatTextTableViewCellDelegate
+    
+    func chatTextDidReact(_ cell: AmityChatTextTableViewCell, withReaction reaction: String) {
         guard let indexPath = tableView.indexPath(for: cell), let message = dataSource?.message(for: indexPath) else { return }
         if message.myReactions.contains(reaction) {
             removeReaction(with: message, reaction: reaction)
@@ -527,16 +518,26 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
     }
     
     // Helpers
-    func downloadFileFromMessage(message: EkoMessage, completion: @escaping (URL) -> Void) {
+    func downloadFileFromMessage(message: AmityMessage, completion: @escaping (URL) -> Void) {
         do {
             var fileName = message.messageId
+            var fileURL = ""
             if message.syncState == .synced {
-                let fileInfo = message.getFileInfo()
-                let fileExtension = fileInfo?.attributes["extension"] as? String ?? ""
+                
+                guard let fileInfo = message.getFileInfo() else { return }
+                
+                fileURL = fileInfo.fileURL
+                let fileExtension = fileInfo.attributes["extension"] as? String ?? ""
                 fileName += ".\(fileExtension)"
             } else {
-                let fileInfo = message.getFileInfo()
-                fileName = fileInfo?.fileName ?? ""
+                
+                guard let fileInfo = message.getFileInfo(), let absURL = URL(string: fileInfo.fileURL) else { return }
+                fileName = fileInfo.fileName
+                
+                let fileURL = URL(fileURLWithPath: absURL.path)
+                
+                completion(fileURL)
+                return
             }
             
             Log.add(info: "File Name: \(fileName)")
@@ -544,7 +545,7 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
             let cacheDirectory = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
             let destination = cacheDirectory.appendingPathComponent(fileName)
             
-            downloadData(message: message, destination: destination) { (fileURL) in
+            downloadData(fileURL: fileURL, destination: destination) { (fileURL) in
                 completion(fileURL)
             }
             
@@ -553,30 +554,21 @@ final class EkoMessagesTableViewController: UITableViewController, DataSourceLis
         }
     }
     
-    func downloadData(message: EkoMessage, destination: URL, completion: @escaping (URL) -> Void) {
-        messageRepository?.downloadFile(for: message, completion: { (data, error) in
-            if let err = error {
-                Log.add(info: "Error occurred while downloading \(err)")
-                return
-            }
+    func downloadData(fileURL: String, destination: URL, completion: @escaping (URL) -> Void) {
+        fileRepo.downloadFile(fromURL: fileURL) { (url, error) in
             
-            guard let audioData = data else {
+            guard let downloadedURL = url else {
                 Log.add(info: "Media data not found")
                 return
             }
             
-            do {
-                try audioData.write(to: destination)
-                completion(destination)
-            } catch {
-                Log.add(info: "Error when writing media data")
-            }
-        })
+            completion(downloadedURL)
+        }
     }
     
 }
 
-extension EkoFileData {
+extension AmityFileData {
     
     var fileName: String {
         return self.attributes["name"] as? String ?? ""

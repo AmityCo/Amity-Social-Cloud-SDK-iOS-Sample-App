@@ -6,19 +6,19 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import EkoChat
+import AmitySDK
 
 final class ChannelTagsDataSource {
-    private unowned var client: EkoClient
+    private unowned var client: AmityClient
     private let channelId: String
 
     weak var dataSourceObserver: DataSourceListener?
 
-    private var membershipsCollection: EkoCollection<EkoChannelMembership>?
-    private var channelObject: EkoObject<EkoChannel>?
-    private var channelToken: EkoNotificationToken?
+    private var membershipsCollection: AmityCollection<AmityChannelMember>?
+    private var channelObject: AmityObject<AmityChannel>?
+    private var channelToken: AmityNotificationToken?
 
-    init(client: EkoClient, channelId: String) {
+    init(client: AmityClient, channelId: String) {
         self.client = client
         self.channelId = channelId
 
@@ -26,11 +26,11 @@ final class ChannelTagsDataSource {
     }
 
     private func setupObserver() {
-        let channelRepository: EkoChannelRepository = EkoChannelRepository(client: client)
+        let channelRepository: AmityChannelRepository = AmityChannelRepository(client: client)
         channelObject = channelRepository.getChannel(channelId)
 
-        guard let channel: EkoChannel = channelObject?.object else { return }
-        membershipsCollection = channel.participation.memberships
+        guard let channel: AmityChannel = channelObject?.object else { return }
+        membershipsCollection = channel.participation.getMembers(filter: .all, sortBy: .lastCreated, roles: [])
 
         channelToken = channelObject?.observe { [weak self] _, _ in
             self?.dataSourceObserver?.didUpdateDataSource()
@@ -44,7 +44,7 @@ final class ChannelTagsDataSource {
     func tag(for indexPath: IndexPath) -> String? {
         guard
             numberOfTags() > indexPath.row,
-            let channel: EkoChannel = channelObject?.object else { return nil }
+            let channel: AmityChannel = channelObject?.object else { return nil }
 
         return (channel.tags as? [String])?[indexPath.row]
     }

@@ -13,7 +13,7 @@ struct CommunityMember: Identifiable {
     var title: String
     var roles: String = ""
     
-    init(member: EkoCommunityMembership) {
+    init(member: AmityCommunityMember) {
         id = member.userId
         title = member.displayName
         if let memberRoles = member.roles as? [String], !memberRoles.isEmpty {
@@ -25,10 +25,10 @@ struct CommunityMember: Identifiable {
 class CommunityMemberViewModel: ObservableObject {
     
     let communityId: String
-    let commParticipation: EkoCommunityParticipation
-    let commModeration: EkoCommunityModeration
+    let commParticipation: AmityCommunityParticipation
+    let commModeration: AmityCommunityModeration
     
-    var token: EkoNotificationToken?
+    var token: AmityNotificationToken?
     var roleToFilter: String = ""
     
     @Published var roleUpdateStatus = ""
@@ -37,8 +37,8 @@ class CommunityMemberViewModel: ObservableObject {
     
     init(communityId: String) {
         self.communityId = communityId
-        self.commParticipation = EkoCommunityParticipation(client: EkoManager.shared.client!, andCommunityId: communityId)
-        self.commModeration = EkoCommunityModeration(client: EkoManager.shared.client!, andCommunity: communityId)
+        self.commParticipation = AmityCommunityParticipation(client: AmityManager.shared.client!, andCommunityId: communityId)
+        self.commModeration = AmityCommunityModeration(client: AmityManager.shared.client!, andCommunity: communityId)
     }
     
     func addRole(role: String, userId: String) {
@@ -53,8 +53,8 @@ class CommunityMemberViewModel: ObservableObject {
         }
     }
     
-    func checkPermission(permission: EkoPermission) {
-        EkoManager.shared.client?.hasPermission(permission, forCommunity: communityId, completion: { [weak self] hasPermission in
+    func checkPermission(permission: AmityPermission) {
+        AmityManager.shared.client?.hasPermission(permission, forCommunity: communityId, completion: { [weak self] hasPermission in
             self?.permissionStatus = hasPermission ? "Permission: True" : "Permission: False"
         })
     }
@@ -65,7 +65,7 @@ class CommunityMemberViewModel: ObservableObject {
     }
     
     func fetchMembers(roles: [String]) {
-        self.token = self.commParticipation.getMemberships(.all, roles: roles, sortBy: .lastCreated).observe({ [weak self] (collection,_, error) in
+        self.token = self.commParticipation.getMembers(filter: .all, roles: roles, sortBy: .lastCreated).observe({ [weak self] (collection,_, error) in
             
             var list = [CommunityMember]()
             for i in 0..<collection.count() {
@@ -84,7 +84,7 @@ class CommunityMemberViewModel: ObservableObject {
     }
 }
 
-extension EkoPermission {
+extension AmityPermission {
     
     var identifier: String {
         switch (self) {

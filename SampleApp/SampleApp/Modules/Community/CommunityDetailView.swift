@@ -6,6 +6,7 @@
 //  Copyright © 2020 David Zhang. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 
 struct CommunityDetailView: View {
@@ -17,8 +18,10 @@ struct CommunityDetailView: View {
     }
     
     var body: some View {
-        VStack {
+        ScrollView {
             HeaderCard(isCreator: viewModel.community.isCreator,communityId: viewModel.community.communityId, image: Image("comm_header"), membersCount: viewModel.community.membersCount, displayName: viewModel.community.displayName, description: viewModel.community.description, postCount: viewModel.community.postsCount, isOfficial: viewModel.community.isOfficial, tags: viewModel.community.tags).padding()
+            
+            NotificationPanelView(viewModel: viewModel)
             
             Button(action: {
                 self.viewModel.queryFeed(sort: .lastCreated)
@@ -38,6 +41,9 @@ struct CommunityDetailView: View {
             }
         }
         .navigationBarTitle("Detail", displayMode: .inline)
+        .onAppear {
+            viewModel.queryNotificationSetting()
+        }
     }
 }
 
@@ -120,6 +126,86 @@ struct HeaderCard: View {
             }
             .padding(12)
         }
+        .background(Color.white)
+        .cornerRadius(15)
+        .shadow(color: Color.black.opacity(0.2), radius: 7, x: 0, y: 2)
+    }
+}
+
+struct NotificationPanelView: View {
+    
+    @State private var cancellables = Set<AnyCancellable>()
+    
+    @ObservedObject private var viewModel: CommunityDetailViewModel
+    @State private var isEnabled: Bool = false
+    @State private var toggleStatus: [Bool] = []
+    @State private var isModeratorRole: Bool = false
+    @State private var isLoaded = false
+    
+    var events: [CommunityNotificationEvent] {
+        return viewModel.communityNotification?.events
+            .filter({ $0.isNetworkEnabled }) ?? []
+    }
+    
+    init(viewModel: CommunityDetailViewModel) {
+        self.viewModel = viewModel
+    }
+    
+    var body: some View {
+        DispatchQueue.main.async {
+            viewModel.$communityNotification
+                .sink(receiveValue: {
+                    isEnabled = $0?.isPushEnabled ?? false
+                    toggleStatus =  $0?.events.map { $0.isPushEnabled } ?? []
+                    if $0?.events != nil && !isLoaded {
+                        isModeratorRole = $0?.events.first(where: { $0.eventType == .postCreated })?.roles.contains("moderator") ?? false
+                        isLoaded = true
+                    }
+                })
+                .store(in: &cancellables)
+        }
+        
+        return VStack(alignment: .center, spacing: 6) {
+            
+            Text("Notification settings").bold()
+            Toggle("Notifications", isOn: $isEnabled)
+            
+            ForEach(0..<events.count, id: \.self) { index in
+                if events[index].eventType == .postCreated {
+                    VStack {
+                        Toggle(events[index].tittle, isOn: $toggleStatus[index])
+                        Button(action: {
+                            isModeratorRole.toggle()
+                        }) {
+                            let roleTitle = isModeratorRole ? "Only Moderator" : "Everyone"
+                            Text(roleTitle)
+                        }
+                    }.padding(.bottom)
+                } else {
+                    Toggle(events[index].tittle, isOn: $toggleStatus[index])
+                }
+            }
+            
+            Button("Save Settings") {
+                var updatedEvents: [AmityCommunityNotificationEvent] = []
+                for index in 0..<events.count {
+                    
+                    var rolFilter: AmityRoleFilter? = nil
+                    if events[index].eventType == .postCreated {
+                        let roleIds = isModeratorRole ? ["moderator"] : []
+                        rolFilter = .onlyFilter(withRoleIds: roleIds)
+                    }
+                    let event = AmityCommunityNotificationEvent(eventType: events[index].eventType, isEnabled: toggleStatus[index], roleFilter: rolFilter)
+                    updatedEvents.append(event)
+                }
+                viewModel.updateNoticommunityRepositoryzfication(isPushEnabled: isEnabled, events: updatedEvents)
+            }
+            .padding(4)
+            .background(Color.green)
+            .foregroundColor(.white)
+            .cornerRadius(8)
+        }
+        .padding()
         .background(Color.white)
         .cornerRadius(15)
         .shadow(color: Color.black.opacity(0.2), radius: 7, x: 0, y: 2)

@@ -19,22 +19,35 @@ class MainTabViewController: UITabBarController {
     
     func setupTabControllers() {
         
-        // Alternate environment
-        if !UserDefaults.standard.isStagingEnvironment, let domainKey = UserDefaults.standard.apiDomainKey, !domainKey.isEmpty {
-            Log.add(info: "*** CUSTOM ENVIRONMENT ***")
-            Log.add(info: ">>> Setting Domain Key: \(domainKey)")
-            EkoClient.setDomainKey(domainKey)
-        } else {
-            Log.add(info: "*** STAGING ENVIRONMENT ***")
-        }
-        
-        guard let apiKey: String = UserDefaults.standard.currentApiKey, let client = EkoClient(apiKey: apiKey) else {
+        guard let apiKey: String = UserDefaults.standard.currentApiKey else {
             assertionFailure("API Key not found")
             return
         }
         
+        var client: AmityClient
+        if let customHttpEndpoint = UserDefaults.standard.customHttpEndpoint, let customSocketEndpoint = UserDefaults.standard.customSocketEndpoint {
+                        
+            client = AmityClient(apiKey: apiKey, httpUrl: customHttpEndpoint, socketUrl: customSocketEndpoint)!
+            Log.add(info: "AmityClient setup with custom endpoints: http: \(customHttpEndpoint), socket: \(customSocketEndpoint)")
+        } else {
+            client = AmityClient(apiKey: apiKey)!
+            Log.add(info: "AmityClient setup with default endpoints")
+        }
+        
         // Put client to manager
-        EkoManager.setClient(client: client)
+        AmityManager.setClient(client: client)
+        
+        if let token = UserDefaults.standard.deviceToken, (UserDefaults.standard.isRegisterdForPushNotification ?? true) {
+            let pushNotificationManager =  PushNotificationRegistrationManager(client: client)
+            pushNotificationManager.register(token: token) { (result) in
+                switch result {
+                case .success:
+                    Log.add(info: "✅ Device is registered: \(token)")
+                case .failure(let error):
+                    Log.add(info: "🛑 Failed to register: \(error.localizedDescription)")
+                }
+            }
+        }
         
         // Home Screen
         let homeStoryboard = UIStoryboard(name: "Home", bundle: nil)
@@ -124,7 +137,7 @@ class MainTabViewController: UITabBarController {
         testController.tabBarItem = UITabBarItem(title: "Test", image: UIImage(systemName: "note"), tag: 4)
         
         // Tabs
-        var controllers = [homeController, postListController, userListOptionController, communitiesListController]
+        var controllers = [homeController, postListController, userListOptionController, communitiesListController, testController]
         controllers = controllers.map{
             
             let navController = UINavigationController(rootViewController: $0)

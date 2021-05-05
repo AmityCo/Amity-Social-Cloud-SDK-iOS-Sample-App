@@ -1,20 +1,20 @@
 //
-//  EkoMessagesTableViewController.swift
+//  AmityMessagesTableViewController.swift
 //  SampleApp
 //
 //  Created by Federico Zanetello on 5/13/19.
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import EkoChat
+import AmitySDK
 
 private let kContentOffsetY: CGFloat = 10
 private let kContentOffsetX: CGFloat = 0
 
-final class EkoCommentsTableViewController: UITableViewController, DataSourceListener {
-    typealias EkoComment = EkoMessage
+final class AmityCommentsTableViewController: UITableViewController, DataSourceListener {
+    typealias AmityComment = AmityMessage
     // to be injected.
-    @objc var client: EkoClient!
+    @objc var client: AmityClient!
     @objc var channelId: String!
     weak var delegate: CommentsDelegate?
     private var dataSource: CommentsDataSource?
@@ -22,12 +22,9 @@ final class EkoCommentsTableViewController: UITableViewController, DataSourceLis
     var parentId: String?
 
     private func observeComments() {
-        let commentsRepository = EkoMessageRepository(client: client)
-        let commentsCollection: EkoCollection<EkoComment>
-        commentsCollection = commentsRepository.messages(withChannelId: channelId,
-                                                         filterByParentId: true,
-                                                         parentId: parentId,
-                                                         reverse: true)
+        let commentsRepository = AmityMessageRepository(client: client)
+        let commentsCollection: AmityCollection<AmityComment>
+        commentsCollection = commentsRepository.getMessages(channelId: channelId, includingTags: [], excludingTags: [], filterByParentId: true, parentId: parentId, reverse: true)
 
         dataSource = CommentsDataSource(commentsCollection: commentsCollection)
         dataSource?.dataSourceObserver = self
@@ -61,7 +58,7 @@ final class EkoCommentsTableViewController: UITableViewController, DataSourceLis
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if
-            let comment: EkoComment = comment(for: indexPath),
+            let comment: AmityComment = comment(for: indexPath),
             let cell = tableView.dequeueReusableCell(withIdentifier: "CommentCell",
                                                      for: indexPath) as? CommentTableViewCell {
             cell.display(comment, client: client)
@@ -70,7 +67,7 @@ final class EkoCommentsTableViewController: UITableViewController, DataSourceLis
         return UITableViewCell()
     }
 
-    private func comment(for indexPath: IndexPath) -> EkoMessage? {
+    private func comment(for indexPath: IndexPath) -> AmityMessage? {
         return dataSource?.comment(for: indexPath)
     }
 

@@ -1,5 +1,5 @@
 //
-//  NSString+Eko.h
+//  NSString+Amity.h
 //  SampleApp
 //
 //  Created by Federico Zanetello on 6/15/18.

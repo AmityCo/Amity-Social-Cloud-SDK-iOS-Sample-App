@@ -1,14 +1,14 @@
 //
-//  EkoChannelType.swift
+//  AmityChannelType.swift
 //  SampleApp
 //
 //  Created by Federico Zanetello on 6/11/19.
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import EkoChat
+import AmitySDK
 
-extension EkoChannelType: CustomStringConvertible {
+extension AmityChannelType: CustomStringConvertible {
     
     public var description: String {
         switch self {
@@ -24,7 +24,7 @@ extension EkoChannelType: CustomStringConvertible {
     }
 }
 
-extension EkoChannelCreateType: CustomStringConvertible {
+extension AmityChannelCreateType: CustomStringConvertible {
     public var description: String {
         switch self {
         case .standard: return "Standard"

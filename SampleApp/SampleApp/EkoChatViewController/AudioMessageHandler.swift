@@ -129,3 +129,37 @@ class AudioMessageHandler: NSObject, AVAudioRecorderDelegate, AVAudioPlayerDeleg
         
     }
 }
+
+class ImageMessageHandler {
+    
+    public static let shared = ImageMessageHandler()
+    
+    let fileRepo = AmityFileRepository(client: AmityManager.shared.client!)
+    let imageCache = NSCache<NSString, UIImage>()
+
+    private init() {
+        // Prevent initialization
+    }
+    
+    func fetchImage(fileURL: String, completion: @escaping (UIImage?) -> Void) {
+        
+        if let image = imageCache.object(forKey: fileURL as NSString) {
+            // Image is already in the cached, just grab and show it.
+            completion(image)
+            return
+        }
+        
+        fileRepo.downloadImageAsData(fromURL: fileURL, size: .full) { [weak self] (image, size, error) in
+            
+            guard let image = image else {
+                completion(nil)
+                return
+            }
+            
+            self?.imageCache.setObject(image, forKey: fileURL as NSString)
+            
+            completion(image)
+        }
+    }
+    
+}

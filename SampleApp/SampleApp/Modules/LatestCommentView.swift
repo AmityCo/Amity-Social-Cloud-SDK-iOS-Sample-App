@@ -10,12 +10,12 @@ import SwiftUI
 
 struct LatestCommentView: View {
     @State var referenceId: String = ""
-    @State var selectedReferenceType: String = EkoCommentReferenceType.post.identifier
+    @State var selectedReferenceType: String = AmityCommentReferenceType.post.identifier
     @State var shouldIncludeReplies: Bool = false
     
     @ObservedObject var viewModel = LatestCommentViewModel()
     
-    var referenceTypes: [String] = [EkoCommentReferenceType.post.identifier, EkoCommentReferenceType.content.identifier]
+    var referenceTypes: [String] = [AmityCommentReferenceType.post.identifier, AmityCommentReferenceType.content.identifier]
     
     var body: some View {
         Form {
@@ -72,14 +72,14 @@ struct LatestCommentView_Previews: PreviewProvider {
 
 class LatestCommentViewModel: ObservableObject {
     
-    var token: EkoNotificationToken?
-    var commentRepo: EkoCommentRepository = EkoCommentRepository(client: EkoManager.shared.client!)
+    var token: AmityNotificationToken?
+    var commentRepo: AmityCommentRepository = AmityCommentRepository(client: AmityManager.shared.client!)
     
     @Published var localOutput = ""
     @Published var serverOutput = ""
     
     func getLatestComment(referenceId: String, referenceType: String, includeReplies: Bool) {
-        let actualType: EkoCommentReferenceType = EkoCommentReferenceType.post.identifier == referenceType ? .post : .content
+        let actualType: AmityCommentReferenceType = AmityCommentReferenceType.post.identifier == referenceType ? .post : .content
         token = commentRepo.getLatestComment(withReferenceId: referenceId, referenceType: actualType, includeReplies: includeReplies).observe({ (liveObject, error) in
             let dataStatus = liveObject.dataStatus.description
             

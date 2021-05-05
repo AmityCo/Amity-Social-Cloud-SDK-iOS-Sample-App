@@ -7,11 +7,11 @@
 //
 
 import Foundation
-import EkoChat
+import AmitySDK
 
 struct CommunityListModel: Identifiable, Equatable {
 
-    let communityObject: EkoCommunity
+    let communityObject: AmityCommunity
     
     static func == (lhs: CommunityListModel, rhs: CommunityListModel) -> Bool {
         return lhs.id == rhs.id
@@ -36,10 +36,10 @@ struct CommunityListModel: Identifiable, Equatable {
     let categoryIds: [String]?
     
     var isCreator: Bool {
-        return EkoManager.shared.client?.currentUserId == userId
+        return AmityManager.shared.client?.currentUserId == userId
     }
     
-    init(community: EkoCommunity) {
+    init(community: AmityCommunity) {
         communityObject = community
         communityId = community.communityId
         description = community.communityDescription
@@ -64,7 +64,7 @@ struct CommunityListModel: Identifiable, Equatable {
         Log.add(info: "User Id: \(userId) | Display Name: \(String(describing: community.user?.displayName))")
     }
     
-    func getCommunityObject() -> EkoCommunity {
+    func getCommunityObject() -> AmityCommunity {
         return communityObject
     }
 }
@@ -94,10 +94,10 @@ class CommunityListViewModel: ObservableObject {
     var type: CommunityType
     var pageTitle: String
     
-    private let communityRepository = EkoCommunityRepository(client: EkoManager.shared.client!)
+    private let communityRepository = AmityCommunityRepository(client: AmityManager.shared.client!)
     
-    private var token: EkoNotificationToken?
-    private var communityCollection: EkoCollection<EkoCommunity>?
+    private var token: AmityNotificationToken?
+    private var communityCollection: AmityCollection<AmityCommunity>?
     
     var searchKeyword: String = "" {
         didSet {
@@ -105,16 +105,16 @@ class CommunityListViewModel: ObservableObject {
         }
     }
     
-    private var filter: EkoCommunityQueryFilter = .all
-    private var sort: EkoCommunitySortOption = .lastCreated
+    private var filter: AmityCommunityQueryFilter = .all
+    private var sort: AmityCommunitySortOption = .lastCreated
     
-    private var categoryCollectionToken:EkoNotificationToken?
-    private var categoryColllection: EkoCollection<EkoCommunityCategory>?
+    private var categoryCollectionToken:AmityNotificationToken?
+    private var categoryColllection: AmityCollection<AmityCommunityCategory>?
     
     @Published var categories = [CommunityCategoryModel]()
     @Published var community: [CommunityListModel] = []
     
-    var currentSortOption: EkoCommunityCategoriesSortOption = .displayName
+    var currentSortOption: AmityCommunityCategoriesSortOption = .displayName
     var shouldIncludeDeletedCategories = false
     
     init(type: CommunityType) {
@@ -127,7 +127,7 @@ class CommunityListViewModel: ObservableObject {
         
         switch type {
         case .normal:
-            communityCollection = communityRepository.getCommunitiesWithKeyword(searchKeyword, filter: filter, sortBy: sort, categoryId: nil, includeDeleted: shouldIncludeDeletedCategories)
+            communityCollection = communityRepository.getCommunities(displayName: searchKeyword, filter: filter, sortBy: sort, categoryId: nil, includeDeleted: shouldIncludeDeletedCategories)
         case .recommended:
             communityCollection = communityRepository.getRecommendedCommunities()
         case .trending:
@@ -151,16 +151,16 @@ class CommunityListViewModel: ObservableObject {
         sortCategories(sortOption: .displayName)
     }
     
-    func sortCategories(sortOption: EkoCommunityCategoriesSortOption) {
+    func sortCategories(sortOption: AmityCommunityCategoriesSortOption) {
         self.currentSortOption = sortOption
         
         switch sortOption {
         case .displayName:
-            categoryColllection = communityRepository.getAllCategories(.displayName, includeDeleted: shouldIncludeDeletedCategories)
+            categoryColllection = communityRepository.getCategories(sortBy: .displayName, includeDeleted: shouldIncludeDeletedCategories)
         case .firstCreated:
-            categoryColllection = communityRepository.getAllCategories(.firstCreated, includeDeleted: shouldIncludeDeletedCategories)
+            categoryColllection = communityRepository.getCategories(sortBy: .firstCreated, includeDeleted: shouldIncludeDeletedCategories)
         case .lastCreated:
-            categoryColllection = communityRepository.getAllCategories(.lastCreated, includeDeleted: shouldIncludeDeletedCategories)
+            categoryColllection = communityRepository.getCategories(sortBy: .lastCreated, includeDeleted: shouldIncludeDeletedCategories)
         @unknown default:
             fatalError()
         }
@@ -196,12 +196,12 @@ class CommunityListViewModel: ObservableObject {
         self.categories = models
     }
     
-    func setSort(_ sort: EkoCommunitySortOption) {
+    func setSort(_ sort: AmityCommunitySortOption) {
         self.sort = sort
         queryCommunity()
     }
     
-    func setFilter(_ filter: EkoCommunityQueryFilter) {
+    func setFilter(_ filter: AmityCommunityQueryFilter) {
         self.filter = filter
         queryCommunity()
     }
@@ -222,7 +222,7 @@ class CommunityListViewModel: ObservableObject {
     }
     
     func joinCommunity(for community: CommunityListModel, completion: ((Bool, Error?) -> Void)?) {
-        communityRepository.joinCommunity(withCommunityId: community.communityId) { [weak self] (success, error) in
+        communityRepository.joinCommunity(withId: community.communityId) { [weak self] (success, error) in
             guard let self = self else { return }
             if let index = self.community.firstIndex(where: { $0.communityId == community.communityId }) {
                 self.community[index].isJoined = true
@@ -233,7 +233,7 @@ class CommunityListViewModel: ObservableObject {
     }
     
     func leaveCommunity(for community: CommunityListModel, completion: ((Bool, Error?) -> Void)?) {
-        communityRepository.leaveCommunity(withCommunityId: community.communityId) { [weak self] (success, error) in
+        communityRepository.leaveCommunity(withId: community.communityId) { [weak self] (success, error) in
             guard let self = self else { return }
             if let index = self.community.firstIndex(where: { $0.communityId == community.communityId }) {
                 self.community[index].isJoined = false

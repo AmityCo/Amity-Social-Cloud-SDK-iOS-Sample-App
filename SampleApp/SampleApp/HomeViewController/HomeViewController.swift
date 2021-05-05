@@ -7,10 +7,10 @@
 //
 
 import UIKit
-import EkoChat
+import AmitySDK
 import UserNotifications
 
-final class HomeViewController: UIViewController, ChannelsTableViewControllerDelegate, MoreTableViewControllerDelegate, EkoClientErrorDelegate, ChannelCreator {
+final class HomeViewController: UIViewController, ChannelsTableViewControllerDelegate, MoreTableViewControllerDelegate, AmityClientErrorDelegate, ChannelCreator {
     
     @IBOutlet private weak var displayNameButton: UIButton!
     @IBOutlet private weak var totalMessageCountLabel: UILabel!
@@ -19,9 +19,10 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
     private var totalUnreadCountObservationToken: NSKeyValueObservation?
 
     // Only place where client should be held strongly
-    var client: EkoClient!
-    lazy var channelRepository = EkoChannelRepository(client: client)
-    var channelType: EkoChannelType = .standard
+    var client: AmityClient!
+    lazy var channelRepository = AmityChannelRepository(client: client)
+    lazy var fileRepository = AmityFileRepository(client: client)
+    var channelType: AmityChannelType = .standard
     
     private var channelListViewController: ChannelListTableViewController!
     private var displayNameController: DisplayNameButtonController!
@@ -32,6 +33,7 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
     override func awakeFromNib() {
         super.awakeFromNib()
         registerForPushNotifications()
+        
     }
 
     func registerForPushNotifications() {
@@ -100,7 +102,7 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
         }
     }
 
-    private func fireNewQuery(connectionStatus: EkoConnectionStatus) {
+    private func fireNewQuery(connectionStatus: AmityConnectionStatus) {
         guard connectionStatus == .connected else { return }
         channelListViewController.fetchChannelList()
     }
@@ -111,7 +113,8 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
 
         let renameAction = UIAlertAction(title: "Rename", style: .default) { [weak self] _ in
             guard let newDisplayName: String = alertController.textFields?.first?.text else { return }
-            self?.client.setDisplayName(newDisplayName, completion: nil)
+            
+            UserUpdateManager.shared.updateDisplayName(displayName: newDisplayName, completion: nil)
         }
         alertController.addAction(renameAction)
 
@@ -147,14 +150,14 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
     
     // MARK: MoreTableViewControllerDelegate
 
-    func moreTable(_ viewController: MoreTableViewController, willChangeChannelType channelType: EkoChannelType) {
+    func moreTable(_ viewController: MoreTableViewController, willChangeChannelType channelType: AmityChannelType) {
         channelListViewController.channelType = channelType
         fireNewQuery(connectionStatus: client.connectionStatus)
     }
     
     // MARK: ChannelsTableViewControllerDelegate
 
-    func joinChannel(_ channelId: String, type: EkoChannelType, isComments: Bool) {
+    func joinChannel(_ channelId: String, type: AmityChannelType, isComments: Bool) {
         if isComments {
             joinComments(channelId: channelId, type: type)
         } else {
@@ -162,22 +165,22 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
         }
     }
 
-    private func joinChat(channelId: String, type: EkoChannelType) {
-        joinChat(storyboardIdentifier: "EkoChat",
+    private func joinChat(channelId: String, type: AmityChannelType) {
+        joinChat(storyboardIdentifier: "AmityChat",
                  channelId: channelId,
                  type: type)
     }
 
-    private func joinComments(channelId: String, type: EkoChannelType) {
-        joinChat(storyboardIdentifier: "EkoComments",
+    private func joinComments(channelId: String, type: AmityChannelType) {
+        joinChat(storyboardIdentifier: "AmityComments",
                  channelId: channelId,
                  type: type)
     }
 
-    private func joinChat(storyboardIdentifier: String, channelId: String, type: EkoChannelType) {
+    private func joinChat(storyboardIdentifier: String, channelId: String, type: AmityChannelType) {
         let storyboard = UIStoryboard(name: "Chats", bundle: nil)
         let viewController = storyboard.instantiateViewController(withIdentifier: storyboardIdentifier)
-        guard let chatViewController = viewController as? EkoChatViewController else { return }
+        guard let chatViewController = viewController as? AmityChatViewController else { return }
         chatViewController.channelId = channelId
         chatViewController.client = client
         chatViewController.joinChannel(channelId: channelId,
@@ -194,18 +197,18 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
 
     // MARK: ChannelCreator
     
-    var channelCreationToken: EkoNotificationToken?
+    var channelCreationToken: AmityNotificationToken?
     
-    func createChannel(channelId: String?, type: EkoChannelType, userIds: [String], avatar: UIImage?) {
+    func createChannel(channelId: String?, type: AmityChannelType, userIds: [String], avatar: UIImage?) {
         
         let randomId = Int.random(in: 100...9999)
         
-        var channelObject: EkoObject<EkoChannel>?
+        var channelObject: AmityObject<AmityChannel>?
         
         switch type {
         case .live:
             Log.add(info: "Creating Live channel")
-            let builder = EkoLiveChannelBuilder()
+            let builder = AmityLiveChannelBuilder()
             
             if let id = channelId {
                 builder.setId(id)
@@ -220,7 +223,7 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
         case .community:
             Log.add(info: "Creating community channel")
             
-            let builder = EkoCommunityChannelBuilder()
+            let builder = AmityCommunityChannelBuilder()
             
             if let id = channelId {
                 builder.setId(id)
@@ -235,7 +238,7 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
         case .conversation:
             Log.add(info: "Creating conversation channel")
             
-            let builder = EkoConversationChannelBuilder()
+            let builder = AmityConversationChannelBuilder()
             builder.setUserIds(userIds)
             builder.setDisplayName("my-conversation-channel_\(randomId)")
             builder.setTags(["ch-conv","ios-sdk"])
@@ -248,16 +251,21 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
         }
         
         channelCreationToken = channelObject?.observe({ [weak self] channel, error in
-            self?.channelCreationToken?.invalidate()
+            if error != nil {
+                self?.displayOkAlert(title: "Error", message: "Error while creating channel with id \(String(describing: channelId)). Channel with same id may already exist")
+            }
             
             switch channel.dataStatus {
-            case .local, .fresh:
+            case .local:
+                return
+            case .fresh:
                 // Channel is created, join it
-                self?.joinChannel(channelId: channel.object!.channelId, channelObject: channel, type: type)
+                guard let channelObject = channel.object else { return }
+                self?.joinChannel(channelId: channelObject.channelId, channelObject: channel, type: type)
                 
                 // Just showing how to set avatar. You can upload the image first and set avatar data when creating channel
                 if let avatar = avatar {
-                    self?.channelRepository.setAvatarForChannel(channel.object!.channelId, avatar: avatar, completion: nil)
+                    self?.uploadChannelAvatar(avatar: avatar, channelId: channel.object!.channelId)
                 }
                 
             case .error, .notExist:
@@ -267,13 +275,34 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
                 self?.displayOkAlert(title: "Error", message: "Error while creating channel with id \(String(describing: channelId)). Channel with same id may already exist")
             }
             
-            
+            self?.channelCreationToken?.invalidate()
         })
     }
     
-    private func joinChannel(channelId: String, channelObject: EkoObject<EkoChannel>, type: EkoChannelType) {
+    var updateToken: AmityNotificationToken?
+    func uploadChannelAvatar(avatar: UIImage, channelId: String) {
+        fileRepository.uploadImage(avatar, progress: nil) { [weak self] (imageData, error) in
+            
+            if let imageData = imageData {
+                
+                let updater = self?.channelRepository.updateChannel(channelId)
+                updater?.setAvatar(imageData)
+                self?.updateToken = updater?.update().observe({ [weak self] (liveObject, error) in
+                    
+                    guard let liveChannel = liveObject.object else { return }
+                    
+                    Log.add(info: "Channel avatar updated")
+                    
+                    self?.updateToken?.invalidate()
+                    
+                })
+            }
+        }
+    }
+    
+    private func joinChannel(channelId: String, channelObject: AmityObject<AmityChannel>, type: AmityChannelType) {
         let isCommentsChannel: Bool
-        if let channel: EkoChannel = channelObject.object, let tags: [String] = channel.tags as? [String],
+        if let channel: AmityChannel = channelObject.object, let tags: [String] = channel.tags as? [String],
             tags.contains("comments") {
             isCommentsChannel = true
         } else {
@@ -283,22 +312,22 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
         joinChannel(channelId, type: type, isComments: isCommentsChannel)
     }
 
-    // MARK: EkoClientErrorDelegate
+    // MARK: AmityClientErrorDelegate
 
     func didReceiveAsyncError(_ error: Error) {
         let error = error as NSError
         guard
-            let ekoError = EkoErrorCode(rawValue: error.code)
+            let amityError = AmityErrorCode(rawValue: error.code)
             else {
-                assertionFailure("unknown error \(error.code), please report this code to Eko")
+                assertionFailure("unknown error \(error.code), please report this code to Amity")
                 return
         }
 
-        displayAlert(for: ekoError)
+        displayAlert(for: amityError)
     }
 
-    private func displayAlert(for error: EkoErrorCode) {
-        displayOkAlert(title: "Eko Error", message: String(describing: error))
+    private func displayAlert(for error: AmityErrorCode) {
+        displayOkAlert(title: "Amity Error", message: String(describing: error))
     }
 
     private func displayOkAlert(title: String, message: String) {

@@ -9,13 +9,13 @@
 extension UserDefaults {
     typealias ChannelId = String
 
-    var filter: EkoChannelQueryFilter {
-        get { return EkoChannelQueryFilter(rawValue: filterInt) ?? .all }
+    var filter: AmityChannelQueryFilter {
+        get { return AmityChannelQueryFilter(rawValue: filterInt) ?? .all }
         set { filterInt = newValue.rawValue }
     }
     
-    var channelTypeFilter: EkoChannelType {
-        get { return EkoChannelType(rawValue: channelTypeFilterInt) ?? .standard }
+    var channelTypeFilter: AmityChannelType {
+        get { return AmityChannelType(rawValue: channelTypeFilterInt) ?? .standard }
         set { channelTypeFilterInt = newValue.rawValue }
     }
     
@@ -95,8 +95,18 @@ extension UserDefaults {
         set { set(newValue, forKey: #function) }
     }
     
-    var apiDomainKey: String? {
+    var customHttpEndpoint: String? {
         get { return string(forKey: #function) }
+        set { set(newValue, forKey: #function) }
+    }
+    
+    var customSocketEndpoint: String? {
+        get { return string(forKey: #function) }
+        set { set(newValue, forKey: #function) }
+    }
+    
+    var isRegisterdForPushNotification: Bool? {
+        get { return bool(forKey: #function) }
         set { set(newValue, forKey: #function) }
     }
 }

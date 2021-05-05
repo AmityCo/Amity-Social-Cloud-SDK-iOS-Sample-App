@@ -10,17 +10,17 @@ import Foundation
 import SwiftUI
 
 protocol MoreTableViewControllerDelegate: AnyObject {
-    func moreTable(_ viewController: MoreTableViewController, willChangeChannelType channelType: EkoChannelType)
+    func moreTable(_ viewController: MoreTableViewController, willChangeChannelType channelType: AmityChannelType)
 }
 
 final class MoreTableViewController: UITableViewController {
     /// To be injected.
-    weak var client: EkoClient!
+    weak var client: AmityClient!
     weak var delegate: MoreTableViewControllerDelegate?
 
-    private var channelRepository: EkoChannelRepository?
+    private var channelRepository: AmityChannelRepository?
     
-    private var createToken: EkoNotificationToken?
+    private var createToken: AmityNotificationToken?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,11 +30,10 @@ final class MoreTableViewController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
         switch segue.destination {
-        case let userPushNotificationsTableViewController as UserPushNotificationsTableViewController:
-            userPushNotificationsTableViewController.client = client
-        case let pushNotificationsViewController as PushNotificationsTableViewController:
-            let userPushNotificationManager = UserLevelPushNotificationManager(client: client)
-            pushNotificationsViewController.pushNotificationManager = userPushNotificationManager
+        case let userPushNotificationsViewController as UserLevelPushNotificationsTableViewController:
+            userPushNotificationsViewController.client = client
+        case let notificationRegistrationTableViewController as NotificationRegistrationTableViewController:
+            notificationRegistrationTableViewController.client = client
         default:
             break
         }
@@ -60,18 +59,12 @@ final class MoreTableViewController: UITableViewController {
         alertController.addTextField { textField in
             textField.placeholder = "Type the meta here"
         }
-        let addAction = UIAlertAction(title: "Update",
-                                      style: .default) { [weak self] _ in
-                                        guard
-                                            let meta = alertController
-                                                .textFields?
-                                                .first?
-                                                .text,
-                                            !meta.isEmpty else { return }
-                                        let data = [
-                                            "meta": meta
-                                        ]
-                                        self?.client.setUserMetadata(data, completion: nil)
+        let addAction = UIAlertAction(title: "Update", style: .default) { action in
+            guard let meta = alertController.textFields?.first?.text, !meta.isEmpty else { return }
+            let data = [
+                "meta": meta
+            ]
+            UserUpdateManager.shared.updateMetadata(metadata: data, completion: nil)
         }
         alertController.addAction(addAction)
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)

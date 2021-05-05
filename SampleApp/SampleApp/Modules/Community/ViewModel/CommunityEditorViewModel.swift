@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import EkoChat
+import AmitySDK
 
 struct CommunityDraft: Codable {
     let identifier: String?
@@ -52,8 +52,8 @@ protocol EditorViewModel: ObservableObject {
 // Concrete implementor
 class CommunityEditorViewModel: EditorViewModel, CommunityEditorDatasource, CommunityEditorAction {
         
-    private let communityRepository = EkoCommunityRepository(client: EkoManager.shared.client!)
-    private let fileRepository = EkoFileRepository(client: EkoManager.shared.client!)
+    private let communityRepository = AmityCommunityRepository(client: AmityManager.shared.client!)
+    private let fileRepository = AmityFileRepository(client: AmityManager.shared.client!)
     
     @Published var draft: CommunityDraft = CommunityDraft(identifier: nil, isPrivate: false, displayName: "", description: "", userIds: [], tags: [], key: "", value: "", categoryId: "")
     @Published var isEditorLoading: Bool = false
@@ -66,7 +66,7 @@ class CommunityEditorViewModel: EditorViewModel, CommunityEditorDatasource, Comm
         }
     }
     
-    func uploadAvatar(image: UIImage, completion:@escaping (EkoImageData?) -> Void) {
+    func uploadAvatar(image: UIImage, completion:@escaping (AmityImageData?) -> Void) {
         fileRepository.uploadImage(image, progress: nil) { (imageData, error) in
             completion(imageData)
         }
@@ -79,12 +79,12 @@ class CommunityEditorViewModel: EditorViewModel, CommunityEditorDatasource, Comm
         }
     }
     
-    func createCommunityWithBuilder(imageData: EkoImageData?, completion: @escaping (Bool, Error?) -> Void) {
-        let builder = EkoCommunityCreationDataBuilder()
+    func createCommunityWithBuilder(imageData: AmityImageData?, completion: @escaping (Bool, Error?) -> Void) {
+        let builder = AmityCommunityCreationDataBuilder()
         builder.setDisplayName(draft.displayName)
         var finalUserId = draft.userIds.compactMap({$0})
-        if !finalUserId.contains(EkoManager.shared.client!.currentUserId!) {
-            finalUserId.append(EkoManager.shared.client!.currentUserId!)
+        if !finalUserId.contains(AmityManager.shared.client!.currentUserId!) {
+            finalUserId.append(AmityManager.shared.client!.currentUserId!)
         }
         builder.setUserIds(finalUserId)
         builder.setCommunityDescription(draft.description)
@@ -103,7 +103,7 @@ class CommunityEditorViewModel: EditorViewModel, CommunityEditorDatasource, Comm
         }
         isEditorLoading = true
         
-        communityRepository.createCommunity(builder, completion: { (community, error) in
+        communityRepository.createCommunity(with: builder, completion: { (community, error) in
             
             self.isEditorLoading = false
             completion(true, error)
@@ -114,9 +114,9 @@ class CommunityEditorViewModel: EditorViewModel, CommunityEditorDatasource, Comm
         updateCommunityWithBuilder(imageData: nil, completion: completion)
     }
     
-    func updateCommunityWithBuilder(imageData: EkoImageData?, completion: @escaping (Bool, Error?) -> Void) {
+    func updateCommunityWithBuilder(imageData: AmityImageData?, completion: @escaping (Bool, Error?) -> Void) {
         
-        let builder = EkoCommunityUpdateDataBuilder()
+        let builder = AmityCommunityUpdateDataBuilder()
         builder.setDisplayName(draft.displayName)
         builder.setCommunityDescription(draft.description)
         builder.setIsPublic(!draft.isPrivate)

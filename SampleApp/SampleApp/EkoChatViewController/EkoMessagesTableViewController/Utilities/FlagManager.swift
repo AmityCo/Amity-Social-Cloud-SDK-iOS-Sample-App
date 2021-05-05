@@ -6,19 +6,19 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import EkoChat
+import AmitySDK
 
 final class FlagManager {
-    private let client: EkoClient
+    private let client: AmityClient
     private unowned let viewController: UIViewController
 
-    init(client: EkoClient, viewController: UIViewController) {
+    init(client: AmityClient, viewController: UIViewController) {
         self.client = client
         self.viewController = viewController
     }
 
-    func displayFlagAlertController(for message: EkoMessage) {
-        guard let user: EkoUser = message.user else { return }
+    func displayFlagAlertController(for message: AmityMessage) {
+        guard let user: AmityUser = message.user else { return }
 
         DispatchQueue.global(qos: .utility).async { [weak self] in
             let flagGroup = DispatchGroup()
@@ -29,8 +29,8 @@ final class FlagManager {
 
             DispatchQueue.main.async {
                 guard let client = self?.client else { return }
-                let userFlagger: EkoUserFlagger = .init(client: client, user: user)
-                userFlagger.isFlagByMe(completion: { isFlagByMe in
+                let userFlagger: AmityUserFlagger = .init(client: client, user: user)
+                userFlagger.isFlaggedByMe(completion: { isFlagByMe in
                     userFlagged = isFlagByMe
                     flagGroup.leave()
                 })
@@ -41,8 +41,8 @@ final class FlagManager {
             flagGroup.enter()
             DispatchQueue.main.async {
                 guard let client = self?.client else { return }
-                let messageFlagger: EkoMessageFlagger = .init(client: client, message: message)
-                messageFlagger.isFlagByMe(completion: { isFlagByMe in
+                let messageFlagger: AmityMessageFlagger = .init(client: client, message: message)
+                messageFlagger.isFlaggedByMe(completion: { isFlagByMe in
                     messageFlagged = isFlagByMe
                     flagGroup.leave()
                 })
@@ -60,8 +60,8 @@ final class FlagManager {
         }
     }
 
-    private func displayFlagAlertControlle(message: EkoMessage,
-                                           user: EkoUser,
+    private func displayFlagAlertControlle(message: AmityMessage,
+                                           user: AmityUser,
                                            userIsFlagged: Bool,
                                            messageIsFlagged: Bool) {
         let alertController = UIAlertController(title: "Actions", message: nil, preferredStyle: .alert)
@@ -83,7 +83,7 @@ final class FlagManager {
      @param message the message to un/flag
      @return the @p UITableViewRowAction
      */
-    func createFlagAction(message: EkoMessage, flagged: Bool) -> UIAlertAction {
+    func createFlagAction(message: AmityMessage, flagged: Bool) -> UIAlertAction {
         let title: String = flagTitleForMessage(flagged: flagged)
         let flagMessage = UIAlertAction(title: title, style: .default, handler: { [weak self] _ in
             self?.flagAction(message: message, flagged: flagged)
@@ -97,7 +97,7 @@ final class FlagManager {
      @param user the user to un/flag
      @return the @p UITableViewRowAction
      */
-    private func createFlagAction(user: EkoUser, flagged: Bool) -> UIAlertAction {
+    private func createFlagAction(user: AmityUser, flagged: Bool) -> UIAlertAction {
         let title: String = flagTitleForUser(flagged: flagged)
 
         let flagMessage = UIAlertAction(title: title, style: .default, handler: { [weak self] _ in
@@ -165,8 +165,8 @@ final class FlagManager {
 
      @param message the message to un/flag
      */
-    private func flagAction(message: EkoMessage, flagged: Bool) {
-        let messageFlagger = EkoMessageFlagger(client: client, message: message)
+    private func flagAction(message: AmityMessage, flagged: Bool) {
+        let messageFlagger = AmityMessageFlagger(client: client, message: message)
 
         if flagged {
             messageFlagger.unflag { success, error in
@@ -190,8 +190,8 @@ final class FlagManager {
 
      @param user the user to un/flag
      */
-    private func flagAction(user: EkoUser, flagged: Bool) {
-        let userFlagger = EkoUserFlagger(client: client, user: user)
+    private func flagAction(user: AmityUser, flagged: Bool) {
+        let userFlagger = AmityUserFlagger(client: client, user: user)
 
         if flagged {
             userFlagger.unflag { success, error in

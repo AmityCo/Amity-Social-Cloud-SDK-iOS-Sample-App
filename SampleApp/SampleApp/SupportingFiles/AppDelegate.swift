@@ -22,7 +22,15 @@ class AppDelegate: UIResponder,
                      willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
         ) -> Bool {
         UNUserNotificationCenter.current().delegate = self
-        
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                Log.add(info: "🛑 Failed to authorize: \(error.localizedDescription)")
+            } else {
+                DispatchQueue.main.async {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
+            }
+        }
         
         let controller = UIHostingController(rootView: MainContainerView())
         self.window?.rootViewController = controller

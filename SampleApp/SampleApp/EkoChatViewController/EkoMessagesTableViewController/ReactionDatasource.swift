@@ -6,15 +6,15 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import EkoChat
+import AmitySDK
 
 final class ReactionDatasource {
-    private let reactionsCollection: EkoCollection<EkoReaction>
-    private var reactionsToken: EkoNotificationToken?
+    private let reactionsCollection: AmityCollection<AmityReaction>
+    private var reactionsToken: AmityNotificationToken?
     private let reverse: Bool
     weak var dataSourceObserver: DataSourceListener?
 
-    init(reactionsCollection: EkoCollection<EkoReaction>, reverse: Bool) {
+    init(reactionsCollection: AmityCollection<AmityReaction>, reverse: Bool) {
         self.reactionsCollection = reactionsCollection
         self.reverse = reverse
 
@@ -27,7 +27,7 @@ final class ReactionDatasource {
         return Int(reactionsCollection.count())
     }
 
-    func reaction(for indexPath: IndexPath) -> EkoReaction? {
+    func reaction(for indexPath: IndexPath) -> AmityReaction? {
         let row: Int
         if reverse {
             row = numberOfReactions() - (indexPath.row + 1)

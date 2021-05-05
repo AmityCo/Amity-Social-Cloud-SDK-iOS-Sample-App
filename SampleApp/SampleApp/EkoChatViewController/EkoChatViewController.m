@@ -1,9 +1,9 @@
 //
-//  EkoChatViewController.m
+//  AmitySDKViewController.m
 //  SampleApp
 //
 //  Created by David Zhang on 3/7/18.
-//  Copyright © 2018 eko. All rights reserved.
+//  Copyright © 2018 amity. All rights reserved.
 //
 
 @import EkoChat;

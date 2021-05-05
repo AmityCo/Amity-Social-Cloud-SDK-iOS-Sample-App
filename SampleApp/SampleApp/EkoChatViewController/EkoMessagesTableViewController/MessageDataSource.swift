@@ -6,15 +6,15 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import EkoChat
+import AmitySDK
 
 final class MessageDataSource {
-    private let messagesCollection: EkoCollection<EkoMessage>
-    private var messagesToken: EkoNotificationToken?
+    private let messagesCollection: AmityCollection<AmityMessage>
+    private var messagesToken: AmityNotificationToken?
     private let reverse: Bool
     weak var dataSourceObserver: DataSourceListener?
 
-    init(messagesCollection: EkoCollection<EkoMessage>, reverse: Bool) {
+    init(messagesCollection: AmityCollection<AmityMessage>, reverse: Bool) {
         self.messagesCollection = messagesCollection
         self.reverse = reverse
 
@@ -28,7 +28,7 @@ final class MessageDataSource {
         return Int(messagesCollection.count())
     }
 
-    func message(for indexPath: IndexPath) -> EkoMessage? {
+    func message(for indexPath: IndexPath) -> AmityMessage? {
         let row: Int
         if reverse {
             row = numberOfMessages() - (indexPath.row + 1)

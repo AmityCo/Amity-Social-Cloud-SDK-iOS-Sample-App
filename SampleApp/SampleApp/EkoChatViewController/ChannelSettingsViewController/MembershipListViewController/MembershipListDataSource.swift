@@ -6,36 +6,36 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import EkoChat
+import AmitySDK
 
 final class MembershipListDataSource {
-    private unowned var client: EkoClient
+    private unowned var client: AmityClient
     private let channelId: String
 
     weak var dataSourceObserver: DataSourceListener?
 
-    private var membershipsCollection: EkoCollection<EkoChannelMembership>?
-    private var channelObject: EkoObject<EkoChannel>?
+    private var membershipsCollection: AmityCollection<AmityChannelMember>?
+    private var channelObject: AmityObject<AmityChannel>?
 
-    private var membershipsToken: EkoNotificationToken?
-    private var channelToken: EkoNotificationToken?
-    private var channelModeration: EkoChannelModeration
+    private var membershipsToken: AmityNotificationToken?
+    private var channelToken: AmityNotificationToken?
+    private var channelModeration: AmityChannelModeration
     
-    init(client: EkoClient, channelId: String) {
+    init(client: AmityClient, channelId: String) {
         self.client = client
         self.channelId = channelId
         
-        channelModeration = EkoChannelModeration(client: client, andChannel: channelId)
+        channelModeration = AmityChannelModeration(client: client, andChannel: channelId)
 
         setupObserver()
     }
 
     private func setupObserver() {
-        let channelRepository: EkoChannelRepository = EkoChannelRepository(client: client)
+        let channelRepository: AmityChannelRepository = AmityChannelRepository(client: client)
         channelObject = channelRepository.getChannel(channelId)
 
-        guard let channel: EkoChannel = channelObject?.object else { return }
-        membershipsCollection = channel.participation.memberships
+        guard let channel: AmityChannel = channelObject?.object else { return }
+        membershipsCollection = channel.participation.getMembers(filter: .all, sortBy: .lastCreated, roles: [])
 
         channelToken = channelObject?.observe { [weak self] _, _  in
             self?.dataSourceObserver?.didUpdateDataSource()
@@ -50,7 +50,7 @@ final class MembershipListDataSource {
         return Int(membershipsCollection?.count() ?? 0)
     }
 
-    func membership(for indexPath: IndexPath) -> EkoChannelMembership? {
+    func membership(for indexPath: IndexPath) -> AmityChannelMember? {
         if
             let membershipsCollection = self.membershipsCollection,
             membershipsCollection.count() > indexPath.row {
@@ -63,12 +63,12 @@ final class MembershipListDataSource {
     
     public func filterMembers(by role: String?) {
         membershipsToken?.invalidate()
-        guard let channel: EkoChannel = channelObject?.object else { return }
+        guard let channel: AmityChannel = channelObject?.object else { return }
         
         if let userRole = role {
-            membershipsCollection = channel.participation.memberships(for: .all, sortBy: .firstCreated, roles: [userRole])
+            membershipsCollection = channel.participation.getMembers(filter: .all, sortBy: .lastCreated, roles: [userRole])
         } else {
-            membershipsCollection = channel.participation.memberships
+            membershipsCollection = channel.participation.getMembers(filter: .all, sortBy: .lastCreated, roles: [])
         }
         
         membershipsToken = membershipsCollection?.observe { [weak self] _, _, _ in

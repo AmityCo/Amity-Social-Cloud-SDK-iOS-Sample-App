@@ -53,13 +53,13 @@ class UserPermissionViewModel: ObservableObject {
         self.channelId = channelId
     }
     
-    func checkPermission(permission: EkoPermission) {
+    func checkPermission(permission: AmityPermission) {
         if channelId.isEmpty {
-            EkoManager.shared.client?.hasPermission(permission, completion: { [weak self] hasPermission in
+            AmityManager.shared.client?.hasPermission(permission, completion: { [weak self] hasPermission in
                 self?.permissionStatus = hasPermission ? "Permission: True" : "Permission: False"
             })
         } else {
-            EkoManager.shared.client?.hasPermission(permission, forChannel: channelId, completion: { [weak self] hasPermission in
+            AmityManager.shared.client?.hasPermission(permission, forChannel: channelId, completion: { [weak self] hasPermission in
                 self?.permissionStatus = hasPermission ? "Permission: True" : "Permission: False"
             })
         }
@@ -68,8 +68,8 @@ class UserPermissionViewModel: ObservableObject {
 
 struct SDKPermission {
     
-    static var permissions: [EkoPermission] = {
-        let values: [EkoPermission] = [
+    static var permissions: [AmityPermission] = {
+        let values: [AmityPermission] = [
             .muteChannel,
             .closeChannel,
             .editChannel,

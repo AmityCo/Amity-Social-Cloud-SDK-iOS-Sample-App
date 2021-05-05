@@ -1,14 +1,14 @@
 //
-//  UserPushNotificationsTableViewController.swift
+//  NotificationRegistrationTableViewController.swift
 //  SampleApp
 //
 //  Created by Federico Zanetello on 6/6/19.
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-final class UserPushNotificationsTableViewController: UITableViewController {
+final class NotificationRegistrationTableViewController: UITableViewController {
     /// To be injected.
-    weak var client: EkoClient!
+    weak var client: AmityClient!
 
     lazy var pushNotificationManager = PushNotificationRegistrationManager(client: self.client)
 

@@ -7,17 +7,17 @@
 //
 
 import UIKit
-import EkoChat
+import AmitySDK
 
 private let reuseIdentifier: String = "tagCellIdentifier"
 private let addTagIdentifier: String = "addTagIdentifier"
 
 final class ChannelTagsTableViewController: UITableViewController, DataSourceListener {
-    weak var client: EkoClient!
+    weak var client: AmityClient!
     var channelId: String!
 
     private var dataSource: ChannelTagsDataSource!
-    private lazy var channelRepo: EkoChannelRepository = EkoChannelRepository(client: client)
+    private lazy var channelRepo: AmityChannelRepository = AmityChannelRepository(client: client)
 
     private enum Section: CaseIterable {
         case tagList, addTag
@@ -124,7 +124,7 @@ final class ChannelTagsTableViewController: UITableViewController, DataSourceLis
             }
             tags.append(tag)
 
-            self?.channelRepo.setTagsForChannel(channelId, tags: tags)
+            self?.updateTags(tags: tags, channelId: channelId)
         }
 
         alertController.addAction(addAction)
@@ -149,8 +149,23 @@ final class ChannelTagsTableViewController: UITableViewController, DataSourceLis
             tags.append(tag)
         }
 
-        channelRepo.setTagsForChannel(channelId, tags: tags)
+        updateTags(tags: tags, channelId: channelId)
     }
+    
+    var updateToken: AmityNotificationToken?
+    
+    func updateTags(tags: [String], channelId: String) {
+        updateToken?.invalidate()
+        
+        let channelUpdater = channelRepo.updateChannel(channelId)
+        channelUpdater.setTags(tags)
+        updateToken = channelUpdater.update().observe { [weak self] (liveObject, error) in
+            guard let channel = liveObject.object, liveObject.dataStatus == .fresh else { return }
+            
+            self?.updateToken?.invalidate()
+        }
+    }
+    
 
     // MARK: DataSourceListener
 

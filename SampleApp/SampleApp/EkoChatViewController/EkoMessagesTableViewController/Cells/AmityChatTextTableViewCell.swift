@@ -1,5 +1,5 @@
 //
-//  EkoChatTextTableViewCell.swift
+//  AmityChatTextTableViewCell.swift
 //  SampleApp
 //
 //  Created by Federico Zanetello on 4/25/19.
@@ -7,13 +7,13 @@
 //
 
 import UIKit
-import EkoChat
+import AmitySDK
 
-protocol EkoChatTextTableViewCellDelegate: AnyObject {
-    func chatTextDidReact(_ cell: EkoChatTextTableViewCell, withReaction reaction: String)
+protocol AmityChatTextTableViewCellDelegate: AnyObject {
+    func chatTextDidReact(_ cell: AmityChatTextTableViewCell, withReaction reaction: String)
 }
 
-@objc final class EkoChatTextTableViewCell: UITableViewCell, EkoChatTableViewCell {
+@objc final class AmityChatTextTableViewCell: UITableViewCell, AmityChatTableViewCell {
     @IBOutlet private weak var bubbleImageView: UIImageView!
     @IBOutlet private weak var messageLabel: UILabel!
     @IBOutlet private weak var displayNameLabel: UILabel!
@@ -21,7 +21,7 @@ protocol EkoChatTextTableViewCellDelegate: AnyObject {
     @IBOutlet private weak var messageStatusImageView: UIImageView!
     @IBOutlet private weak var likeButton: UIButton!
     
-    weak var delegate: EkoChatTextTableViewCellDelegate?
+    weak var delegate: AmityChatTextTableViewCellDelegate?
     
     // MARK: Lifecyle
         
@@ -47,9 +47,9 @@ protocol EkoChatTextTableViewCellDelegate: AnyObject {
         delegate?.chatTextDidReact(self, withReaction: "Like")
     }
     
-    // MARK: EkoChatTableViewCell
+    // MARK: AmityChatTableViewCell
 
-    func display(_ message: EkoMessage, client: EkoClient) {
+    func display(_ message: AmityMessage, client: AmityClient) {
         setState(for: message)
         setMetadata(for: message)
         setText(for: message)
@@ -57,7 +57,7 @@ protocol EkoChatTextTableViewCellDelegate: AnyObject {
         setLikeButton(for: message)
     }
         
-    private func setLikeButton(for message: EkoMessage) {
+    private func setLikeButton(for message: AmityMessage) {
         if let reactions = message.reactions as? [String: Int] {
             let containLike = reactions.contains { (key, _) -> Bool in
                 return key == "Like"
@@ -80,17 +80,17 @@ protocol EkoChatTextTableViewCellDelegate: AnyObject {
         }
     }
     
-    private func setState(for message: EkoMessage) {
+    private func setState(for message: AmityMessage) {
         setState(message.syncState)
     }
 
-    private func setState(_ state: EkoSyncState) {
+    private func setState(_ state: AmitySyncState) {
         messageStatusImageView.image = symbol(for: state)
         messageStatusImageView.tintColor = color(for: state)
     }
 
-    /// Returns a proper image for the given `EkoSyncState` instance.
-    private func symbol(for state: EkoSyncState) -> UIImage? {
+    /// Returns a proper image for the given `AmitySyncState` instance.
+    private func symbol(for state: AmitySyncState) -> UIImage? {
         switch state {
         case .default, .synced, .syncing:
             return UIImage(named: "check")
@@ -101,21 +101,21 @@ protocol EkoChatTextTableViewCellDelegate: AnyObject {
         }
     }
 
-    /// Returns a proper color for the given `EkoSyncState` instance.
-    private func color(for state: EkoSyncState) -> UIColor? {
+    /// Returns a proper color for the given `AmitySyncState` instance.
+    private func color(for state: AmitySyncState) -> UIColor? {
         switch state {
         case .default, .synced:
-            return UIColor(named: "EkoGreen")
+            return UIColor(named: "AmityGreen")
         case .syncing:
-            return UIColor(named: "EkoGray")
+            return UIColor(named: "AmityGray")
         case .error:
-            return UIColor(named: "EkoRed")
+            return UIColor(named: "AmityRed")
         @unknown default:
-            return UIColor(named: "EkoRed")
+            return UIColor(named: "AmityRed")
         }
     }
 
-    private func setText(for message: EkoMessage) {
+    private func setText(for message: AmityMessage) {
         if message.isDeleted {
             setText("Message deleted")
         } else if message.messageType == .text {
@@ -130,7 +130,7 @@ protocol EkoChatTextTableViewCellDelegate: AnyObject {
         messageLabel.text = text ?? ""
     }
 
-    private func setDisplayName(for message: EkoMessage) {
+    private func setDisplayName(for message: AmityMessage) {
         setDisplayName(message.user?.displayName)
     }
 
@@ -138,7 +138,7 @@ protocol EkoChatTextTableViewCellDelegate: AnyObject {
         displayNameLabel.text = name
     }
 
-    private func setMetadata(for message: EkoMessage) {
+    private func setMetadata(for message: AmityMessage) {
         let messageCreateDate: NSAttributedString? = createDate(for: message)
         let messageTags: NSAttributedString? = tags(for: message)
         let childMessages: NSAttributedString? = self.childMessages(for: message)
@@ -161,14 +161,14 @@ protocol EkoChatTextTableViewCellDelegate: AnyObject {
         metadataLabel.attributedText = mutableAttributedString
     }
 
-    private func createDate(for message: EkoMessage) -> NSAttributedString {
+    private func createDate(for message: AmityMessage) -> NSAttributedString {
         let createDateString: String = DateFormatter.localizedString(from: message.createdAtDate,
                                                                      dateStyle: .none,
                                                                      timeStyle: .short)
         return NSAttributedString(string: createDateString)
     }
 
-    private func tags(for message: EkoMessage) -> NSAttributedString? {
+    private func tags(for message: AmityMessage) -> NSAttributedString? {
         if let messageTags = message.tags as? [String],
             !messageTags.isEmpty {
             return attributedString(for: messageTags)
@@ -194,7 +194,7 @@ protocol EkoChatTextTableViewCellDelegate: AnyObject {
         return mutableAttributedString
     }
 
-    private func childMessages(for message: EkoMessage) -> NSAttributedString? {
+    private func childMessages(for message: AmityMessage) -> NSAttributedString? {
         if message.childrenNumber > 0 {
             let attributedTagString = NSAttributedString(string: " childs: \(message.childrenNumber) ",
                 attributes: [.backgroundColor: UIColor.black,
@@ -204,7 +204,7 @@ protocol EkoChatTextTableViewCellDelegate: AnyObject {
         return nil
     }
 
-    private func parent(for message: EkoMessage) -> NSAttributedString? {
+    private func parent(for message: AmityMessage) -> NSAttributedString? {
         if message.parentId != nil {
             return NSAttributedString(string: "🧒🏻")
         }

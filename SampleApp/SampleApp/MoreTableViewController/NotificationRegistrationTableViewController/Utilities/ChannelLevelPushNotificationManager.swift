@@ -7,10 +7,10 @@
 //
 
 final class ChannelLevelPushNotificationManager: PushNotificationsManager {
-    unowned let client: EkoClient
+    unowned let client: AmityClient
     let channelId: String
 
-    init(client: EkoClient, channelId: String) {
+    init(client: AmityClient, channelId: String) {
         self.client = client
         self.channelId = channelId
     }
@@ -18,15 +18,14 @@ final class ChannelLevelPushNotificationManager: PushNotificationsManager {
     // MARK: PushNotificationsManager
 
     func fetchCurrentState(completion: @escaping (PushNotificationState) -> Void) {
-        let channelRepository = EkoChannelRepository(client: client)
-        let pushNotificationManager = channelRepository.notificationManager(forChannelId: channelId)
+        let channelRepository = AmityChannelRepository(client: client)
+        let pushNotificationManager = channelRepository.notificationManagerForChannel(withId: channelId)
 
-        pushNotificationManager.isAllowed { isAllowed, error in
-            if let error = error {
-                Log.add(info: "🛑 error: \(error.localizedDescription)")
-                completion(.unknown)
+        pushNotificationManager.getSettings { (settings, error) in
+            if let s = settings {
+                completion(s.isEnabled ? .allowed : .disallowed)
             } else {
-                completion(isAllowed ? .allowed : .disallowed)
+                completion(.unknown)
             }
         }
     }
@@ -40,15 +39,22 @@ final class ChannelLevelPushNotificationManager: PushNotificationsManager {
     }
 
     private func setIsAllowed(_ isAllowed: Bool, completion: @escaping (Result<Bool, Error>) -> Void) {
-        let channelRepository = EkoChannelRepository(client: client)
-        let pushNotificationManager = channelRepository.notificationManager(forChannelId: channelId)
+        let channelRepository = AmityChannelRepository(client: client)
+        let pushNotificationManager = channelRepository.notificationManagerForChannel(withId: channelId)
 
-        pushNotificationManager.setIsAllowed(isAllowed) { success, error in
+        let completionHandler = { (success: Bool, error: Error?) in
             if let error = error {
                 completion(.failure(error))
             } else {
                 completion(.success(success))
             }
         }
+        
+        if isAllowed {
+            pushNotificationManager.enable(completion: completionHandler)
+        } else {
+            pushNotificationManager.disable(completion: completionHandler)
+        }
+        
     }
 }

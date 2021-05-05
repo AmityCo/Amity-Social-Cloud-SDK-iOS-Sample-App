@@ -7,15 +7,15 @@
 //
 
 import UIKit
-import EkoChat
+import AmitySDK
 
-/// Responsible to update the LED status, according to the given `EkoClient` `connectionStatus`
+/// Responsible to update the LED status, according to the given `AmityClient` `connectionStatus`
 final class ConnectionStatusLEDViewController: UIViewController {
     @IBOutlet private weak var connectionStatusUIImageView: UIImageView!
     private var observation: NSKeyValueObservation?
 
     /// To be injected.
-    var client: EkoClient!
+    var client: AmityClient!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,26 +24,26 @@ final class ConnectionStatusLEDViewController: UIViewController {
         }
     }
 
-    private func updateColor(with connectionStatus: EkoConnectionStatus) {
+    private func updateColor(with connectionStatus: AmityConnectionStatus) {
         connectionStatusUIImageView.tintColor = color(for: connectionStatus)
     }
 
-    private func color(for connectionStatus: EkoConnectionStatus) -> UIColor? {
+    private func color(for connectionStatus: AmityConnectionStatus) -> UIColor? {
         let colorName = self.colorName(for: connectionStatus)
         return UIColor(named: colorName)
     }
 
-    private func colorName(for connectionStatus: EkoConnectionStatus) -> String {
+    private func colorName(for connectionStatus: AmityConnectionStatus) -> String {
         switch connectionStatus {
         case .connected:
-            return "EkoGreen"
+            return "AmityGreen"
         case .connecting:
-            return "EkoOrange"
+            return "AmityOrange"
         case .notConnected,
              .disconnected:
             fallthrough
         @unknown default:
-            return "EkoRed"
+            return "AmityRed"
         }
     }
 }

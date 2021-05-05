@@ -13,7 +13,7 @@ class UserPostReactionsViewController: UIViewController {
     @IBOutlet weak var segmentControl: UISegmentedControl!
     @IBOutlet weak var tableView: UITableView!
     
-    var post: EkoPost?
+    var post: AmityPost?
     var feedManager: UserPostsFeedManager?
     
     override func viewDidLoad() {

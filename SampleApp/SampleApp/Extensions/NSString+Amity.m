@@ -1,12 +1,12 @@
 //
-//  NSString+Eko.m
+//  NSString+Amity.m
 //  SampleApp
 //
 //  Created by Federico Zanetello on 6/15/18.
 //  Copyright © 2018 David Zhang. All rights reserved.
 //
 
-#import "NSString+Eko.h"
+#import "NSString+Amity.h"
 
 @implementation NSString (empty)
 

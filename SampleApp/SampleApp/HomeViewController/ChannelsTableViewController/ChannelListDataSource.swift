@@ -6,20 +6,20 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import EkoChat
+import AmitySDK
 
 final class ChannelListDataSource {
     
     /*
-     EkoChannelRepository class deals with all channel related operation
+     AmityChannelRepository class deals with all channel related operation
      */
-    private let repository: EkoChannelRepository
+    private let repository: AmityChannelRepository
     
     /*
-     Bind your EkoChannel Collection to EkoNotificationToken. Retain EkoNotificationToken
+     Bind your AmityChannel Collection to AmityNotificationToken. Retain AmityNotificationToken
      */
-    private var channelsCollection: EkoCollection<EkoChannel>?
-    private var channelsToken: EkoNotificationToken? {
+    private var channelsCollection: AmityCollection<AmityChannel>?
+    private var channelsToken: AmityNotificationToken? {
         didSet {
             oldValue?.invalidate()
         }
@@ -29,40 +29,40 @@ final class ChannelListDataSource {
     weak var dataSourceObserver: DataSourceListener?
     
     
-    init(channelRepository: EkoChannelRepository) {
+    init(channelRepository: AmityChannelRepository) {
         self.repository = channelRepository
     }
     
     /*
-     This method builds the channel. Then uses EkoChannelRepository instance to fetch channel collection & observe it.
+     This method builds the channel. Then uses AmityChannelRepository instance to fetch channel collection & observe it.
      */
-    func fetchChannels(channelType: EkoChannelType, channelFilter: EkoChannelQueryFilter, includingTags: [String], excludingTags: [String], channelTypeName: Set<String> = Set(arrayLiteral: "standard", "private", "live", "community", "conversation")) {
+    func fetchChannels(channelType: AmityChannelType, channelFilter: AmityChannelQueryFilter, includingTags: [String], excludingTags: [String], channelTypeName: Set<String> = Set(arrayLiteral: "standard", "private", "live", "community", "conversation")) {
         
         switch channelType {
         case .private:
-            let builder = EkoPrivateChannelQueryBuilder(includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
-            channelsCollection = repository.channelCollection().privateType(with: builder).query()
+            let builder = AmityPrivateChannelQueryBuilder(includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
+            channelsCollection = repository.getChannels().privateType(with: builder).query()
         case .standard:
-            let builder = EkoStandardChannelQueryBuilder(channelQueryFilter: channelFilter, includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
-            channelsCollection = repository.channelCollection().standardType(with: builder).query()
+            let builder = AmityStandardChannelQueryBuilder(channelQueryFilter: channelFilter, includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
+            channelsCollection = repository.getChannels().standardType(with: builder).query()
         case .byTypes:
             let builderSet: Set<String> = channelTypeName
-            let builder = EkoByTypesChannelQueryBuilder(types: builderSet, channelQueryFilter: channelFilter, includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
-            channelsCollection = repository.channelCollection().byTypes(with: builder).query()
+            let builder = AmityByTypesChannelQueryBuilder(types: builderSet, channelQueryFilter: channelFilter, includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
+            channelsCollection = repository.getChannels().byTypes(with: builder).query()
         case .broadcast:
-            let builder = EkoBroadcastChannelQueryBuilder(channelQueryFilter: channelFilter, includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
-            channelsCollection = repository.channelCollection().broadcast(with: builder).query()
+            let builder = AmityBroadcastChannelQueryBuilder(channelQueryFilter: channelFilter, includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
+            channelsCollection = repository.getChannels().broadcast(with: builder).query()
         case .conversation:
-            let builder = EkoConversationChannelQueryBuilder(includingTags: nil, excludingTags: nil, includeDeleted: false)
-            channelsCollection = repository.channelCollection().conversation(with: builder).query()
+            let builder = AmityConversationChannelQueryBuilder(includingTags: nil, excludingTags: nil, includeDeleted: false)
+            channelsCollection = repository.getChannels().conversation(with: builder).query()
             
         case .live:
-            let builder = EkoLiveChannelQueryBuilder(includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
-            channelsCollection = repository.channelCollection().liveType(with: builder).query()
+            let builder = AmityLiveChannelQueryBuilder(includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
+            channelsCollection = repository.getChannels().liveType(with: builder).query()
             
         case .community:
-            let builder = EkoCommunityChannelQueryBuilder(filter: .userIsMember, includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
-            channelsCollection = repository.channelCollection().communityType(with: builder).query()
+            let builder = AmityCommunityChannelQueryBuilder(filter: channelFilter, includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
+            channelsCollection = repository.getChannels().communityType(with: builder).query()
             
         @unknown default:
             fatalError()
@@ -77,7 +77,7 @@ final class ChannelListDataSource {
     }
     
     /*
-     EkoCollection contains count method which returns number of channels present
+     AmityCollection contains count method which returns number of channels present
      in collection.
      */
     func numberOfChannels() -> Int {
@@ -87,7 +87,7 @@ final class ChannelListDataSource {
     /*
      Returns channels to display in UI.
      */
-    func channel(for indexPath: IndexPath) -> EkoChannel? {
+    func channel(for indexPath: IndexPath) -> AmityChannel? {
         if let channelsCollection = self.channelsCollection, channelsCollection.count() > indexPath.row {
             return channelsCollection.object(at: UInt(indexPath.row))
         } else {
@@ -97,7 +97,7 @@ final class ChannelListDataSource {
     }
     
     /*
-     EkoCollection handles pagination out of the box. Just call nextPage() or previousPage() on collection object.
+     AmityCollection handles pagination out of the box. Just call nextPage() or previousPage() on collection object.
      */
     func fetchMoreChannels() {
         channelsCollection?.nextPage()

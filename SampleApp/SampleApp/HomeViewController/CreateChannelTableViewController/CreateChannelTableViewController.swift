@@ -7,14 +7,14 @@
 //
 
 import UIKit
-import EkoChat
+import AmitySDK
 
 protocol ChannelCreator: AnyObject {
-    func createChannel(channelId: String?, type: EkoChannelType, userIds: [String], avatar: UIImage?)
+    func createChannel(channelId: String?, type: AmityChannelType, userIds: [String], avatar: UIImage?)
 }
 
 protocol ChannelRepositoryDelegate: AnyObject {
-    func createChannel(channelId: String, type: EkoChannelCreateType, userIds: [String], avatar: UIImage?)
+    func createChannel(channelId: String, type: AmityChannelCreateType, userIds: [String], avatar: UIImage?)
     func createConversation(userId: String, avatar: UIImage?)
 }
 
@@ -22,14 +22,14 @@ final class CreateChannelTableViewController: UITableViewController, UITextField
     
     weak var channelCreator: ChannelCreator?
     
-    private let channelTypes: [EkoChannelType] = [.conversation, .live, .community]
+    private let channelTypes: [AmityChannelType] = [.conversation, .live, .community]
     
     private var channelIdTextFieldObserver: NSKeyValueObservation?
     private var userIdTextFieldObserver: [NSKeyValueObservation?] = []
     
     private var channelId: String? = ""
     private var userIds: [String] = []
-    private var selectedChannelType: EkoChannelType = .standard
+    private var selectedChannelType: AmityChannelType = .standard
     private var selectedImage: UIImage?
     private let imagePicker = UIKitImagePicker()
     

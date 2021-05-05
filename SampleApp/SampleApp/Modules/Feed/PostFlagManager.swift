@@ -10,14 +10,14 @@ import Foundation
 
 class PostFlagManager {
     
-    let client: EkoClient = EkoManager.shared.client!
-    var flagger: EkoPostFlagger?
+    let client: AmityClient = AmityManager.shared.client!
+    var flagger: AmityPostFlagger?
     
-    func flagPost(post: EkoPost?, completion:@escaping (_ isSuccess: Bool)->()) {
+    func flagPost(post: AmityPost?, completion:@escaping (_ isSuccess: Bool)->()) {
         
         guard let post = post else { return }
         
-        flagger = EkoPostFlagger(client: client, postId: post.postId)
+        flagger = AmityPostFlagger(client: client, postId: post.postId)
         flagger?.flagPost(completion: { (isSuccess, error) in
             
             if let err = error {
@@ -31,11 +31,11 @@ class PostFlagManager {
         })
     }
     
-    func unflagPost(post: EkoPost?, completion:@escaping (_ isSuccess: Bool)->()) {
+    func unflagPost(post: AmityPost?, completion:@escaping (_ isSuccess: Bool)->()) {
         
         guard let post = post else { return }
         
-        flagger = EkoPostFlagger(client: client, postId: post.postId)
+        flagger = AmityPostFlagger(client: client, postId: post.postId)
         flagger?.unflagPost(completion: { (isSuccess, error) in
             
             if let err = error {
@@ -49,11 +49,11 @@ class PostFlagManager {
         })
     }
     
-    func isPostFlaggedByMe(post: EkoPost?, completion:@escaping (_ isFlagged: Bool) -> ()) {
+    func isPostFlaggedByMe(post: AmityPost?, completion:@escaping (_ isFlagged: Bool) -> ()) {
         
         guard let post = post else { return }
         
-        flagger = EkoPostFlagger(client: client, postId: post.postId)
+        flagger = AmityPostFlagger(client: client, postId: post.postId)
         flagger?.isPostFlaggedByMe(completion: { (isFlagged) in
             completion(isFlagged)
         })

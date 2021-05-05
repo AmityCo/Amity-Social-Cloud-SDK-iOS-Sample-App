@@ -1,14 +1,14 @@
 //
-//  EkoErrorCode.swift
+//  AmityErrorCode.swift
 //  SampleApp
 //
 //  Created by Federico Zanetello on 6/11/19.
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import EkoChat
+import AmitySDK
 
-extension EkoErrorCode: CustomStringConvertible {
+extension AmityErrorCode: CustomStringConvertible {
     public var description: String {
         switch self {
         case .business: return "BusinessError"

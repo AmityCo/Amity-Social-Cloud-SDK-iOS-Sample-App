@@ -185,7 +185,7 @@ extension UserPostsFeedViewController: UITableViewDataSource, UITableViewDelegat
                 let data = feedManager.getFeedItemFileData(at: indexPath.section)
                 cell.imageCountLabel.text = "\(data.count) Files"
                 
-                Log.add(info: "Extracted File id: \(data.fileId)")
+                Log.add(info: "Extracted File id: \(data.fileURL)")
                 
                 // Download file Here...
                 
@@ -197,9 +197,9 @@ extension UserPostsFeedViewController: UITableViewDataSource, UITableViewDelegat
                 cell.imageCountLabel.text = "\(data.count) images"
                 
                 //let imageId = data.imageInfo.first?["fileId"] as? String ?? ""
-                Log.add(info: "Extracted image id: \(data.fileId)")
+                Log.add(info: "Extracted image id: \(data.fileURL)")
                 
-                feedManager.downloadImage(fileId: data.fileId) { image in
+                feedManager.downloadImage(fileUrl: data.fileURL) { image in
                     cell.imageView1.image = image
                 }
                 
@@ -225,6 +225,14 @@ extension UserPostsFeedViewController: UITableViewDataSource, UITableViewDelegat
             
             cell.loveButtonAction = { [weak self] in
                 self?.executeFeedAction(action: FeedItemDefaultAction.love, at: indexPath.section)
+            }
+            
+            return cell
+        case .comments:
+            let cell = tableView.dequeueReusableCell(withIdentifier: FeedPostCommentsCell.identifier) as! FeedPostCommentsCell
+            
+            if let comments = feedManager.getCommentsData(at: indexPath.section) {
+                cell.setData(model: comments)
             }
             
             return cell
@@ -384,7 +392,7 @@ extension UserPostsFeedViewController {
         }
     }
     
-    func displayIndividualPost(post: EkoPost?) {
+    func displayIndividualPost(post: AmityPost?) {
         
         let newFeedManager = UserPostsFeedManager(client: feedManager.client, userId: feedManager.userId, userName: feedManager.userName)
         newFeedManager.feedType = .singlePost

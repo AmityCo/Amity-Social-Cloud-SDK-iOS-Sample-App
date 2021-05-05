@@ -10,29 +10,29 @@ import Foundation
 
 class UserListManager {
     
-    let client: EkoClient
-    let userRepository: EkoUserRepository
+    let client: AmityClient
+    let userRepository: AmityUserRepository
     
-    var userCollection: EkoCollection<EkoUser>?
-    var userCollectionToken: EkoNotificationToken?
+    var userCollection: AmityCollection<AmityUser>?
+    var userCollectionToken: AmityNotificationToken?
     
-    var searchCollection: EkoCollection<EkoUser>?
-    var searchCollectionToken: EkoNotificationToken?
+    var searchCollection: AmityCollection<AmityUser>?
+    var searchCollectionToken: AmityNotificationToken?
     
     var isInSearchMode = false
     var searchText = ""
-    var sortOption: EkoUserSortOption = .displayName
+    var sortOption: AmityUserSortOption = .displayName
     
     let debouncer = Debouncer(delay: 0.3)
-    var searchedUsers = [EkoUser]()
+    var searchedUsers = [AmityUser]()
     
-    init(client: EkoClient) {
+    init(client: AmityClient) {
         self.client = client
-        self.userRepository = EkoUserRepository(client: client)
+        self.userRepository = AmityUserRepository(client: client)
     }
     
-    func fetchUserList(sortedBy option: EkoUserSortOption, completion:@escaping ()->()) {
-        userCollection = userRepository.getAllUsersSorted(by: option)
+    func fetchUserList(sortedBy option: AmityUserSortOption, completion:@escaping ()->()) {
+        userCollection = userRepository.getUsers(option)
         userCollectionToken = userCollection?.observe({ (collection, change, error) in
             guard !self.isInSearchMode else { return }
 
@@ -68,7 +68,7 @@ class UserListManager {
     
     func populateSearchedUsers(completion:@escaping ()->()) {
         
-        var results = [EkoUser]()
+        var results = [AmityUser]()
         for i in 0..<searchCollection!.count() {
             guard let item = searchCollection!.object(at: UInt(i)) else { continue }
             results.append(item)
@@ -88,7 +88,7 @@ class UserListManager {
         }
     }
     
-    func getUserItem(at index: Int) -> EkoUser? {
+    func getUserItem(at index: Int) -> AmityUser? {
         if isInSearchMode {
             return searchedUsers[index]
         } else {

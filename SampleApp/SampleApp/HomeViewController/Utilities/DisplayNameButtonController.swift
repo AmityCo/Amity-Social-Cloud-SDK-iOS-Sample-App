@@ -8,30 +8,30 @@
 
 import Foundation
 
-/// Updates the given `UIButton` `titleLabel` based on the given `EkoUser`
+/// Updates the given `UIButton` `titleLabel` based on the given `AmityUser`
 final class DisplayNameButtonController {
     private unowned let displayNameButton: UIButton
-    private var token: EkoNotificationToken?
+    private var token: AmityNotificationToken?
 
-    init(displayNameButton: UIButton, userObject: EkoObject<EkoUser>) {
+    init(displayNameButton: UIButton, userObject: AmityObject<AmityUser>) {
         self.displayNameButton = displayNameButton
     }
 
-    /// Injects the `EkoUser` to observe for `displayName` changes.
+    /// Injects the `AmityUser` to observe for `displayName` changes.
     ///
     /// - note: This method must be called everytime a new user session starts.
-    ///     This is because the `EkoUser` instance is replaced after logging in/out,
-    ///     therefore observing an old `EkoUser` object won't get any event regarding
-    ///     the new logged-in `EkoUser` object.
+    ///     This is because the `AmityUser` instance is replaced after logging in/out,
+    ///     therefore observing an old `AmityUser` object won't get any event regarding
+    ///     the new logged-in `AmityUser` object.
     /// - Parameter userObject: The user to observe
-    func observe(userObject: EkoObject<EkoUser>?) {
+    func observe(userObject: AmityObject<AmityUser>?) {
         token = userObject?.observe { [weak self] userObject, _ in
-            guard let user: EkoUser = userObject.object else { return }
+            guard let user: AmityUser = userObject.object else { return }
             self?.updateTitle(with: user)
         }
     }
 
-    private func updateTitle(with user: EkoUser) {
+    private func updateTitle(with user: AmityUser) {
         let titleText = title(displayName: user.displayName, userId: user.userId)
         displayNameButton.setTitle(titleText, for: .normal)
     }

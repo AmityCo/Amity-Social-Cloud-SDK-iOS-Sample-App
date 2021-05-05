@@ -10,7 +10,7 @@ import UIKit
 
 class UserPostCommentsViewController: UIViewController, UITextFieldDelegate {
     
-    var client: EkoClient?
+    var client: AmityClient?
     var commentManager: UserPostCommentManager!
     
     @IBOutlet weak var tableView: UITableView!

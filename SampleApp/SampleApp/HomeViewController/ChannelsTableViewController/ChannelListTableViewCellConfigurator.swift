@@ -7,11 +7,11 @@
 //
 
 import Foundation
-import EkoChat
+import AmitySDK
 
 final class ChannelListTableViewCellConfigurator {
     
-    func configure(_ cell: SampleAppTableViewCell, with channel: EkoChannel) {
+    func configure(_ cell: SampleAppTableViewCell, with channel: AmityChannel) {
         setTitleLabel(for: cell, with: channel)
         setSubtitleLabel(for: cell, with: channel)
         setDetailLabel(for: cell, with: channel)
@@ -19,13 +19,13 @@ final class ChannelListTableViewCellConfigurator {
     
     // MARK: Title
     
-    private func setTitleLabel(for cell: SampleAppTableViewCell, with channel: EkoChannel) {
+    private func setTitleLabel(for cell: SampleAppTableViewCell, with channel: AmityChannel) {
         cell.titleLabel.text = channel.displayName ?? channel.channelId
     }
     
     // MARK: Subtitle
     
-    private func setSubtitleLabel(for cell: SampleAppTableViewCell, with channel: EkoChannel) {
+    private func setSubtitleLabel(for cell: SampleAppTableViewCell, with channel: AmityChannel) {
         guard let channelTags = channel.tags as? [String] else { return }
         let tagsAttributedString: NSAttributedString = attributedString(for: channelTags)
         let channelEmoji: String = emoji(for: channel.channelType)
@@ -51,13 +51,13 @@ final class ChannelListTableViewCellConfigurator {
         return mutableAttributedString
     }
     
-    private func emoji(for channelType: EkoChannelType) -> String {
+    private func emoji(for channelType: AmityChannelType) -> String {
         return "Type: \(channelType.description)"
     }
     
     // MARK: Detail
     
-    private func setDetailLabel(for cell: SampleAppTableViewCell, with channel: EkoChannel) {
+    private func setDetailLabel(for cell: SampleAppTableViewCell, with channel: AmityChannel) {
         let detailText: String
         if
             channel.currentUserMembership == .member,
@@ -71,7 +71,7 @@ final class ChannelListTableViewCellConfigurator {
     }
 }
 
-extension EkoChannelMembershipType: CustomStringConvertible {
+extension AmityChannelMembershipType: CustomStringConvertible {
     public var description: String {
         switch self {
         case .banned: return "banned"

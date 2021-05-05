@@ -1,5 +1,5 @@
 //
-//  EkoCustomViewController.swift
+//  AmityCustomViewController.swift
 //  SampleApp
 //
 //  Created by Michael Abadi Santoso on 10/18/19.
@@ -8,14 +8,14 @@
 
 import UIKit
 
-protocol EkoCustomViewControllerDelegate: AnyObject {
-    func ekoCustom(_ viewController: EkoCustomViewController, willSendCustomDataWithData data: [String: Any])
-    func ekoCustom(_ viewController: EkoCustomViewController, willUpdateCustomDataWithData data: [String: Any], onMessage message: EkoMessage?)
+protocol AmityCustomViewControllerDelegate: AnyObject {
+    func amityCustom(_ viewController: AmityCustomViewController, willSendCustomDataWithData data: [String: Any])
+    func amityCustom(_ viewController: AmityCustomViewController, willUpdateCustomDataWithData data: [String: Any], onMessage message: AmityMessage?)
     
-    func ekoCustom(_ viewController: EkoCustomViewController, willSendVoiceMessageWithData data: Data, fileName: String)
+    func amityCustom(_ viewController: AmityCustomViewController, willSendVoiceMessageWithData audioFileURL: URL, fileName: String)
 }
 
-final class EkoCustomViewController: UIViewController {
+final class AmityCustomViewController: UIViewController {
 
     @IBOutlet private weak var keyField: UITextField!
     @IBOutlet private weak var valueField: UITextField!
@@ -26,9 +26,9 @@ final class EkoCustomViewController: UIViewController {
     @IBOutlet weak var playRecordButton: UIButton!
     @IBOutlet weak var sendRecordButton: UIButton!
     
-    weak var delegate: EkoCustomViewControllerDelegate?
+    weak var delegate: AmityCustomViewControllerDelegate?
     
-    private var message: EkoMessage?
+    private var message: AmityMessage?
     
     let audioHandler = AudioMessageHandler()
     
@@ -94,10 +94,10 @@ final class EkoCustomViewController: UIViewController {
             let audioData = try? Data(contentsOf: audioURL) else { return }
         
         let fileName = audioURL.lastPathComponent
-        delegate?.ekoCustom(self, willSendVoiceMessageWithData: audioData, fileName: fileName)
+        delegate?.amityCustom(self, willSendVoiceMessageWithData: audioURL, fileName: fileName)
     }
     
-    func setMessage(message: EkoMessage) {
+    func setMessage(message: AmityMessage) {
         self.message = message
     }
     
@@ -111,17 +111,17 @@ final class EkoCustomViewController: UIViewController {
         ]
         
         if let message = message {
-            delegate?.ekoCustom(self, willUpdateCustomDataWithData: map, onMessage: message)
+            delegate?.amityCustom(self, willUpdateCustomDataWithData: map, onMessage: message)
             navigationController?.dismiss(animated: true, completion: nil)
         } else {
-            delegate?.ekoCustom(self, willSendCustomDataWithData: map)
+            delegate?.amityCustom(self, willSendCustomDataWithData: map)
             navigationController?.popViewController(animated: true)
         }
     }
     
     static func makeViewController() -> UIViewController {
         let sb = UIStoryboard(name: "Chats", bundle: nil)
-        let vc = sb.instantiateViewController(withIdentifier: "EkoCustomViewController")
+        let vc = sb.instantiateViewController(withIdentifier: "AmityCustomViewController")
         return vc
     }
     

@@ -13,14 +13,14 @@ final class UnreadCountLabelController {
     private let unreadCountLabel: UILabel
     private var observation: NSKeyValueObservation?
 
-    init(unreadCountLabel: UILabel, repository: EkoChannelRepository) {
+    init(unreadCountLabel: UILabel, repository: AmityChannelRepository) {
         self.unreadCountLabel = unreadCountLabel
 
         updateLabel(count: repository.totalUnreadCount)
         trackUnreadCount(repository: repository)
     }
 
-    private func trackUnreadCount(repository: EkoChannelRepository) {
+    private func trackUnreadCount(repository: AmityChannelRepository) {
         observation = repository.observe(\.totalUnreadCount) { [weak self] repository, _ in
             self?.updateLabel(count: repository.totalUnreadCount)
         }

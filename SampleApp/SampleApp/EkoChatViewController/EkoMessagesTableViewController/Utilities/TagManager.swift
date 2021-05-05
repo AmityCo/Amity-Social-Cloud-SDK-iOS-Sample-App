@@ -6,18 +6,18 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import EkoChat
+import AmitySDK
 
 final class TagManager {
-    private let client: EkoClient
+    private let client: AmityClient
     private unowned let viewController: UIViewController
 
-    init(client: EkoClient, viewController: UIViewController) {
+    init(client: AmityClient, viewController: UIViewController) {
         self.client = client
         self.viewController = viewController
     }
 
-    func displayTagAlertController(for message: EkoMessage) {
+    func displayTagAlertController(for message: AmityMessage) {
         let alertController = UIAlertController(title: "Set tags", message: "Comma separated", preferredStyle: .alert)
 
         alertController.addTextField { textField in
@@ -42,10 +42,7 @@ final class TagManager {
     }
 
     private func setTags(_ tags: [String], to messageId: String) {
-        let messageRepository = EkoMessageRepository(client: client)
-
-        messageRepository.setTagsForMessage(messageId,
-                                            tags: tags,
-                                            completion: nil)
+        let messageEditor = AmityMessageEditor(client: client, messageId: messageId)
+        messageEditor.setTags(tags, completion: nil)
     }
 }

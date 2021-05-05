@@ -63,7 +63,7 @@ final class AboutTableViewController: UITableViewController {
     /// Get the latest version at https://docs.ekomedia.technology
     private func SDKVersion() -> String? {
         guard
-            let infoDictionary: [String: Any] = Bundle(for: EkoUser.self).infoDictionary,
+            let infoDictionary: [String: Any] = Bundle(for: AmityUser.self).infoDictionary,
             let name = infoDictionary["CFBundleName"] as? String,
             let version = infoDictionary["CFBundleShortVersionString"] as? String
             else { return nil }
@@ -72,6 +72,6 @@ final class AboutTableViewController: UITableViewController {
         
     /// Returns the current user meta information.
     private func userMetaInformation() -> String? {
-        return EkoManager.shared.client?.currentUser?.object?.metadata?.description
+        return AmityManager.shared.client?.currentUser?.object?.metadata?.description
     }
 }

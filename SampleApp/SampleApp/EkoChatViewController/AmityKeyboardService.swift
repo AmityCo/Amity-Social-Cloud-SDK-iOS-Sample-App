@@ -1,5 +1,5 @@
 //
-//  EkoKeyboardService.swift
+//  AmityKeyboardService.swift
 //  SampleApp
 //
 //  Created by Federico Zanetello on 9/17/19.

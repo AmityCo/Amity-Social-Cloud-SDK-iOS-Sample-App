@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-import EkoChat
+import AmitySDK
 
 struct CommunityMemberView: View {
     

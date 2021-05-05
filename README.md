@@ -3,7 +3,7 @@
   <img src="https://global-uploads.webflow.com/5eddccffdb3c6a27f79757c1/5ff5db45969f34cbb904c786_amity-social-cloud-logo.svg" alt="Amity Social Cloud" title="Amity Social Cloud SDK">
 </p>
 
-This sample app is designed to showcase our Amity iOS SDK. 
+This sample app is designed to showcase our Amity iOS SDK. If you are checking out sample app for sdk version below 5.0.0, please follow this [Readme-Old](/README-OLD.md)
 
 
 ## Getting Started
@@ -11,7 +11,7 @@ We distribute our `EkoChat` sdk and its dependency `Realm` as an `.xcframework` 
 
 ## Installation
 
-1. Add `EkoChat.xcframework` and `Realm.xcframework` file into the sample app xcode project under `Framework, Libraries & Embedded Content` section.
+1. Add `AmitySDK.xcframework` and `Realm.xcframework` file into the sample app xcode project under `Framework, Libraries & Embedded Content` section.
 
 ![Adding frameworks to sample app project](Assets/link-framework.png)
 
@@ -19,7 +19,7 @@ We distribute our `EkoChat` sdk and its dependency `Realm` as an `.xcframework` 
 
 ## Api Key
 
-You can add your `api-key` in `info.plist` file for the sample app. Replace the content of this property `EkoChatApiKey` with your api key.
+You can add your `api-key` in `info.plist` file for the sample app. Replace the content of this property `AmityAPIKey` with your api key.
 
 
 ## License

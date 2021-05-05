@@ -10,10 +10,10 @@ import Foundation
 
 class ChannelUpdateViewModel: ObservableObject {
     
-    var channelRepo: EkoChannelRepository?
-    var fileRepo: EkoFileRepository?
+    var channelRepo: AmityChannelRepository?
+    var fileRepo: AmityFileRepository?
     
-    var token: EkoNotificationToken?
+    var token: AmityNotificationToken?
     
     @Published var channelUpdateStatus = ""
     
@@ -29,10 +29,10 @@ class ChannelUpdateViewModel: ObservableObject {
         let keys = metadataKey.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: ",")
         let values = metadataValue.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: ",")
         
-        self.channelRepo = EkoChannelRepository(client: EkoManager.shared.client!)
-        self.fileRepo = EkoFileRepository(client: EkoManager.shared.client!)
+        self.channelRepo = AmityChannelRepository(client: AmityManager.shared.client!)
+        self.fileRepo = AmityFileRepository(client: AmityManager.shared.client!)
         
-        let channelUpdater = EkoChannelUpdateBuilder(id: id, andClient: EkoManager.shared.client!)
+        let channelUpdater = AmityChannelUpdateBuilder(id: id, andClient: AmityManager.shared.client!)
         
         if shouldRemoveAvatar {
             channelUpdater.setAvatar(nil)
@@ -66,7 +66,7 @@ class ChannelUpdateViewModel: ObservableObject {
         }
     }
     
-    func updateChannel(updater: EkoChannelUpdateBuilder) {
+    func updateChannel(updater: AmityChannelUpdateBuilder) {
         token = updater.update().observe({ [weak self] (channel, error) in
             self?.token?.invalidate()
             

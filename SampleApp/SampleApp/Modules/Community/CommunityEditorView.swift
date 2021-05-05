@@ -51,8 +51,8 @@ struct CommunityEditorView<Model>: View where Model: EditorViewModel {
 
                 if !viewModel.datasource.isEditMode {
                     Section(header: Text("USER ID")) {
-                        if !viewModel.datasource.draft.userIds.contains(EkoManager.shared.client?.currentUserId ?? "Test User Id") {
-                            Text("\(EkoManager.shared.client?.currentUserId ?? "Test User Id")")
+                        if !viewModel.datasource.draft.userIds.contains(AmityManager.shared.client?.currentUserId ?? "Test User Id") {
+                            Text("\(AmityManager.shared.client?.currentUserId ?? "Test User Id")")
                         }
                         ForEach(viewModel.datasource.draft.userIds.indices, id: \.self) { index in
                             TextField("User Id", text: self.$viewModel.datasource.draft.userIds[index])

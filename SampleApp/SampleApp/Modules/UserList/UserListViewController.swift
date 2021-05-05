@@ -13,7 +13,7 @@ class UserListViewController: UIViewController, UISearchBarDelegate {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var searchBar: UISearchBar!
     
-    var client: EkoClient!
+    var client: AmityClient!
     var listManager: UserListManager!
     
     override func viewDidLoad() {
@@ -86,9 +86,7 @@ class UserListViewController: UIViewController, UISearchBarDelegate {
     
     @objc func addDescription() {
         UIAlertController.showAlertForUserInput(in: self, title: "User", message: "Set user description:") { description in
-            self.client.setUserDescription(description) { (isSuccess, error) in
-                Log.add(info: "User Description Set Status: \(isSuccess), error: \(String(describing: error))")
-            }
+            UserUpdateManager.shared.updateDescription(description: description, completion: nil)
         }
     }
 }

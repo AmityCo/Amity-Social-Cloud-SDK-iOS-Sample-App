@@ -6,14 +6,14 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import EkoChat
+import AmitySDK
 import UIKit
 import SwiftUI
 
 private let reuseIdentifier = "MemberTableViewCell"
 
 final class MembershipListTableViewController: UITableViewController, DataSourceListener {
-    weak var client: EkoClient!
+    weak var client: AmityClient!
     var channelId: String!
 
     private var resultSearchController = UISearchController()
@@ -71,7 +71,7 @@ final class MembershipListTableViewController: UITableViewController, DataSource
         return cell
     }
 
-    private func setTags(in cell: SampleAppTableViewCell, for membership: EkoChannelMembership) {
+    private func setTags(in cell: SampleAppTableViewCell, for membership: AmityChannelMember) {
         let tags: [(text: String, color: UIColor)] = self.tags(for: membership)
 
         let mutableAttributedString = NSMutableAttributedString()
@@ -86,7 +86,7 @@ final class MembershipListTableViewController: UITableViewController, DataSource
         cell.subtitleLabel.attributedText = mutableAttributedString
     }
 
-    private func tags(for membership: EkoChannelMembership) -> [(String, UIColor)] {
+    private func tags(for membership: AmityChannelMember) -> [(String, UIColor)] {
         let pastelColors: [UIColor] = [UIColor(named: "PastelRed"),
                                        UIColor(named: "PastelOrange"),
                                        UIColor(named: "PastelYellow"),

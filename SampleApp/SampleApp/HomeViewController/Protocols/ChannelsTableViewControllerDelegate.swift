@@ -10,7 +10,7 @@ import Foundation
 
 protocol ChannelsTableViewControllerDelegate: AnyObject {
     func joinChannel(_ channelId: String,
-                     type: EkoChannelType,
+                     type: AmityChannelType,
                      isComments: Bool)
 }
 

@@ -1,5 +1,5 @@
 //
-//  EkoChannelSelectionViewController.swift
+//  AmityChannelSelectionViewController.swift
 //  SampleApp
 //
 //  Created by Michael Abadi Santoso on 2/7/20.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-final class EkoChannelSelectionViewController: UIViewController {
+final class AmityChannelSelectionViewController: UIViewController {
 
     private enum ChannelType: Int {
         case standard
@@ -22,7 +22,7 @@ final class EkoChannelSelectionViewController: UIViewController {
         super.viewDidLoad()
     }
         
-    private func presentHomeViewController(channelType: EkoChannelType) {
+    private func presentHomeViewController(channelType: AmityChannelType) {
         let storyboard = UIStoryboard(name: "Home", bundle: nil)
         if let viewController = storyboard.instantiateViewController(withIdentifier: "HomeViewController") as? HomeViewController {
             viewController.channelType = channelType

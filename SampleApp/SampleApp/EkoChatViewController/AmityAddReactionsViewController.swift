@@ -1,5 +1,5 @@
 //
-//  EkoAddReactionsViewController.swift
+//  AmityAddReactionsViewController.swift
 //  SampleApp
 //
 //  Created by Michael Abadi Santoso on 12/23/19.
@@ -8,12 +8,12 @@
 
 import UIKit
 
-protocol EkoAddReactionsDelegate: AnyObject {
-    func didSendReaction(_ viewController: EkoAddReactionsViewController, withReactionName reaction: String, message: EkoMessage?)
-    func didRemoveReaction(_ viewController: EkoAddReactionsViewController, withReactionName reaction: String, message: EkoMessage?)
+protocol AmityAddReactionsDelegate: AnyObject {
+    func didSendReaction(_ viewController: AmityAddReactionsViewController, withReactionName reaction: String, message: AmityMessage?)
+    func didRemoveReaction(_ viewController: AmityAddReactionsViewController, withReactionName reaction: String, message: AmityMessage?)
 }
 
-final class EkoAddReactionsViewController: UIViewController {
+final class AmityAddReactionsViewController: UIViewController {
     
     enum ReactionType {
         case add
@@ -24,10 +24,10 @@ final class EkoAddReactionsViewController: UIViewController {
     @IBOutlet weak var actionButton: UIButton!
     @IBOutlet weak var titleLabel: UILabel!
     
-    weak var delegate: EkoAddReactionsDelegate?
+    weak var delegate: AmityAddReactionsDelegate?
     
     private var type: ReactionType = .add
-    private var message: EkoMessage?
+    private var message: AmityMessage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,14 +46,14 @@ final class EkoAddReactionsViewController: UIViewController {
         navigationController?.dismiss(animated: true, completion: nil)
     }
     
-    func setupView(type: ReactionType, message: EkoMessage?) {
+    func setupView(type: ReactionType, message: AmityMessage?) {
         self.type = type
         self.message = message
     }
     
     static func makeViewController() -> UIViewController {
         let sb = UIStoryboard(name: "Chats", bundle: nil)
-        let vc = sb.instantiateViewController(withIdentifier: "EkoAddReactionsViewController")
+        let vc = sb.instantiateViewController(withIdentifier: "AmityAddReactionsViewController")
         return vc
     }
 

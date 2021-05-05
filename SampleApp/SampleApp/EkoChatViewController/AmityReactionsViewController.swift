@@ -1,5 +1,5 @@
 //
-//  EkoReactionsViewController.swift
+//  AmityReactionsViewController.swift
 //  SampleApp
 //
 //  Created by Michael Abadi Santoso on 12/24/19.
@@ -13,7 +13,7 @@ struct ReactionModel {
     let user: String
 }
 
-final class EkoReactionsViewController: UIViewController,
+final class AmityReactionsViewController: UIViewController,
                                         UITableViewDelegate,
                                         UITableViewDataSource,
                                         DataSourceListener {
@@ -30,8 +30,8 @@ final class EkoReactionsViewController: UIViewController,
     
     private var reactionsType: ReactionSourceType = .onlyMe
     
-    private var userRepo: EkoUserRepository?
-    private var userToken: Set<EkoNotificationToken> = Set()
+    private var userRepo: AmityUserRepository?
+    private var userToken: Set<AmityNotificationToken> = Set()
     
     private var reversePreference: Bool = false
     
@@ -46,7 +46,7 @@ final class EkoReactionsViewController: UIViewController,
         navigationController?.dismiss(animated: true, completion: nil)
     }
     
-    func setDatasource(_ source: ReactionDatasource, userRepo: EkoUserRepository) {
+    func setDatasource(_ source: ReactionDatasource, userRepo: AmityUserRepository) {
         self.datasource = source
         self.userRepo = userRepo
         self.reactionsType = .all
@@ -72,7 +72,7 @@ final class EkoReactionsViewController: UIViewController,
     
     static func makeViewController() -> UIViewController {
         let sb = UIStoryboard(name: "Chats", bundle: nil)
-        let vc = sb.instantiateViewController(withIdentifier: "EkoReactionsViewController")
+        let vc = sb.instantiateViewController(withIdentifier: "AmityReactionsViewController")
         return vc
     }
     
@@ -121,7 +121,7 @@ final class EkoReactionsViewController: UIViewController,
         }
     }
     
-    private func reaction(for indexPath: IndexPath) -> EkoReaction? {
+    private func reaction(for indexPath: IndexPath) -> AmityReaction? {
         return datasource?.reaction(for: indexPath)
     }
     

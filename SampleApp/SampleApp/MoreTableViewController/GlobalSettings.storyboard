@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="0fg-nC-WY1">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -116,7 +116,7 @@
         <!--Push Notifications-->
         <scene sceneID="PHu-Wv-myA">
             <objects>
-                <tableViewController id="Tbd-Yb-4bK" customClass="UserPushNotificationsTableViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController id="Tbd-Yb-4bK" customClass="NotificationRegistrationTableViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" id="r0f-Xx-2Ly">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -221,14 +221,14 @@
                         <sections>
                             <tableViewSection headerTitle="Push Notifications" id="zg9-i6-ar3">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="Gse-cs-HaF" style="IBUITableViewCellStyleDefault" id="X3l-UH-9Gx">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="lqB-ZD-HAq" style="IBUITableViewCellStyleDefault" id="eMx-jU-OK2">
                                         <rect key="frame" x="0.0" y="55.5" width="414" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="X3l-UH-9Gx" id="TIo-BM-Qfm">
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="eMx-jU-OK2" id="Di8-ee-4QY">
                                             <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Push Notifications User Setting" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Gse-cs-HaF">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Push Notifications User Setting" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="lqB-ZD-HAq">
                                                     <rect key="frame" x="20" y="0.0" width="374" height="44"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -238,7 +238,7 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <segue destination="9Pq-kf-ryt" kind="show" id="ent-5Z-se9"/>
+                                            <segue destination="F2S-5Y-bbX" kind="show" id="gov-4M-wLh"/>
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="ioI-iA-gIy" style="IBUITableViewCellStyleDefault" id="sGm-Tj-mlY">
@@ -248,7 +248,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Push Notifications" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ioI-iA-gIy">
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Push Notifications Registration" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ioI-iA-gIy">
                                                     <rect key="frame" x="20" y="0.0" width="374" height="44"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -306,23 +306,6 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" textLabel="efL-MK-PD0" style="IBUITableViewCellStyleDefault" id="ZSU-zO-JOn">
-                                        <rect key="frame" x="0.0" y="323.5" width="414" height="44"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="ZSU-zO-JOn" id="JsW-Ny-IlX">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Unregister Device" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="efL-MK-PD0">
-                                                    <rect key="frame" x="20" y="0.0" width="374" height="44"/>
-                                                    <autoresizingMask key="autoresizingMask"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                            </subviews>
-                                        </tableViewCellContentView>
-                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                         </sections>
@@ -337,13 +320,112 @@
             </objects>
             <point key="canvasLocation" x="-3307" y="323"/>
         </scene>
-        <!--UITableViewController-Dkl-n0-Hb5-->
-        <scene sceneID="svK-TZ-qMk">
+        <!--User Level Push Notifications Table View Controller-->
+        <scene sceneID="ZYB-yb-n7b">
             <objects>
-                <viewControllerPlaceholder storyboardName="ChannelSettings" referencedIdentifier="UITableViewController-Dkl-n0-Hb5" id="9Pq-kf-ryt" sceneMemberID="viewController"/>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="OWn-8U-RjV" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <tableViewController storyboardIdentifier="UITableViewController-Dkl-n0-Hb5" id="F2S-5Y-bbX" customClass="UserLevelPushNotificationsTableViewController" customModule="SampleApp" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" id="oyr-UC-5RW">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="groupTableViewBackgroundColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SwitchTableViewCell" id="bR2-aJ-2ud" customClass="SwitchTableViewCell" customModule="SampleApp" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="55.5" width="414" height="43.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="bR2-aJ-2ud" id="KzR-7d-gQg">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZZc-m5-VxN">
+                                            <rect key="frame" x="353" y="6.5" width="51" height="31"/>
+                                            <connections>
+                                                <action selector="toggleValueChanged:" destination="bR2-aJ-2ud" eventType="valueChanged" id="msM-pu-BuK"/>
+                                            </connections>
+                                        </switch>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eNf-LP-CBb">
+                                            <rect key="frame" x="20" y="11.5" width="42" height="21"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="eNf-LP-CBb" firstAttribute="leading" secondItem="KzR-7d-gQg" secondAttribute="leadingMargin" id="87B-3z-4ss"/>
+                                        <constraint firstItem="ZZc-m5-VxN" firstAttribute="centerY" secondItem="KzR-7d-gQg" secondAttribute="centerY" id="8T0-7g-GIf"/>
+                                        <constraint firstItem="eNf-LP-CBb" firstAttribute="centerY" secondItem="KzR-7d-gQg" secondAttribute="centerY" id="GjA-TK-qvM"/>
+                                        <constraint firstAttribute="trailing" secondItem="ZZc-m5-VxN" secondAttribute="trailing" constant="12" id="aCx-00-5Kb"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="titleLabel" destination="eNf-LP-CBb" id="q7n-li-55E"/>
+                                    <outlet property="toggleSwitch" destination="ZZc-m5-VxN" id="7D2-v6-5wJ"/>
+                                </connections>
+                            </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="NotificationModuleTableViewCell" rowHeight="80" id="KYy-Kt-4Lg" customClass="NotificationModuleTableViewCell" customModule="SampleApp" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="99" width="414" height="80"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="KYy-Kt-4Lg" id="tp0-lf-ZPT">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="80"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RDe-28-bkh">
+                                            <rect key="frame" x="20" y="15" width="42" height="21"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3se-Ll-RJq">
+                                            <rect key="frame" x="353" y="10" width="51" height="31"/>
+                                            <connections>
+                                                <action selector="toggleValueChanged:" destination="KYy-Kt-4Lg" eventType="valueChanged" id="h8a-7O-UlD"/>
+                                            </connections>
+                                        </switch>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Role:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fRL-GV-5kQ">
+                                            <rect key="frame" x="20" y="48" width="38" height="21"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GVy-UG-MYa">
+                                            <rect key="frame" x="70" y="43.5" width="46" height="30"/>
+                                            <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <state key="normal" title="Button">
+                                                <color key="titleColor" red="0.97647058819999999" green="0.97647058819999999" blue="0.97647058819999999" alpha="1" colorSpace="calibratedRGB"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="roleButtonTapped:" destination="KYy-Kt-4Lg" eventType="touchUpInside" id="49X-1j-HZi"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstAttribute="trailing" secondItem="3se-Ll-RJq" secondAttribute="trailing" constant="12" id="DBd-dw-12r"/>
+                                        <constraint firstItem="3se-Ll-RJq" firstAttribute="centerY" secondItem="RDe-28-bkh" secondAttribute="centerY" id="MKb-Bw-sD8"/>
+                                        <constraint firstItem="fRL-GV-5kQ" firstAttribute="leading" secondItem="tp0-lf-ZPT" secondAttribute="leadingMargin" id="XI4-Jr-cAU"/>
+                                        <constraint firstItem="GVy-UG-MYa" firstAttribute="leading" secondItem="fRL-GV-5kQ" secondAttribute="trailing" constant="12" id="YfZ-pp-N6O"/>
+                                        <constraint firstItem="RDe-28-bkh" firstAttribute="leading" secondItem="tp0-lf-ZPT" secondAttribute="leadingMargin" id="aMr-NJ-0rx"/>
+                                        <constraint firstItem="GVy-UG-MYa" firstAttribute="centerY" secondItem="fRL-GV-5kQ" secondAttribute="centerY" id="c7t-FI-uEy"/>
+                                        <constraint firstItem="fRL-GV-5kQ" firstAttribute="bottom" secondItem="tp0-lf-ZPT" secondAttribute="bottomMargin" id="dcl-pF-3cP"/>
+                                        <constraint firstItem="RDe-28-bkh" firstAttribute="top" secondItem="tp0-lf-ZPT" secondAttribute="topMargin" constant="4" id="mCP-z0-qtR"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="roleButton" destination="GVy-UG-MYa" id="X2B-IG-DWP"/>
+                                    <outlet property="titleLabel" destination="RDe-28-bkh" id="VBN-So-LsY"/>
+                                    <outlet property="toggleSwitch" destination="3se-Ll-RJq" id="yDm-EJ-sfL"/>
+                                </connections>
+                            </tableViewCell>
+                        </prototypes>
+                        <sections/>
+                        <connections>
+                            <outlet property="dataSource" destination="F2S-5Y-bbX" id="Wf9-s3-0SE"/>
+                            <outlet property="delegate" destination="F2S-5Y-bbX" id="Fo6-7R-69X"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" id="8uc-w5-JnD"/>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="OHI-sp-tYX" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2512" y="757"/>
+            <point key="canvasLocation" x="-2486" y="1048"/>
         </scene>
     </scenes>
     <color key="tintColor" name="EkoGreen"/>
@@ -354,6 +436,15 @@
         <namedColor name="EkoRed">
             <color red="0.94099998474121094" green="0.16899999976158142" blue="0.024000000208616257" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <systemColor name="groupTableViewBackgroundColor">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="groupTableViewBackgroundColor">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="groupTableViewBackgroundColor">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
         <systemColor name="groupTableViewBackgroundColor">
             <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

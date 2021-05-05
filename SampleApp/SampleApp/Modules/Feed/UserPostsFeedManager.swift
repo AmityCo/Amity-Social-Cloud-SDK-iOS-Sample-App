@@ -16,42 +16,42 @@ enum FeedType {
 
 class UserPostsFeedManager {
     
-    let client: EkoClient
-    let feedRepository: EkoFeedRepository
+    let client: AmityClient
+    let feedRepository: AmityFeedRepository
     
-    var postCollection: EkoCollection<EkoPost>?
-    var feedCollectionToken: EkoNotificationToken?
+    var postCollection: AmityCollection<AmityPost>?
+    var feedCollectionToken: AmityNotificationToken?
     
-    var editedPost: EkoPost?
+    var editedPost: AmityPost?
     let userId: String?
     let userName: String?
     var postId: String? // Post id for individual post
     var feedType: FeedType = .myFeed
     
-    var reactionCollection: EkoCollection<EkoReaction>?
-    var reactionCollectionToken: EkoNotificationToken?
+    var reactionCollection: AmityCollection<AmityReaction>?
+    var reactionCollectionToken: AmityNotificationToken?
     
-    var postObjectToken: EkoNotificationToken?
-    var individualPost: EkoPost?
+    var postObjectToken: AmityNotificationToken?
+    var individualPost: AmityPost?
     
     var imageCache = [String: UIImage?]()
-    var fileRepository: EkoFileRepository?
+    var fileRepository: AmityFileRepository?
     
-    var reactionRepository: EkoReactionRepository
+    var reactionRepository: AmityReactionRepository
     
-    var comCategoryCollection: EkoCollection<EkoCommunityCategory>?
-    var comCategoryCollectionToken: EkoNotificationToken?
+    var comCategoryCollection: AmityCollection<AmityCommunityCategory>?
+    var comCategoryCollectionToken: AmityNotificationToken?
     
     let uploadTracker = DispatchGroup()
     
     var flagger = PostFlagManager()
     var isGlobalFeed = false
     
-    var feedSortOption: EkoUserFeedSortOption = .lastCreated
+    var feedSortOption: AmityUserFeedSortOption = .lastCreated
     var includeDeletedPosts = true
     
-    lazy var communityRepo: EkoCommunityRepository = {
-        let repo = EkoCommunityRepository(client: self.client)
+    lazy var communityRepo: AmityCommunityRepository = {
+        let repo = AmityCommunityRepository(client: self.client)
         return repo
     }()
     
@@ -61,21 +61,21 @@ class UserPostsFeedManager {
         return formatter
     }()
     
-    // Make sure your EkoClient is setup and then setup EkoFeedRepository & EkoPostCreator
-    init(client: EkoClient, userId: String?, userName: String? = nil) {
+    // Make sure your AmityClient is setup and then setup AmityFeedRepository & AmityPostCreator
+    init(client: AmityClient, userId: String?, userName: String? = nil) {
         self.client = client
         self.userId = userId
         self.userName = userName
-        self.feedRepository = EkoFeedRepository(client: client)
-        self.fileRepository = EkoFileRepository(client: client)
-        self.reactionRepository = EkoReactionRepository(client: client)
+        self.feedRepository = AmityFeedRepository(client: client)
+        self.fileRepository = AmityFileRepository(client: client)
+        self.reactionRepository = AmityReactionRepository(client: client)
     }
     
     // MARK:- Feed Observer
     
     // Listen to feed changes. Anytime a post is created, observer
     // would be notified.
-    // Note: Retain that EkoNotificationToken
+    // Note: Retain that AmityNotificationToken
     func observePostsFeedChanges(changeHandler:@escaping ()->()) {
         
         switch feedType {
@@ -106,7 +106,7 @@ class UserPostsFeedManager {
         }
     }
     
-    func getPostAtIndex(index: Int) -> EkoPost? {
+    func getPostAtIndex(index: Int) -> AmityPost? {
         switch feedType {
         case .myFeed, .userFeed:
             return postCollection?.object(at: UInt(index))
@@ -117,7 +117,7 @@ class UserPostsFeedManager {
 
     // MARK:- Reaction Observers
     
-    func observeReactionsForPost(post: EkoPost?, reaction: String, completion: @escaping ()->()) {
+    func observeReactionsForPost(post: AmityPost?, reaction: String, completion: @escaping ()->()) {
         guard let post = post else { return }
         
         reactionCollectionToken?.invalidate()
@@ -128,27 +128,27 @@ class UserPostsFeedManager {
         })
     }
     
-    func observeAllReactionsForPost(post: EkoPost?, completion: @escaping ()->()) {
+    func observeAllReactionsForPost(post: AmityPost?, completion: @escaping ()->()) {
         guard let post = post else { return }
         
-        reactionCollection = reactionRepository.getAllReactions(post.postId, referenceType: .post)
+        reactionCollection = reactionRepository.getReactions(post.postId, referenceType: .post, reactionName: nil)
         reactionCollectionToken = reactionCollection?.observe({ (collection, _, error) in
             completion()
         })
     }
     
-    func getReactionAtIndex(index: Int) -> EkoReaction? {
+    func getReactionAtIndex(index: Int) -> AmityReaction? {
         return reactionCollection?.object(at: UInt(index))
     }
     // Creates the post
     func createPost(text: String, images: [UIImage], isFilePost: Bool, communityId: String?, onCompletion: @escaping (_ isSuccess: Bool) -> ()) {
         
         let targetId: String? = communityId == nil ? userId : communityId
-        let targetType: EkoPostTargetType = communityId == nil ? .user : .community
+        let targetType: AmityPostTargetType = communityId == nil ? .user : .community
         
         if images.isEmpty {
             
-            let textBuilder = EkoTextPostBuilder()
+            let textBuilder = AmityTextPostBuilder()
             textBuilder.setText(text)
             
             feedRepository.createPost(textBuilder, targetId: targetId, targetType: targetType) { (isSuccess, error) in
@@ -161,9 +161,9 @@ class UserPostsFeedManager {
                 Log.add(info: "--- Creating File Post ---")
                 Log.add(info: "Uploading Files...")
                 
-                let dataArr = images.map{ UploadableFile(fileData: $0.jpegData(compressionQuality: 1.0)!, fileName: "my_image_file.jpeg")}
+                let dataArr = images.map{ AmityUploadableFile(fileData: $0.jpegData(compressionQuality: 1.0)!, fileName: "my_image_file.jpeg")}
                 
-                var filesData = [EkoFileData]()
+                var filesData = [AmityFileData]()
                 for file in dataArr {
                     
                     uploadTracker.enter()
@@ -191,7 +191,7 @@ class UserPostsFeedManager {
                 Log.add(info: "--- Creating Image Post ---")
                 Log.add(info: "Uploading \(images.count) images...")
                 
-                var imagesData = [EkoImageData]()
+                var imagesData = [AmityImageData]()
                 
                 for image in images {
                     uploadTracker.enter()
@@ -216,9 +216,9 @@ class UserPostsFeedManager {
         }
     }
     
-    func createFilePost(fileIds: [EkoFileData], text: String, targetId: String?, targetType: EkoPostTargetType, completion: @escaping (_ isSuccess: Bool) -> ()) {
+    func createFilePost(fileIds: [AmityFileData], text: String, targetId: String?, targetType: AmityPostTargetType, completion: @escaping (_ isSuccess: Bool) -> ()) {
         
-        let filePostBuilder = EkoFilePostBuilder()
+        let filePostBuilder = AmityFilePostBuilder()
         filePostBuilder.setText(text)
         filePostBuilder.setFileData(fileIds)
         
@@ -227,9 +227,9 @@ class UserPostsFeedManager {
         }
     }
     
-    func createImagePost(fileIds: [EkoImageData], text: String, targetId: String?, targetType: EkoPostTargetType, completion: @escaping (_ isSuccess: Bool) -> ()) {
+    func createImagePost(fileIds: [AmityImageData], text: String, targetId: String?, targetType: AmityPostTargetType, completion: @escaping (_ isSuccess: Bool) -> ()) {
         
-        let imagePostBuilder = EkoImagePostBuilder()
+        let imagePostBuilder = AmityImagePostBuilder()
         imagePostBuilder.setText(text)
         imagePostBuilder.setImageData(fileIds)
         
@@ -243,7 +243,7 @@ class UserPostsFeedManager {
         
         // Right now you can only change the text for the image post.
         
-        let textBuilder = EkoTextPostBuilder()
+        let textBuilder = AmityTextPostBuilder()
         textBuilder.setText(text)
         
         Log.add(info: "Updating post with id: \(post.postId)")
@@ -283,7 +283,7 @@ class UserPostsFeedManager {
     
     func addReactionToPost(at index: Int, reaction: String) {
         
-        var selectedPost: EkoPost?
+        var selectedPost: AmityPost?
         
         switch feedType {
         case .myFeed, .userFeed:
@@ -306,7 +306,7 @@ class UserPostsFeedManager {
         }
     }
     
-    func sortCurrentFeed(option: EkoUserFeedSortOption) {
+    func sortCurrentFeed(option: AmityUserFeedSortOption) {
         guard feedType != .singlePost else { return }
         self.feedSortOption = option
 
@@ -323,14 +323,14 @@ class UserPostsFeedManager {
         postCollection?.nextPage()
     }
     
-    var communityParticipation: EkoCommunityParticipation?
+    var communityParticipation: AmityCommunityParticipation?
     
     func viewCommunityMembership(index: Int) -> String {
         guard let post = self.getPostAtIndex(index: index) else { return "" }
         
         if post.targetType == "community" {
-            communityParticipation = EkoCommunityParticipation(client: EkoManager.shared.client!, andCommunityId: post.targetId)
-            if let membership = communityParticipation?.getMembership(post.postedUserId) {
+            communityParticipation = AmityCommunityParticipation(client: AmityManager.shared.client!, andCommunityId: post.targetId)
+            if let membership = communityParticipation?.getMember(withId: post.postedUserId) {
                 var allData = "Community Membership Data"
                 allData += "\nDisplay Name: \(membership.displayName)"
                 allData += "\nIs Banned: \(membership.isBanned)"

@@ -55,20 +55,20 @@ struct CommunityParticipationView_Previews: PreviewProvider {
 
 class CommunityParticipationViewModel {
     
-    let participation: EkoCommunityParticipation
+    let participation: AmityCommunityParticipation
     
-    init(participation: EkoCommunityParticipation) {
+    init(participation: AmityCommunityParticipation) {
         self.participation = participation
     }
     
     func addUsers(users: [String], completion: @escaping (String) -> Void) {
-        participation.addUsers(users) { (isSuccess, error) in
+        participation.addMembers(users) { (isSuccess, error) in
             completion(isSuccess ? "User added successfully" : "Error adding users")
         }
     }
     
     func removeUsers(users: [String], completion: @escaping (String) -> Void) {
-        participation.removeUsers(users) { (isSuccess, error) in
+        participation.removeMembers(users) { (isSuccess, error) in
             completion(isSuccess ? "User removed successfully" : "Error removing users")
         }
     }

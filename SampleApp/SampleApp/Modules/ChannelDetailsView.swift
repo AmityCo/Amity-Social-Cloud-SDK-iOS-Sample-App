@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ChannelDetail {
     
-    var channel: EkoChannel?
+    var channel: AmityChannel?
     var type: String = ""
     var metadata: String = ""
     var displayName: String = ""
@@ -20,7 +20,7 @@ struct ChannelDetail {
     var tags: String = ""
     var avatarFileId = ""
     
-    init(object: EkoChannel) {
+    init(object: AmityChannel) {
         channel = object
         type = object.channelType.description
         metadata = object.metadata?.description ?? ""
@@ -49,25 +49,21 @@ struct ChannelDetail {
     }
     
     func fetchImageData(completion: @escaping (String) -> Void) {
-        self.channel?.getAvatarInfo({ avatar in
+        if let imageData = channel?.getAvatarInfo() {
+            let fileId = imageData.fileId
+            let attributes = imageData.attributes.description
             
-            if let imageData = avatar {
-                let fileId = imageData.fileId
-                let attributes = imageData.attributes.description
-                
-                let fileInfo =
-                """
-                Mapped Data:
-                
-                FileId: \(fileId)
-                Attributes: \(attributes)
-                """
-                completion(fileInfo)
-            } else {
-                completion("This user doesnot contain any avatar")
-            }
-        })
-        
+            let fileInfo =
+            """
+            Mapped Data:
+            
+            FileId: \(fileId)
+            Attributes: \(attributes)
+            """
+            completion(fileInfo)
+        } else {
+            completion("This user doesnot contain any avatar")
+        }
     }
     
     init() { /* For preview view */ }

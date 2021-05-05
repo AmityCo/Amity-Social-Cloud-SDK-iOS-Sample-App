@@ -8,8 +8,8 @@
 
 import UIKit
 
-final class CommentTableViewCell: UITableViewCell, EkoChatTableViewCell {
-    typealias EkoComment = EkoMessage
+final class CommentTableViewCell: UITableViewCell, AmityChatTableViewCell {
+    typealias AmityComment = AmityMessage
     @IBOutlet weak var displayNameLabel: UILabel!
     @IBOutlet weak var timeStampLabel: UILabel!
     @IBOutlet weak var commentDeliveryStatus: UIImageView!
@@ -25,7 +25,7 @@ final class CommentTableViewCell: UITableViewCell, EkoChatTableViewCell {
         verticalStackView.setCustomSpacing(0, after: commentHeaderView)
     }
 
-    func display(_ comment: EkoComment, client: EkoClient) {
+    func display(_ comment: AmityComment, client: AmityClient) {
         commentId = comment.messageId
         let createdDateText = DateFormatter.localizedString(from: comment.createdAtDate,
                                                             dateStyle: .none,
@@ -41,7 +41,7 @@ final class CommentTableViewCell: UITableViewCell, EkoChatTableViewCell {
         configureReplyLabel(for: comment, client: client)
     }
 
-    private func configureReplyLabel(for comment: EkoComment, client: EkoClient) {
+    private func configureReplyLabel(for comment: AmityComment, client: AmityClient) {
         let replyLabelText: String
 
         if comment.childrenNumber > 0 {
@@ -53,8 +53,8 @@ final class CommentTableViewCell: UITableViewCell, EkoChatTableViewCell {
         replyToLabel.text = replyLabelText
     }
 
-    /// Returns a proper image for the given `EkoSyncState` instance.
-    private func symbol(for state: EkoSyncState) -> UIImage? {
+    /// Returns a proper image for the given `AmitySyncState` instance.
+    private func symbol(for state: AmitySyncState) -> UIImage? {
         switch state {
         case .default, .synced, .syncing:
             return UIImage(named: "check")
@@ -65,17 +65,17 @@ final class CommentTableViewCell: UITableViewCell, EkoChatTableViewCell {
         }
     }
 
-    /// Returns a proper color for the given `EkoSyncState` instance.
-    private func color(for state: EkoSyncState) -> UIColor? {
+    /// Returns a proper color for the given `AmitySyncState` instance.
+    private func color(for state: AmitySyncState) -> UIColor? {
         switch state {
         case .default, .synced:
-            return UIColor(named: "EkoGreen")
+            return UIColor(named: "AmityGreen")
         case .syncing:
-            return UIColor(named: "EkoGray")
+            return UIColor(named: "AmityGray")
         case .error:
-            return UIColor(named: "EkoRed")
+            return UIColor(named: "AmityRed")
         @unknown default:
-            return UIColor(named: "EkoRed")
+            return UIColor(named: "AmityRed")
         }
     }
 }

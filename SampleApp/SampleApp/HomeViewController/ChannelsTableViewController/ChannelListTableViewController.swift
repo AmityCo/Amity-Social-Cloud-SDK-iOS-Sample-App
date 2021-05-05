@@ -22,7 +22,7 @@ final class ChannelListTableViewController: UIViewController, DataSourceListener
     @IBOutlet weak var updateButton: UIButton!
     
     // To be injected.
-    var repository: EkoChannelRepository! {
+    var repository: AmityChannelRepository! {
         didSet {
             dataSource = ChannelListDataSource(channelRepository: repository)
             dataSource?.dataSourceObserver = self
@@ -30,7 +30,7 @@ final class ChannelListTableViewController: UIViewController, DataSourceListener
     }
     
     weak var delegate: ChannelsTableViewControllerDelegate?
-    var channelType: EkoChannelType = .standard
+    var channelType: AmityChannelType = .standard
     
     private var dataSource: ChannelListDataSource?
     private lazy var cellConfigurator = ChannelListTableViewCellConfigurator()
@@ -100,7 +100,7 @@ final class ChannelListTableViewController: UIViewController, DataSourceListener
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        guard let channel: EkoChannel = dataSource?.channel(for: indexPath) else { return UITableViewCell() }
+        guard let channel: AmityChannel = dataSource?.channel(for: indexPath) else { return UITableViewCell() }
         let cell: UITableViewCell = tableView.dequeueReusableCell(withIdentifier: SampleAppTableViewCell.identifier, for: indexPath)
         guard let sampleAppCell = cell as? SampleAppTableViewCell else { return UITableViewCell() }
         
@@ -111,7 +111,7 @@ final class ChannelListTableViewController: UIViewController, DataSourceListener
     // MARK: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let channel: EkoChannel = dataSource?.channel(for: indexPath) else { return }
+        guard let channel: AmityChannel = dataSource?.channel(for: indexPath) else { return }
         
         self.displayActions(actions: ["Join Channel", "View Details"], title: "", message: "What would you like to do?") { [weak self] action, index in
             
@@ -138,13 +138,13 @@ final class ChannelListTableViewController: UIViewController, DataSourceListener
     }
     
     /// Joins the given channel.
-    private func join(channel: EkoChannel) {
+    private func join(channel: AmityChannel) {
         let isComments: Bool = self.isComments(channel: channel)
         delegate?.joinChannel(channel.channelId, type: .standard, isComments: isComments)
     }
     
     /// Detects wheter the channel is a comments channel or not.
-    private func isComments(channel: EkoChannel) -> Bool {
+    private func isComments(channel: AmityChannel) -> Bool {
         if let tags = channel.tags as? [String], tags.contains("comments") {
             return true
         } else {
@@ -170,7 +170,7 @@ final class ChannelListTableViewController: UIViewController, DataSourceListener
     }
 }
 
-extension EkoChannelQueryFilter: CustomStringConvertible {
+extension AmityChannelQueryFilter: CustomStringConvertible {
     public var description: String {
         switch self {
         case .all: return "All"

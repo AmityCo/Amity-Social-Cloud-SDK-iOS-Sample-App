@@ -6,15 +6,15 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import EkoChat
+import AmitySDK
 
 final class CommentsDataSource {
-    private let commentsCollection: EkoCollection<EkoMessage>
-    private var commentsToken: EkoNotificationToken?
+    private let commentsCollection: AmityCollection<AmityMessage>
+    private var commentsToken: AmityNotificationToken?
 
     weak var dataSourceObserver: DataSourceListener?
 
-    init(commentsCollection: EkoCollection<EkoMessage>) {
+    init(commentsCollection: AmityCollection<AmityMessage>) {
         self.commentsCollection = commentsCollection
 
         commentsToken = commentsCollection.observe { [weak self] _, _, _ in
@@ -28,7 +28,7 @@ final class CommentsDataSource {
 
     /// Since we want to display the newest message at the bottom of the table
     /// view, we need to flip the indexes order.
-    func comment(for indexPath: IndexPath) -> EkoMessage? {
+    func comment(for indexPath: IndexPath) -> AmityMessage? {
         let row: Int = Int(commentsCollection.count()) - (indexPath.row + 1)
         return commentsCollection.object(at: UInt(row))
     }

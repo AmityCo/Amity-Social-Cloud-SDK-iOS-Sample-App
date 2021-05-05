@@ -16,7 +16,7 @@ struct CommentCreateTestView: View {
     
     @ObservedObject var viewModel = CreateCommentTestViewModel()
     
-    var referenceTypes: [String] = [EkoCommentReferenceType.post.identifier, EkoCommentReferenceType.content.identifier]
+    var referenceTypes: [String] = [AmityCommentReferenceType.post.identifier, AmityCommentReferenceType.content.identifier]
     
     var body: some View {
         Form {
@@ -70,15 +70,15 @@ struct CommentCreateTestView_Previews: PreviewProvider {
 
 class CreateCommentTestViewModel: ObservableObject {
     
-    var commentRepo: EkoCommentRepository = EkoCommentRepository(client: EkoManager.shared.client!)
-    var token: EkoNotificationToken?
+    var commentRepo: AmityCommentRepository = AmityCommentRepository(client: AmityManager.shared.client!)
+    var token: AmityNotificationToken?
     
     @Published var localOutput = ""
     @Published var serverOutput = ""
     
     func createComment(contentId:String, comment: String, referenceType: String) {
-        let actualType: EkoCommentReferenceType = EkoCommentReferenceType.post.identifier == referenceType ? .post : .content
-        token = commentRepo.createComment(withReferenceId: contentId, referenceType: actualType , parentId: nil, text: comment).observe({ [weak self] (liveObject, error) in
+        let actualType: AmityCommentReferenceType = AmityCommentReferenceType.post.identifier == referenceType ? .post : .content
+        token = commentRepo.createComment(forReferenceId: contentId, referenceType: actualType , parentId: nil, text: comment).observe({ [weak self] (liveObject, error) in
             let dataStatus = liveObject.dataStatus.description
             
             guard let liveComment = liveObject.object else { return }
@@ -109,7 +109,7 @@ class CreateCommentTestViewModel: ObservableObject {
     }
 }
 
-extension EkoCommentReferenceType {
+extension AmityCommentReferenceType {
     
     var identifier: String {
         switch self {

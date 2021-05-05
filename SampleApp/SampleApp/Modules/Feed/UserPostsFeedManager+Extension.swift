@@ -12,7 +12,7 @@ import Foundation
 // Look into "UserPostsFeedManager.swift" for sdk specific implementation.
 extension UserPostsFeedManager {
     
-    func getFeedItemType(for post: EkoPost) -> FeedItemType {
+    func getFeedItemType(for post: AmityPost) -> FeedItemType {
         if let _ = post.data?["images"] as? [[String: Any]] {
             return .image
         }
@@ -20,7 +20,7 @@ extension UserPostsFeedManager {
         return .text
     }
     
-    private func createTextFeedModel(post: EkoPost?) -> TextFeedModel {
+    private func createTextFeedModel(post: AmityPost?) -> TextFeedModel {
         let textData = post?.data?["text"] as? String ?? "-"
         let userName = post?.postedUser?.displayName ?? "No Name"
         
@@ -42,18 +42,17 @@ extension UserPostsFeedManager {
         }
     }
     
-    
-    func downloadImage(fileId: String, completion: @escaping (UIImage?) -> ()) {
+    func downloadImage(fileUrl: String, completion: @escaping (UIImage?) -> ()) {
         
-        guard !fileId.isEmpty else { return }
+        guard !fileUrl.isEmpty else { return }
         
-        if let cachedImage = imageCache[fileId] {
+        if let cachedImage = imageCache[fileUrl] {
             completion(cachedImage)
             return
         }
         
         Log.add(info: "Downloading Image.....")
-        fileRepository?.downloadImage(fileId, size: .small, completion: { [weak self] (image, size, error) in
+        fileRepository?.downloadImageAsData(fromURL: fileUrl, size: .small, completion: { [weak self] (image, size, error) in
             
             if let err = error {
                 Log.add(info: "Image download error: \(err)")
@@ -62,13 +61,13 @@ extension UserPostsFeedManager {
             
             Log.add(info: "Image download success..")
             
-            self?.imageCache[fileId] = image
+            self?.imageCache[fileUrl] = image
             completion(image)
         })
     }
     
     func prepareToEditPost(at index: Int) {
-        var selectedPost: EkoPost?
+        var selectedPost: AmityPost?
         
         switch feedType {
         case .myFeed, .userFeed:
@@ -99,7 +98,7 @@ extension UserPostsFeedManager {
     
     // Used in cellForRowAt method to show actual content
     func getFeedItemData(at index: Int) -> FeedItemModel {
-        var post: EkoPost?
+        var post: AmityPost?
         
         switch feedType {
         case .myFeed, .userFeed:
@@ -114,7 +113,7 @@ extension UserPostsFeedManager {
     
     // Used in cellForRowAt to show reactions data
     func getReactionData(at index: Int) -> String {
-        var selectedPost: EkoPost?
+        var selectedPost: AmityPost?
         
         switch feedType {
         case .myFeed, .userFeed:
@@ -128,8 +127,22 @@ extension UserPostsFeedManager {
         return data
     }
     
+    func getCommentsData(at index: Int) -> PostCommentModel? {
+        var currentPost: AmityPost?
+        
+        switch feedType {
+        case .myFeed, .userFeed:
+            currentPost = postCollection?.object(at: UInt(index))
+        case .singlePost:
+            currentPost = individualPost
+        }
+        
+        guard let post = currentPost else { return nil }
+        return PostCommentModel(post: post)
+    }
+    
     func getFeedItemViewModels(at index: Int) -> [FeedCellItem] {
-        var selectedPost: EkoPost?
+        var selectedPost: AmityPost?
         
         switch feedType {
         case .myFeed, .userFeed:
@@ -142,7 +155,7 @@ extension UserPostsFeedManager {
         
         var cellItems: [FeedCellItem] = [.header, .content(type: .text)]
         
-        // Each post has a property called childrenPosts. This contains an array of EkoPost object.
+        // Each post has a property called childrenPosts. This contains an array of AmityPost object.
         // If a post contains files or images, those are present as children posts. So you need
         // to go through that array to determine the post type. In this example i just show 1 image/files
         if let children = post.childrenPosts, children.count > 0 {
@@ -165,6 +178,7 @@ extension UserPostsFeedManager {
         }
         
         cellItems.append(.footer)
+        cellItems.append(.comments)
         return cellItems
     }
     
@@ -179,7 +193,7 @@ extension UserPostsFeedManager {
     }
     
     func getFeedItemHeaderData(at index: Int) -> (title: String, date: String, isDeleted: Bool) {
-        var post: EkoPost?
+        var post: AmityPost?
                 
         switch feedType {
         case .myFeed, .userFeed:
@@ -210,11 +224,11 @@ extension UserPostsFeedManager {
         
         let post = getPostAtIndex(index: index)
         
-        var imageId: String = ""
+        var imageURL: String = ""
         var imageCount: Int = 0
         
-        if let children = post?.childrenPosts, let fileId = children.first?.data?["fileId"] as? String {
-            imageId = fileId
+        if let children = post?.childrenPosts, let fileInfo = children.first?.getImageInfo() {
+            imageURL = fileInfo.fileURL
             imageCount = children.count
         }
         
@@ -225,7 +239,7 @@ extension UserPostsFeedManager {
             dateStr = dateFormatter.string(from: date)
         }
         
-        var postModel = ImageFeedModel(fileId: imageId, userName: userName, date: dateStr)
+        var postModel = ImageFeedModel(fileURL: imageURL, userName: userName, date: dateStr)
         postModel.count = imageCount
         
         return postModel
@@ -236,15 +250,15 @@ extension UserPostsFeedManager {
         // You might want to go through all children posts to render all files.
         let post = getPostAtIndex(index: index)
         
-        var firstFileId = ""
+        var firstFileURL = ""
         var fileCount = 0
         
         // OR use `getFileInfo` method present in post to return more info about
         // that uploaded file.
         
-        if let children = post?.childrenPosts, let fileId = children.first?.data?["fileId"] as? String {
+        if let children = post?.childrenPosts, let fileInfo = children.first?.getFileInfo() {
             
-            firstFileId = fileId
+            firstFileURL = fileInfo.fileURL
             fileCount = children.count
         }
         
@@ -255,7 +269,7 @@ extension UserPostsFeedManager {
             dateStr = dateFormatter.string(from: date)
         }
         
-        var postModel = FileFeedModel(fileId: firstFileId, userName: userName, date: dateStr)
+        var postModel = FileFeedModel(fileURL: firstFileURL, userName: userName, date: dateStr)
         postModel.count = fileCount
         
         return postModel
