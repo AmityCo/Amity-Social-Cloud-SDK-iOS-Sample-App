@@ -13,13 +13,15 @@ class UserListViewController: UIViewController, UISearchBarDelegate {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var searchBar: UISearchBar!
     
-    var client: AmityClient!
     var listManager: UserListManager!
+    var userRepository: AmityUserRepository!
+    var followManager: AmityUserFollowManager!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        listManager = UserListManager(client: client)
+        listManager = UserListManager(client: AmityManager.shared.client!)
+        userRepository = AmityUserRepository(client: AmityManager.shared.client!)
         setupViews()
     }
     
@@ -74,7 +76,7 @@ class UserListViewController: UIViewController, UISearchBarDelegate {
     }
     
     func displayUserFeed(userId: String, userName: String?) {
-        let feedManager = UserPostsFeedManager(client: client, userId: userId, userName: userName)
+        let feedManager = UserPostsFeedManager(client: AmityManager.shared.client!, userId: userId, userName: userName)
         feedManager.feedType = .userFeed
         
         let postsFeedStoryboard = UIStoryboard(name: "Feed", bundle: nil)
@@ -102,6 +104,7 @@ extension UserListViewController: UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: UserListTableViewCell.identifier) as! UserListTableViewCell
         
         let user = listManager.getUserItem(at: indexPath.row)
+        cell.delegate = self
         cell.userNameLabel.text = user?.displayName ?? "-"
         cell.userIdLabel.text = "Id: \(user?.userId ?? "")"
         cell.avatarLabel.text = "Avatar: Id: \(user?.avatarFileId ?? ""), URL: \(user?.avatarCustomUrl ?? "")"
@@ -113,6 +116,80 @@ extension UserListViewController: UITableViewDataSource, UITableViewDelegate {
         guard let user = listManager.getUserItem(at: indexPath.row) else { return }
         displayUserFeed(userId: user.userId, userName: user.displayName)
     }
+}
+
+enum FollowAction: String {
+    case follow
+    case unfollow
+    case accept
+    case decline
+}
+
+extension UserListViewController: UserListTableViewCellDelegate {
+    
+    func cellOptionDidTap(_ cell: UserListTableViewCell) {
+        guard let indexPath = tableView.indexPath(for: cell),
+              let userId = listManager.getUserItem(at: indexPath.row)?.userId else { return }
+        followManager = userRepository.followManager
+        
+        
+        let completion: (FollowAction, Bool, AmityFollowResponse?, Error?) -> Void = { [weak self] (action, success, response, error) in
+            var title = ""
+            var message = ""
+            if success {
+                title = "\(action.rawValue.capitalized) successfully"
+            } else {
+                title = "Failed"
+                message = "You are not able to \(action.rawValue) this user"
+            }
+            let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+            alert.addAction(cancelAction)
+            self?.present(alert, animated: true, completion: nil)
+        }
+        
+        let alertController = UIAlertController(title: "Actions", message: title, preferredStyle: .actionSheet)
+        
+        followManager.getUserFollowInfo(withUserId: userId) { [weak self] (success, info, error) in
+            guard let info = info else { return }
+            
+            let followAction = UIAlertAction(title: "Follow", style: .default) { [weak self] _ in
+                self?.followManager.followUser(withUserId: userId) {
+                    completion(.follow, $0, $1, $2)
+                }
+            }
+            let unfollowAction = UIAlertAction(title: "Unfollow", style: .default) { [weak self] _ in
+                self?.followManager.unfollowUser(withUserId: userId) {
+                    completion(.unfollow, $0, $1, $2)
+                }
+            }
+            let acceptRequestAction = UIAlertAction(title: "Accept Request", style: .default) { [weak self] _ in
+                self?.followManager.acceptUserRequest(withUserId: userId) {
+                    completion(.accept, $0, $1, $2)
+                }
+            }
+            let declineRequestAction = UIAlertAction(title: "Decline Request", style: .default) { [weak self] _ in
+                self?.followManager.declineUserRequest(withUserId: userId) {
+                    completion(.decline, $0, $1, $2)
+                }
+            }
+            switch info.status {
+            case .none:
+                alertController.addAction(followAction)
+            case .accepted:
+                alertController.addAction(unfollowAction) // unfollow
+            case .pending:
+                alertController.addAction(unfollowAction) // withdraw request
+            @unknown default: break
+            }
+            
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            alertController.addAction(cancelAction)
+            self?.present(alertController, animated: true, completion: nil)
+        }
+        
+    }
+    
 }
 
 extension UIAlertController {

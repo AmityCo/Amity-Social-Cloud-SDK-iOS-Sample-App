@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVKit
 
 // NOTE
 //
@@ -119,6 +120,44 @@ class UserPostsFeedViewController: UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    private func presentChooseVideoItemDialogue(data: VideoFeedModel) {
+        let alertController = UIAlertController(title: "Watch Video", message: nil, preferredStyle: .actionSheet)
+        for (index, videosInfo) in data.allVideosInfo.enumerated() {
+            let pick = UIAlertAction(title: "\(index + 1)", style: .default) { [weak self] action in
+                self?.presentChooseVideoQualityDialogue(videosInfo: videosInfo)
+            }
+            alertController.addAction(pick)
+        }
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alertController.addAction(cancel)
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    private func presentChooseVideoQualityDialogue(videosInfo: [NSNumber : AmityVideoData]) {
+        let alertController = UIAlertController(title: "Choose Quality", message: nil, preferredStyle: .actionSheet)
+        for quality in AmityVideoDataQuality.allCases {
+            if let videoData = videosInfo[quality.rawValue as NSNumber],
+               let url = URL(string: videoData.fileURL) {
+                let pick = UIAlertAction(title: "\(quality.stringValue())", style: .default) { [weak self] action in
+                    self?.playVideo(url: url)
+                }
+                alertController.addAction(pick)
+            }
+        }
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alertController.addAction(cancel)
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    private func playVideo(url: URL) {
+        let player = AVPlayer(url: url)
+        let controller = AVPlayerViewController()
+        controller.player = player
+        present(controller, animated: true) {
+            player.play()
+        }
+    }
+    
     // Support Pagination
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
@@ -190,6 +229,33 @@ extension UserPostsFeedViewController: UITableViewDataSource, UITableViewDelegat
                 // Download file Here...
                 
                 return cell
+                
+            case .video:
+                
+                let cell = tableView.dequeueReusableCell(withIdentifier: FeedPostImageCell.identifier) as! FeedPostImageCell
+                
+                let data = feedManager.getFeedItemVideoData(at: indexPath.section)
+                
+                cell.videoFeedModel = data
+                cell.imageCountLabel.text = "\(data.allVideosInfo.count) Videos"
+                cell.delegate = self
+                
+                if let thumbnailFileUrl = data.thumbnailInfo?.fileURL {
+                    feedManager.downloadImage(fileUrl: thumbnailFileUrl) { image in
+                        guard
+                            let videoInfo = cell.videoFeedModel,
+                            videoInfo.postId == data.postId else {
+                            // Cell has been dequeue already, no need to set the image.
+                            return
+                        }
+                        cell.imageView1.image = image
+                    }
+                }
+                
+                Log.add(info: "Extracted videos data at post id: \(data.postId)")
+                
+                return cell
+                
             case .image:
                 let cell = tableView.dequeueReusableCell(withIdentifier: FeedPostImageCell.identifier) as! FeedPostImageCell
                 
@@ -406,3 +472,12 @@ extension UserPostsFeedViewController {
     }
 }
 
+
+extension UserPostsFeedViewController: FeedPostImageCellDelegate {
+    
+    
+    func feedPostImageCellDidTapImage(_ cell: FeedPostImageCell, videoFeedModel: VideoFeedModel) {
+        presentChooseVideoItemDialogue(data: videoFeedModel)
+    }
+    
+}

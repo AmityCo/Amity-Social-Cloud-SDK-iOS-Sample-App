@@ -24,7 +24,9 @@ struct ApiKeyView: View {
     @State var enteredApiKey: String = ""
     @State var customHttpEndpoint: String = ""
     @State var customSocketEndpoint: String = ""
+    @State var userId: String = ""
     
+    @State var isInitialDataSetupDone = false
     
     var body: some View {
         NavigationView {
@@ -47,7 +49,7 @@ struct ApiKeyView: View {
                     Picker(selection: $selectedApiKey, label: Text("Api Key:")) {
                         ForEach(0..<self.keys.count, id: \.self) { index in
                             Text(self.keys[index])
-                                .lineLimit(1)
+                                .lineLimit(2)
                                 .font(.caption)
                         }
                     }
@@ -55,10 +57,16 @@ struct ApiKeyView: View {
                     Picker(selection: $selectedEnvironment, label: Text("Env:")) {
                         ForEach(0..<environments.count, id: \.self) { index in
                             Text(self.environments[index])
-                                .lineLimit(1)
+                                .lineLimit(2)
                                 .font(.caption)
                         }
                     }
+                }
+                
+                Section(header: Text("Current User Id")) {
+                    TextField("User Id", text: $userId)
+                        .font(.subheadline)
+                        .autocapitalization(.none)
                 }
                 
                 if self.selectedEnvironment == 1 {
@@ -95,8 +103,22 @@ struct ApiKeyView: View {
                     
                     UserDefaults.standard.customHttpEndpoint = self.customHttpEndpoint
                     UserDefaults.standard.customSocketEndpoint = self.customSocketEndpoint
+                    UserDefaults.standard.userId = self.userId
                     
                     UserDefaults.standard.synchronize()
+                    
+                    // Amity Client Setup
+                    // !!! IMPORTANT !!!
+                    //
+                    // SDK needs to be setup before any method can be used. This is a two step process.
+                    //
+                    // Step 1: Create an instance of AmityClient with provided apikey
+                    // This step is handled in AmityManager class.
+                    
+                    // Step 2: Register userId
+                    // This step is handled in HomeViewController class.
+                    AmityManager.shared.setup()
+                    
                     
                     self.isSetupComplete = !apiKeySelection.isEmpty
                 }) {
@@ -116,8 +138,10 @@ struct ApiKeyView: View {
             }
             .navigationBarTitle("SDK Setup", displayMode: .inline)
             .onAppear {
-                var availableApiKeys = UserDefaults.standard.apiKeys
+                guard !isInitialDataSetupDone else { return }
                 
+                // Get all the api keys provided by user.
+                var availableApiKeys = UserDefaults.standard.apiKeys
                 if let currentApiKey = UserDefaults.standard.currentApiKey,
                    let index = availableApiKeys.firstIndex(of: currentApiKey) {
                     selectedApiKey = index
@@ -129,9 +153,14 @@ struct ApiKeyView: View {
                     
                     availableApiKeys.append(key)
                 }
-                
                 self.saveApiKeys(keys: availableApiKeys)
                 self.keys = availableApiKeys
+                
+                // User Id Setup
+                self.userId = UserDefaults.standard.userId ?? "victimIOS"
+                
+                // Prevent re intialization
+                self.isInitialDataSetupDone = true
             }
         }
     }
@@ -150,7 +179,6 @@ struct ApiKeyView_Previews: PreviewProvider {
 }
 
 struct MainContainerView: View {
-    
     @State var isSetupComplete = false
     
     var body: some View {
@@ -164,7 +192,6 @@ struct MainContainerView: View {
             return AnyView(ApiKeyView(isSetupComplete: $isSetupComplete))
         }
     }
-    
 }
 
 

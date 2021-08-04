@@ -10,6 +10,21 @@ import Foundation
 import AmitySDK
 
 struct CommunityDraft: Codable {
+    
+    internal init(identifier: String?, isPrivate: Bool, displayName: String, description: String, userIds: [String], tags: [String], key: String, value: String, membersCount: Int = 0, categoryId: String, isPostReview: Bool) {
+        self.identifier = identifier
+        self.isPrivate = isPrivate
+        self.displayName = displayName
+        self.description = description
+        self.userIds = userIds
+        self.tags = tags
+        self.key = key
+        self.value = value
+        self.membersCount = membersCount
+        self.categoryId = categoryId
+        self.isPostReview = isPostReview
+    }
+    
     let identifier: String?
     var isPrivate: Bool
     var displayName: String
@@ -20,6 +35,7 @@ struct CommunityDraft: Codable {
     var value: String
     var membersCount: Int = 0
     var categoryId: String
+    var isPostReview: Bool
     
     var metadata: [String: String]? {
         if key == "" || value == "" {
@@ -28,6 +44,10 @@ struct CommunityDraft: Codable {
         return [
             key: value
         ]
+    }
+    
+    init(community: CommunityListModel) {
+        self = CommunityDraft(identifier: community.id, isPrivate: !community.isPublic, displayName: community.displayName, description: community.description, userIds: [community.userId], tags: community.tags, key: community.metadata?.keys.first ?? "", value: community.metadata?.description ?? "", membersCount: community.membersCount, categoryId: community.categoryIds?.first ?? "", isPostReview: community.isPostReview)
     }
 }
 
@@ -55,11 +75,11 @@ class CommunityEditorViewModel: EditorViewModel, CommunityEditorDatasource, Comm
     private let communityRepository = AmityCommunityRepository(client: AmityManager.shared.client!)
     private let fileRepository = AmityFileRepository(client: AmityManager.shared.client!)
     
-    @Published var draft: CommunityDraft = CommunityDraft(identifier: nil, isPrivate: false, displayName: "", description: "", userIds: [], tags: [], key: "", value: "", categoryId: "")
+    @Published var draft: CommunityDraft = CommunityDraft(identifier: nil, isPrivate: false, displayName: "", description: "", userIds: [], tags: [], key: "", value: "", categoryId: "", isPostReview: false)
     @Published var isEditorLoading: Bool = false
     @Published var isEditMode: Bool = false
     
-    init(draft: CommunityDraft = CommunityDraft(identifier: nil, isPrivate: false, displayName: "", description: "", userIds: [], tags: [], key: "", value: "", categoryId: "")) {
+    init(draft: CommunityDraft = CommunityDraft(identifier: nil, isPrivate: false, displayName: "", description: "", userIds: [], tags: [], key: "", value: "", categoryId: "", isPostReview: false)) {
         self.draft = draft
         if draft.identifier != nil {
             isEditMode = true
@@ -89,7 +109,7 @@ class CommunityEditorViewModel: EditorViewModel, CommunityEditorDatasource, Comm
         builder.setUserIds(finalUserId)
         builder.setCommunityDescription(draft.description)
         builder.setIsPublic(!draft.isPrivate)
-        
+        builder.isPostReviewEnabled(draft.isPostReview)
         if let data = imageData {
             builder.setAvatar(data)
         }
@@ -121,7 +141,7 @@ class CommunityEditorViewModel: EditorViewModel, CommunityEditorDatasource, Comm
         builder.setCommunityDescription(draft.description)
         builder.setIsPublic(!draft.isPrivate)
         builder.setAvatar(imageData)
-        
+        builder.isPostReviewEnabled(draft.isPostReview)
         if !draft.categoryId.isEmpty {
             builder.setCategoryIds([draft.categoryId])
         }

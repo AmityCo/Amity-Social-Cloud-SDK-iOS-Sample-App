@@ -99,7 +99,8 @@ struct SDKPermission {
             .deleteCommunityPost,
             .pinCommunityPost,
             .editCommunityComment,
-            .deleteCommunityComment
+            .deleteCommunityComment,
+            .reviewCommunityPost
         ]
         return values
     }()

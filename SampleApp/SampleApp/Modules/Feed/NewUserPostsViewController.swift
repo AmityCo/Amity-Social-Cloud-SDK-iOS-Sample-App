@@ -7,22 +7,27 @@
 //
 
 import UIKit
+import MobileCoreServices
 
 /*
  * Note:
  *
  * This class displays the screen to edit/create new post.
  */
+// FIXME: Implement video post function
 class NewUserPostsViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     @IBOutlet weak var textView: UITextView!
     @IBOutlet weak var attachImageButton: UIButton!
+    @IBOutlet weak var attachVideoButton: UIButton!
     @IBOutlet weak var imageCountLabel: UILabel!
+    @IBOutlet weak var videoCountLabel: UILabel!
     @IBOutlet weak var filePostSwitch: UISwitch!
     @IBOutlet weak var communityPostSwitch: UISwitch!
     @IBOutlet weak var communityIdField: UITextField!
     
-    var attachedImages = [UIImage]()
+    var attachedImages: [UIImage] = []
+    var attachedVideoUrls: [URL] = []
     
     var feedManager: UserPostsFeedManager!
     var commentManager: UserPostCommentManager!
@@ -43,16 +48,14 @@ class NewUserPostsViewController: UIViewController, UIImagePickerControllerDeleg
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setupViews()
     }
     
     func setupViews() {
         textView.keyboardDismissMode = .onDrag
         textView.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-        
         attachImageButton.addTarget(self, action: #selector(onAttachImageButtonTap), for: .touchUpInside)
-        
+        attachVideoButton.addTarget(self, action: #selector(onAttachVideoButtonTap), for: .touchUpInside)
         updateViewsForCurrentMode()
     }
     
@@ -92,8 +95,7 @@ class NewUserPostsViewController: UIViewController, UIImagePickerControllerDeleg
         
         guard isPostEnabled else { return }
         
-        let postText = textView.text ?? ""
-        guard !postText.isEmpty else { return }
+        let postText = textView.text
         
         isPostEnabled = false
         
@@ -102,7 +104,7 @@ class NewUserPostsViewController: UIViewController, UIImagePickerControllerDeleg
             
             let communityPostId = communityIdField.text ?? ""
             let isCommunityPost = communityPostSwitch.isOn && !communityPostId.isEmpty
-            feedManager.createPost(text: postText, images: attachedImages, isFilePost: filePostSwitch.isOn, communityId: isCommunityPost ? communityPostId : nil) { [weak self] isSuccess in
+            feedManager.createPost(text: postText, images: attachedImages, videos: attachedVideoUrls, isFilePost: filePostSwitch.isOn, communityId: isCommunityPost ? communityPostId : nil) { [weak self] isSuccess in
                 self?.isPostEnabled = true
                 self?.showAlertAndDismiss(isSuccess: isSuccess)
             }
@@ -147,26 +149,52 @@ class NewUserPostsViewController: UIViewController, UIImagePickerControllerDeleg
         showImagePicker()
     }
     
+    @objc func onAttachVideoButtonTap() {
+        showVideoPicker()
+    }
+    
     private func showImagePicker() {
         guard UIImagePickerController.isSourceTypeAvailable(.photoLibrary) else { return }
-        
         let imagePicker = UIImagePickerController()
         imagePicker.sourceType = .photoLibrary
+        imagePicker.mediaTypes = [String(kUTTypeImage)]
         imagePicker.delegate = self
-
+        self.present(imagePicker, animated: true, completion: nil)
+    }
+    
+    private func showVideoPicker() {
+        guard UIImagePickerController.isSourceTypeAvailable(.photoLibrary) else { return }
+        let imagePicker = UIImagePickerController()
+        imagePicker.sourceType = .photoLibrary
+        imagePicker.mediaTypes = [String(kUTTypeMovie)]
+        imagePicker.delegate = self
         self.present(imagePicker, animated: true, completion: nil)
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         
-        picker.dismiss(animated: true, completion: nil)
-        
-        guard let image: UIImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage else { return }
-        
-        self.attachedImages.append(image)
-        
-        DispatchQueue.main.async {
-            self.imageCountLabel.text = "\(self.attachedImages.count) Image attached"
+        if let mediaType = info[.mediaType] as? String {
+            switch mediaType {
+            case String(kUTTypeImage):
+                if let image: UIImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+                    attachedImages.append(image)
+                }
+            case String(kUTTypeMovie):
+                if let videoUrl = info[.mediaURL] as? URL {
+                    attachedVideoUrls.append(videoUrl)
+                }
+            default:
+                break
+            }
+            DispatchQueue.main.async {
+                picker.dismiss(animated: true, completion: nil)
+                self.imageCountLabel.text = "\(self.attachedImages.count) Image attached"
+                self.videoCountLabel.text = "\(self.attachedVideoUrls.count) Video attached"
+            }
+        } else {
+            assertionFailure("Unhandle media type for UIImagePickerController")
         }
+        
     }
+    
 }

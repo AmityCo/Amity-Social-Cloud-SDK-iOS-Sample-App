@@ -159,18 +159,27 @@ extension UserPostsFeedManager {
         // If a post contains files or images, those are present as children posts. So you need
         // to go through that array to determine the post type. In this example i just show 1 image/files
         if let children = post.childrenPosts, children.count > 0 {
-            
-            for eachChild in children {
-                if eachChild.dataType == "image" {
-                    cellItems.append(.content(type: .image))
-                    break
-                } else if eachChild.dataType == "file" {
-                    cellItems.append(.content(type: .file))
-                    break
-                } else {
-                    cellItems.append(.content(type: .text))
+
+            if let firstChild = children.first, firstChild.dataType == "video" {
+                // If we found that the first child is "video"
+                // We just need to add the first child, since the view model of `.video`
+                // already represents all the video children.
+                cellItems.append(.content(type: .video))
+            } else {
+                for aChild in children {
+                    switch aChild.dataType {
+                    case "image":
+                        cellItems.append(.content(type: .image))
+                    case "file":
+                        cellItems.append(.content(type: .file))
+                    case "video":
+                        cellItems.append(.content(type: .video))
+                    default:
+                        cellItems.append(.content(type: .text))
+                    }
                 }
             }
+            
         }
         
         if post.reactionsCount > 0 {
@@ -274,4 +283,35 @@ extension UserPostsFeedManager {
         
         return postModel
     }
+    
+    func getFeedItemVideoData(at index: Int) -> VideoFeedModel {
+        // Here i just retrieve the first post present in children post.
+        // You might want to go through all children posts to render all videos.
+        let post = getPostAtIndex(index: index)
+        
+        let allVideosInfo: [[NSNumber : AmityVideoData]]
+        let thumbnailInfo: AmityImageData?
+        
+        if let children = post?.childrenPosts {
+            allVideosInfo = children.compactMap { post in post.getVideosInfo() }
+            thumbnailInfo = children.first?.getVideoThumbnailInfo()
+        } else {
+            allVideosInfo = []
+            thumbnailInfo = nil
+        }
+        
+        let postId = post?.postId ?? "post-id-not-found"
+        
+        let userName = post?.postedUser?.displayName ?? "No Name"
+        var dateStr = "-"
+        if let date = post?.createdAt {
+            dateStr = dateFormatter.string(from: date)
+        }
+        
+        let model = VideoFeedModel(allVideosInfo: allVideosInfo, thumbnailInfo: thumbnailInfo, postId: postId, userName: userName, date: dateStr)
+        
+        return model
+    }
+    
+    
 }

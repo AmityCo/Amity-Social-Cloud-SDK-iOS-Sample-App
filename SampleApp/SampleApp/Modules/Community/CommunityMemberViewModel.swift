@@ -148,6 +148,8 @@ extension AmityPermission {
             return "EDIT COMMUNITY COMMENT"
         case .deleteCommunityComment:
             return "DELETE COMMUNITY COMMENT"
+        case .reviewCommunityPost:
+            return "REVIEW COMMUNITY POST"
         default:
             return ""
         }

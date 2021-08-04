@@ -33,17 +33,13 @@ struct CommunityDetailView: View {
             .foregroundColor(.white)
             .cornerRadius(8)
             
-            List {
-                ForEach(viewModel.feed) { post  in
-                    UserFeedItemView(model: post)
-                        .padding([.top, .bottom], 8)
-                }
+            ForEach(viewModel.feed) { post  in
+                UserFeedItemView(model: post)
+                    .padding([.top, .bottom], 8)
             }
         }
-        .navigationBarTitle("Detail", displayMode: .inline)
-        .onAppear {
-            viewModel.queryNotificationSetting()
-        }
+        
+
     }
 }
 
@@ -189,7 +185,7 @@ struct NotificationPanelView: View {
             Button("Save Settings") {
                 var updatedEvents: [AmityCommunityNotificationEvent] = []
                 for index in 0..<events.count {
-                    
+
                     var rolFilter: AmityRoleFilter? = nil
                     if events[index].eventType == .postCreated {
                         let roleIds = isModeratorRole ? ["moderator"] : []

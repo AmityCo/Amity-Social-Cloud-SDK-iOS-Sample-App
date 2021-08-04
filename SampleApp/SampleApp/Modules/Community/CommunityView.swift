@@ -68,12 +68,13 @@ struct CommunityView: View {
                         ])
                     }
                     
-                    NavigationLink(destination: CommunityCategoryListView(viewModel: self.viewModel), isActive: $showCategoryListScreen) {
-                        Button(action: {
-                            self.showCategoryListScreen = true
-                        }, label: {
-                            Image(systemName: "list.bullet")
-                        })
+                    Button(action: {
+                        self.showCategoryListScreen = true
+                    }, label: {
+                        Image(systemName: "list.bullet")
+                    })
+                    .sheet(isPresented: $showCategoryListScreen) {
+                        return CommunityCategoryListView(viewModel: self.viewModel)
                     }
                     
                     Spacer()
@@ -106,6 +107,8 @@ struct CommunityView: View {
                         self.selection = community.id + "+edit"
                     }, membershipAction: {
                         self.selection = community.id + "+participation"
+                    }, feedAction: {
+                        self.selection = community.id + "+feed"
                     })
                     .onAppear {
                         if self.viewModel.community.last == community {
@@ -114,7 +117,7 @@ struct CommunityView: View {
                     }
                     
                     // Update Navigattion
-                    let editorView = CommunityEditorView(viewModel: CommunityEditorViewModel(draft: CommunityDraft(identifier: community.id, isPrivate: !community.isPublic, displayName: community.displayName, description: community.description, userIds: [community.userId], tags: community.tags, key: community.metadata?.keys.first ?? "", value: community.metadata?.description ?? "", membersCount: community.membersCount, categoryId: community.categoryIds?.first ?? "")))
+                    let editorView = CommunityEditorView(viewModel: CommunityEditorViewModel(draft: CommunityDraft(community: community)))
                     
                     NavigationLink(
                         destination: editorView,
@@ -138,6 +141,18 @@ struct CommunityView: View {
                         .buttonStyle(PlainButtonStyle())
                         .hidden()
                     
+                    // Feed
+                    NavigationLink(
+                        destination: CommunityFeedViews(viewModel: CommunityFeedViewModel(community: community)),
+                        tag: community.id + "+feed",
+                        selection: self.$selection,
+                        label: {
+                            EmptyView()
+                        })
+                        .buttonStyle(PlainButtonStyle())
+                        .hidden()
+           
+                    
                     // Details
                     NavigationLink(
                         destination: CommunityDetailView(viewModel: CommunityDetailViewModel(community: community)),
@@ -148,12 +163,14 @@ struct CommunityView: View {
                         })
                         .buttonStyle(PlainButtonStyle())
                         .hidden()
+                    
                 }
             }
         }
         .navigationBarTitle(Text(viewModel.pageTitle), displayMode: .inline)
         .onAppear(perform: {
             self.selection = nil
+            //self.showCategoryListScreen = false
             self.showCreateScreen = false
             
             self.forceUpdate.toggle()
@@ -161,6 +178,7 @@ struct CommunityView: View {
             UITableViewCell.appearance().selectionStyle = .none
             UITableView.appearance().separatorStyle = .none
         })
+        
     }
 }
 
@@ -181,8 +199,11 @@ struct CardView: View {
     var joinAction: (() -> Void)?
     var updateAction: (() -> Void)?
     var membershipAction: (() -> Void)?
+    var feedAction: (() -> Void)?
     
-    init(model: CommunityListModel, joinAction: Action, leaveAction: Action, deleteAction: Action, detailsAction: Action, updateAction: Action, membershipAction: Action) {
+    @State var showAction: Bool = false
+    
+    init(model: CommunityListModel, joinAction: Action, leaveAction: Action, deleteAction: Action, detailsAction: Action, updateAction: Action, membershipAction: Action, feedAction: Action) {
         self.model = model
         self.joinAction = joinAction
         self.leaveAction = leaveAction
@@ -190,103 +211,105 @@ struct CardView: View {
         self.detailsAction = detailsAction
         self.updateAction = updateAction
         self.membershipAction = membershipAction
+        self.feedAction = feedAction
     }
     
     var body: some View {
         VStack {
-            VStack(alignment: .leading) {
-                Text("\(model.displayName.capitalized)")
-                    .font(.title)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .padding(.top, 12)
-                
-                if !model.description.isEmpty {
-                    Text("\(model.description.capitalized)")
-                        .foregroundColor(Color.white.opacity(0.9))
-                        .padding(.top, 4)
-                        .font(.body)
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 10)
-            
-            VStack(spacing: 5) {
-                CardTextView(key: "Community Id:", value: "\(model.communityId)")
-                CardTextView(key: "Channel Id:", value: "\(model.channelId)")
-                CardTextView(key: "Is Public:", value: "\(model.isPublic ? "YES" : "NO")")
-                CardTextView(key: "MetaData:", value: "\(model.metadata?.description ?? "")")
-                CardTextView(key: "Post Count:", value: "\(model.postsCount)")
-                CardTextView(key: "Members Count:", value: "\(model.membersCount)")
-                CardTextView(key: "Created At:", value: "\(model.createdAt)")
-            }
-            .padding([.top, .bottom], 16)
-            
-            Spacer()
-            
-            HStack(spacing: 10) {
-                if model.isJoined {
-                    Button {
-                        Log.add(info: "Leave")
-                        leaveAction?()
-                    } label: {
-                        Text("Leave")
-                            .modifier(ActionButtonStyle())
-                    }.buttonStyle(BorderlessButtonStyle())
+
+            // Header Title
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("\(model.displayName.capitalized)")
+                        .font(.title)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.top, 12)
                     
-                    Button {
-                        detailsAction?()
-                    } label: {
-                        Text("View Details")
-                            .modifier(ActionButtonStyle())
-                    }.buttonStyle(BorderlessButtonStyle())
-                } else {
-                    Button {
-                        joinAction?()
-                    } label: {
-                        Text("Join")
-                            .modifier(ActionButtonStyle())
-                    }.buttonStyle(BorderlessButtonStyle())
+                    if !model.description.isEmpty {
+                        Text("\(model.description.capitalized)")
+                            .foregroundColor(Color.white.opacity(0.9))
+                            .padding(.top, 4)
+                            .font(.body)
+                    }
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
                 
                 Spacer()
                 
-            }.padding([.leading, .trailing], 20)
-            .padding(.bottom, 10)
-            
-            if model.isJoined && model.isCreator {
-                HStack(spacing: 10) {
-                    Button {
-                        membershipAction?()
-                    } label: {
-                        Text("Add/Remove")
-                            .modifier(ActionButtonStyle())
-                    }.buttonStyle(BorderlessButtonStyle())
-                    
-                    Button {
-                        updateAction?()
-                    } label: {
-                        Text("Update")
-                            .modifier(ActionButtonStyle())
-                        
-                    }.buttonStyle(BorderlessButtonStyle())
-                    
-                    Button {
-                        deleteAction?()
-                    } label: {
-                        Text("Delete")
-                            .modifier(ActionButtonStyle())
-                    }.buttonStyle(BorderlessButtonStyle())
-                    
-                    Spacer()
-                }.padding([.leading, .trailing, .bottom], 20)
+                Button(action: {
+                    self.showAction.toggle()
+                }, label: {
+                    Image(systemName: "ellipsis.circle")
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                        .padding()
+                })
+                .padding()
+                .actionSheet(isPresented: $showAction, content: {
+                    ActionSheet(title: Text("Choose Actions"), message: Text("What do you want to do?"), buttons: getAllActions())
+                })
             }
             
+            VStack(spacing: 5) {
+                
+                let data = model.getPreviewData()
+                
+                ForEach(0..<data.count, id: \.self) { index in
+                    let item = data[index]
+                    CardTextView(key: item.0, value: item.1)
+                }
+                
+            }
+            .padding([.top, .bottom], 16)
         }
         .background(model.isJoined ? Color("NeonGreen") : Color("PastelBlue"))
         .cornerRadius(20)
         .shadow(color: Color.gray.opacity(0.6), radius: 8, x: 0, y: 0)
         .padding([.top, .bottom], 8)
+    }
+    
+    func getAllActions() -> [ActionSheet.Button] {
+        var actions = [ActionSheet.Button]()
+        
+        if model.isJoined {
+            actions.append(.default(Text("View Community Details"), action: {
+                detailsAction?()
+            }))
+            
+            actions.append(.default(Text("View Community Feed"), action: {
+                feedAction?()
+            }))
+            
+            actions.append(.default(Text("Leave Community"), action: {
+                leaveAction?()
+            }))
+            
+            // Actions related to creator
+            if model.isCreator {
+                actions.append(.default(Text("Add/Remove Members"), action: {
+                    membershipAction?()
+                }))
+                
+                actions.append(.default(Text("Update Community"), action: {
+                    updateAction?()
+                }))
+                
+                actions.append(.default(Text("Delete Community"), action: {
+                    deleteAction?()
+                }))
+            }
+        } else {
+            actions.append(.default(Text("Join Community"), action: {
+                joinAction?()
+            }))
+        }
+        
+        // Default dismiss action
+        actions.append(.cancel(Text("Dismiss")))
+        
+        return actions
     }
 }
 

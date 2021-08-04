@@ -141,114 +141,187 @@ class UserPostsFeedManager {
         return reactionCollection?.object(at: UInt(index))
     }
     // Creates the post
-    func createPost(text: String, images: [UIImage], isFilePost: Bool, communityId: String?, onCompletion: @escaping (_ isSuccess: Bool) -> ()) {
+    func createPost(text: String?,
+                    images: [UIImage],
+                    videos: [URL],
+                    isFilePost: Bool,
+                    communityId: String?,
+                    onCompletion: @escaping (_ isSuccess: Bool) -> Void) {
         
         let targetId: String? = communityId == nil ? userId : communityId
         let targetType: AmityPostTargetType = communityId == nil ? .user : .community
         
-        if images.isEmpty {
+        if !images.isEmpty, !videos.isEmpty {
+            print("This app does not support create post with both video and image attached.")
+            onCompletion(false)
+        }
+        
+        if images.isEmpty, videos.isEmpty {
+            
+            // Text Post
             
             let textBuilder = AmityTextPostBuilder()
-            textBuilder.setText(text)
+            if let text = text {
+                textBuilder.setText(text)
+            }
             
-            feedRepository.createPost(textBuilder, targetId: targetId, targetType: targetType) { (isSuccess, error) in
+            feedRepository.createPost(textBuilder, targetId: targetId, targetType: targetType) { (post, error) in
+                let isSuccess = post != nil
                 onCompletion(isSuccess)
+            }
+        } else if isFilePost {
+            
+            // File Post
+            
+            Log.add(info: "--- Creating File Post ---")
+            Log.add(info: "Uploading Files...")
+            
+            let dataArr = images.map{ AmityUploadableFile(fileData: $0.jpegData(compressionQuality: 1.0)!, fileName: "my_image_file.jpeg")}
+            
+            var filesData = [AmityFileData]()
+            for file in dataArr {
+                
+                uploadTracker.enter()
+                fileRepository?.uploadFile(file, progress: { progress in
+                    Log.add(info: "Progress: \(progress)")
+                    
+                }, completion: { [weak self] (data, error) in
+                    Log.add(info: "File upload complete")
+                    Log.add(info: "File Id: \(String(describing: data?.fileId))")
+                    
+                    if let fileData = data {
+                        Log.add(info: "Uploaded file data is: \(fileData.fileId)")
+                        filesData.append(fileData)
+                    }
+                    self?.uploadTracker.leave()
+                })
+            }
+            
+            uploadTracker.notify(queue: .main) { [weak self] in
+                self?.createFilePost(fileIds: filesData, text: text, targetId: targetId, targetType: targetType, completion: onCompletion)
+            }
+            
+        } else if !images.isEmpty {
+            
+            // Image Post
+            
+            Log.add(info: "--- Creating Image Post ---")
+            Log.add(info: "Uploading \(images.count) images...")
+            
+            var imagesData = [AmityImageData]()
+            
+            for image in images {
+                uploadTracker.enter()
+                fileRepository?.uploadImage(image, progress: { progress in
+                    Log.add(info: "Progress: \(progress)")
+                }, completion: { [weak self] (data, error) in
+                    if let imgData = data {
+                        Log.add(info: "Image upload id: \(imgData.fileId)")
+                        imagesData.append(imgData)
+                    }
+                    
+                    Log.add(info: "Image upload complete, Error: \(String(describing: error))")
+                    self?.uploadTracker.leave()
+                })
+            }
+            
+            uploadTracker.notify(queue: .main) { [weak self] in
+                self?.createImagePost(fileIds: imagesData, text: text, targetId: targetId, targetType: targetType, completion: onCompletion)
+            }
+            
+        } else if !videos.isEmpty {
+            
+            // Video Post
+            
+            Log.add(info: "--- Creating Video Post ---")
+            Log.add(info: "Uploading \(videos.count) videos...")
+            
+            var videosData: [AmityVideoData] = []
+            
+            for videoUrl in videos {
+                uploadTracker.enter()
+                fileRepository?.uploadVideo(with: videoUrl, progress: { progress in
+                    Log.add(info: "Progress: \(progress)")
+                }, completion: { [weak self] (data, error) in
+                    if let videoData = data {
+                        Log.add(info: "Video upload id: \(videoData.fileId)")
+                        videosData.append(videoData)
+                    }
+                    if let error = error {
+                        Log.add(info: "Video upload complete, Error: \(String(describing: error))")
+                    }
+                    self?.uploadTracker.leave()
+                })
+            }
+            
+            uploadTracker.notify(queue: .main) { [weak self] in
+                self?.createVideoPost(videosData: videosData, text: text, targetId: targetId, targetType: targetType, completion: onCompletion)
             }
             
         } else {
-            
-            if isFilePost {
-                Log.add(info: "--- Creating File Post ---")
-                Log.add(info: "Uploading Files...")
-                
-                let dataArr = images.map{ AmityUploadableFile(fileData: $0.jpegData(compressionQuality: 1.0)!, fileName: "my_image_file.jpeg")}
-                
-                var filesData = [AmityFileData]()
-                for file in dataArr {
-                    
-                    uploadTracker.enter()
-                    fileRepository?.uploadFile(file, progress: { progress in
-                        Log.add(info: "Progress: \(progress)")
-                        
-                    }, completion: { [weak self] (data, error) in
-                        Log.add(info: "File upload complete")
-                        Log.add(info: "File Id: \(String(describing: data?.fileId))")
-                        
-                        if let fileData = data {
-                            Log.add(info: "Uploaded file data is: \(fileData.fileId)")
-                            filesData.append(fileData)
-                        }
-                        self?.uploadTracker.leave()
-                    })
-                }
-                
-                uploadTracker.notify(queue: .main) { [weak self] in
-                    self?.createFilePost(fileIds: filesData, text: text, targetId: targetId, targetType: targetType, completion: onCompletion)
-                }
-                
-            } else {
-                
-                Log.add(info: "--- Creating Image Post ---")
-                Log.add(info: "Uploading \(images.count) images...")
-                
-                var imagesData = [AmityImageData]()
-                
-                for image in images {
-                    uploadTracker.enter()
-                    fileRepository?.uploadImage(image, progress: { progress in
-                        Log.add(info: "Progress: \(progress)")
-                    }, completion: { [weak self] (data, error) in
-                        if let imgData = data {
-                            Log.add(info: "Image upload id: \(imgData.fileId)")
-                            imagesData.append(imgData)
-                        }
-                        
-                        Log.add(info: "Image upload complete, Error: \(String(describing: error))")
-                        self?.uploadTracker.leave()
-                    })
-                }
-                
-                uploadTracker.notify(queue: .main) { [weak self] in
-                    self?.createImagePost(fileIds: imagesData, text: text, targetId: targetId, targetType: targetType, completion: onCompletion)
-                }
-                
-            }
+            assertionFailure("Unhandle create post case.")
         }
+        
     }
     
-    func createFilePost(fileIds: [AmityFileData], text: String, targetId: String?, targetType: AmityPostTargetType, completion: @escaping (_ isSuccess: Bool) -> ()) {
+    func createFilePost(fileIds: [AmityFileData], text: String?, targetId: String?, targetType: AmityPostTargetType, completion: @escaping (_ isSuccess: Bool) -> ()) {
         
         let filePostBuilder = AmityFilePostBuilder()
-        filePostBuilder.setText(text)
+        if let text = text {
+            filePostBuilder.setText(text)
+        }
         filePostBuilder.setFileData(fileIds)
         
-        feedRepository.createPost(filePostBuilder, targetId: targetId, targetType: targetType) { (isSuccess, error) in
+        feedRepository.createPost(filePostBuilder, targetId: targetId, targetType: targetType) { (post, error) in
+            let isSuccess = post != nil
             completion(isSuccess)
         }
     }
     
-    func createImagePost(fileIds: [AmityImageData], text: String, targetId: String?, targetType: AmityPostTargetType, completion: @escaping (_ isSuccess: Bool) -> ()) {
+    func createImagePost(fileIds: [AmityImageData], text: String?, targetId: String?, targetType: AmityPostTargetType, completion: @escaping (_ isSuccess: Bool) -> ()) {
         
         let imagePostBuilder = AmityImagePostBuilder()
-        imagePostBuilder.setText(text)
+        if let text = text {
+            imagePostBuilder.setText(text)
+        }
         imagePostBuilder.setImageData(fileIds)
         
-        feedRepository.createPost(imagePostBuilder, targetId: targetId, targetType: targetType) { (isSuccess, error) in
+        feedRepository.createPost(imagePostBuilder, targetId: targetId, targetType: targetType) { (post, error) in
+            let isSuccess = post != nil
             completion(isSuccess)
         }
     }
     
-    func updatePost(text: String, onCompletion: @escaping (_ isSuccess: Bool)->()) {
+    func createVideoPost(videosData: [AmityVideoData], text: String?, targetId: String?, targetType: AmityPostTargetType, completion: @escaping (_ isSuccess: Bool) -> ()) {
+        
+        let videoPostBuilder = AmityVideoPostBuilder()
+        if let text = text {
+            videoPostBuilder.setText(text)
+        }
+        videoPostBuilder.setVideos(videosData)
+        
+        feedRepository.createPost(videoPostBuilder, targetId: targetId, targetType: targetType) { (post, error) in
+            let isSuccess = post != nil
+            completion(isSuccess)
+        }
+        
+    }
+    
+    func updatePost(text: String?, onCompletion: @escaping (_ isSuccess: Bool)->()) {
+        
         guard let post = editedPost else { return }
         
         // Right now you can only change the text for the image post.
         
         let textBuilder = AmityTextPostBuilder()
-        textBuilder.setText(text)
+        if let text = text {
+            textBuilder.setText(text)
+        }
         
         Log.add(info: "Updating post with id: \(post.postId)")
         
-        feedRepository.updatePost(withPostId: post.postId, builder: textBuilder) { (isSuccess, error) in
+        feedRepository.updatePost(withPostId: post.postId, builder: textBuilder) { (post, error) in
+            let isSuccess = post != nil
             onCompletion(isSuccess)
         }
         

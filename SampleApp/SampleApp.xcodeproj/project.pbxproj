@@ -14,6 +14,8 @@
 		1A17451624D80B7E00D524C8 /* CommunityCategoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A17451524D80B7D00D524C8 /* CommunityCategoryListView.swift */; };
 		1A1CD6D524A5A267002503F4 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1CD6D424A5A267002503F4 /* Log.swift */; };
 		1A3208C8261E2DA800F470D3 /* UserUpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3208C7261E2DA800F470D3 /* UserUpdateManager.swift */; };
+		1A320907261F21BA00F470D3 /* AmitySDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A320906261F21BA00F470D3 /* AmitySDK.xcframework */; };
+		1A320908261F21BA00F470D3 /* AmitySDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1A320906261F21BA00F470D3 /* AmitySDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1A32431F249366F600BA6408 /* AppProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A32431E249366F600BA6408 /* AppProtocols.swift */; };
 		1A3CC4F52456A38D008A26D0 /* MainTabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3CC4F42456A38D008A26D0 /* MainTabViewController.swift */; };
 		1A3CC4F92456A575008A26D0 /* Feed.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1A3CC4F82456A575008A26D0 /* Feed.storyboard */; };
@@ -28,6 +30,7 @@
 		1A80D99D260A60BC00733767 /* AddTagTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A80D99C260A60BC00733767 /* AddTagTableViewCell.xib */; };
 		1A8915B3258A2008008EEB01 /* CommunityMemberViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8915B2258A2008008EEB01 /* CommunityMemberViewModel.swift */; };
 		1A8915CE258B4351008EEB01 /* UserPermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8915CD258B4351008EEB01 /* UserPermissionView.swift */; };
+		1A8B76A82643B2920068799C /* CustomMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8B76A72643B2920068799C /* CustomMessageView.swift */; };
 		1A964598247B92A5003C40BF /* UserPostReactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A964597247B92A5003C40BF /* UserPostReactionsViewController.swift */; };
 		1A995F102456E8120052BD66 /* FeedPostHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A995F0F2456E8120052BD66 /* FeedPostHeaderCell.swift */; };
 		1A995F122456E8220052BD66 /* FeedPostMultilineLabelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A995F112456E8220052BD66 /* FeedPostMultilineLabelCell.swift */; };
@@ -42,10 +45,6 @@
 		1AB90836252ECCC4001E0310 /* ApiKeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB90835252ECCC4001E0310 /* ApiKeyView.swift */; };
 		1AD291D525260F9300367C99 /* ChannelUpdateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD291D425260F9300367C99 /* ChannelUpdateView.swift */; };
 		1AD291D7252611E500367C99 /* ChannelUpdateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD291D6252611E500367C99 /* ChannelUpdateViewModel.swift */; };
-		1AE8D192264243A50052C136 /* AmitySDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE8D190264243A50052C136 /* AmitySDK.xcframework */; };
-		1AE8D193264243A50052C136 /* AmitySDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE8D190264243A50052C136 /* AmitySDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		1AE8D194264243A50052C136 /* Realm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE8D191264243A50052C136 /* Realm.xcframework */; };
-		1AE8D195264243A50052C136 /* Realm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE8D191264243A50052C136 /* Realm.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1AEAF16B2567909900FF46AB /* AudioMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AEAF16A2567909900FF46AB /* AudioMessageHandler.swift */; };
 		1AEC8C6B2522DFB200793B48 /* ChannelFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AEC8C6A2522DFB200793B48 /* ChannelFilterView.swift */; };
 		1AFA446F252E260500ED1941 /* CommunityParticipationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AFA446E252E260500ED1941 /* CommunityParticipationView.swift */; };
@@ -54,7 +53,6 @@
 		456D83C72490AF52005846E6 /* UserPostCommentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D83C62490AF52005846E6 /* UserPostCommentManager.swift */; };
 		456D83C92490BC12005846E6 /* UserPostCommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D83C82490BC12005846E6 /* UserPostCommentsViewController.swift */; };
 		456D83CB2490DEC6005846E6 /* CommentViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D83CA2490DEC6005846E6 /* CommentViewCell.swift */; };
-		458C5C9924C96D7F0000D813 /* CommunityDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458C5C9824C96D7F0000D813 /* CommunityDetailViewModel.swift */; };
 		458C5C9C24C984E80000D813 /* CommunityDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458C5C9B24C984E80000D813 /* CommunityDetailView.swift */; };
 		45920CCB24BC060400365FA1 /* CommunityEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45920CCA24BC060400365FA1 /* CommunityEditorView.swift */; };
 		45920CCD24BC155A00365FA1 /* AmityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45920CCC24BC155A00365FA1 /* AmityManager.swift */; };
@@ -113,12 +111,25 @@
 		64E1EAB622A9153C004DF57D /* PushNotificationRegistrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E1EAB222A9153C004DF57D /* PushNotificationRegistrationManager.swift */; };
 		64E1EAB722A9153C004DF57D /* AboutTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E1EAB322A9153C004DF57D /* AboutTableViewController.swift */; };
 		64EF25C4233094C9009700ED /* AmityKeyboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64EF25C3233094C9009700ED /* AmityKeyboardService.swift */; };
+		7249B1772677480500721D4D /* FollowListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7249B1762677480500721D4D /* FollowListViewController.swift */; };
+		7249B17A26774DE000721D4D /* FollowListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7249B17926774DE000721D4D /* FollowListTableViewCell.swift */; };
 		72865FBD25F9DB0800999EE7 /* UserLevelPushNotificationsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72865FBC25F9DB0800999EE7 /* UserLevelPushNotificationsTableViewController.swift */; };
 		72865FC325FA155400999EE7 /* SwitchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72865FC125FA155400999EE7 /* SwitchTableViewCell.swift */; };
 		72865FEF25FB26B200999EE7 /* UserLevelPushNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72865FEE25FB26B200999EE7 /* UserLevelPushNotificationManager.swift */; };
 		72865FF125FB26D500999EE7 /* UserNotificationModuleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72865FF025FB26D500999EE7 /* UserNotificationModuleViewModel.swift */; };
 		72865FF325FB286300999EE7 /* NotificationModuleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72865FF225FB286300999EE7 /* NotificationModuleTableViewCell.swift */; };
 		729844C925C96D710026A7B9 /* ChildCommentViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 729844C825C96D710026A7B9 /* ChildCommentViewCell.swift */; };
+		72B1C0AC2678CF6300044EE2 /* FollowInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B1C0AB2678CF6300044EE2 /* FollowInfoViewController.swift */; };
+		787EDE9A268CE83E00D51CDB /* CommunityFeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787EDE99268CE83E00D51CDB /* CommunityFeedViewModel.swift */; };
+		787EDEA0268CEDC400D51CDB /* CommunityDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787EDE9F268CEDC400D51CDB /* CommunityDetailViewModel.swift */; };
+		787EDEA3268D6C8400D51CDB /* CommunityFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787EDEA1268D6C8400D51CDB /* CommunityFeedViewController.swift */; };
+		787EDEA4268D6C8400D51CDB /* CommunityFeedViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 787EDEA2268D6C8400D51CDB /* CommunityFeedViewController.xib */; };
+		787EDEA8268D6E4C00D51CDB /* CommunityFeedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787EDEA6268D6E4C00D51CDB /* CommunityFeedTableViewCell.swift */; };
+		787EDEA9268D6E4C00D51CDB /* CommunityFeedTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 787EDEA7268D6E4C00D51CDB /* CommunityFeedTableViewCell.xib */; };
+		A02627BB25AC229200D43315 /* Realm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A02627B925AC229200D43315 /* Realm.xcframework */; };
+		A02627BC25AC229200D43315 /* Realm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A02627B925AC229200D43315 /* Realm.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A0E2B1F526A7E6C400F1C4D5 /* PostQuerySettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E2B1F426A7E6C400F1C4D5 /* PostQuerySettingsPage.swift */; };
+		A0E2B1F726A8005F00F1C4D5 /* PostListPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E2B1F626A8005F00F1C4D5 /* PostListPage.swift */; };
 		A704FC602408BB16002177A1 /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A704FC5F2408BB16002177A1 /* StringExtension.swift */; };
 		A739ADC423B9B547008FBE12 /* ReactionDatasource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A739ADC323B9B547008FBE12 /* ReactionDatasource.swift */; };
 		A74193E223597984006D404C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F0D764CD2050E85300535720 /* LaunchScreen.storyboard */; };
@@ -139,14 +150,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		1AE8D196264243A50052C136 /* Embed Frameworks */ = {
+		A02627BF25AC229200D43315 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1AE8D193264243A50052C136 /* AmitySDK.xcframework in Embed Frameworks */,
-				1AE8D195264243A50052C136 /* Realm.xcframework in Embed Frameworks */,
+				A02627BC25AC229200D43315 /* Realm.xcframework in Embed Frameworks */,
+				1A320908261F21BA00F470D3 /* AmitySDK.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,6 +187,7 @@
 		1A80D99C260A60BC00733767 /* AddTagTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AddTagTableViewCell.xib; sourceTree = "<group>"; };
 		1A8915B2258A2008008EEB01 /* CommunityMemberViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityMemberViewModel.swift; sourceTree = "<group>"; };
 		1A8915CD258B4351008EEB01 /* UserPermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPermissionView.swift; sourceTree = "<group>"; };
+		1A8B76A72643B2920068799C /* CustomMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomMessageView.swift; sourceTree = "<group>"; };
 		1A964597247B92A5003C40BF /* UserPostReactionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPostReactionsViewController.swift; sourceTree = "<group>"; };
 		1A995F0F2456E8120052BD66 /* FeedPostHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPostHeaderCell.swift; sourceTree = "<group>"; };
 		1A995F112456E8220052BD66 /* FeedPostMultilineLabelCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPostMultilineLabelCell.swift; sourceTree = "<group>"; };
@@ -190,8 +202,6 @@
 		1AB90835252ECCC4001E0310 /* ApiKeyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiKeyView.swift; sourceTree = "<group>"; };
 		1AD291D425260F9300367C99 /* ChannelUpdateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelUpdateView.swift; sourceTree = "<group>"; };
 		1AD291D6252611E500367C99 /* ChannelUpdateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelUpdateViewModel.swift; sourceTree = "<group>"; };
-		1AE8D190264243A50052C136 /* AmitySDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = AmitySDK.xcframework; sourceTree = "<group>"; };
-		1AE8D191264243A50052C136 /* Realm.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Realm.xcframework; sourceTree = "<group>"; };
 		1AEAF16A2567909900FF46AB /* AudioMessageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMessageHandler.swift; sourceTree = "<group>"; };
 		1AEC8C6A2522DFB200793B48 /* ChannelFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelFilterView.swift; sourceTree = "<group>"; };
 		1AFA446E252E260500ED1941 /* CommunityParticipationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityParticipationView.swift; sourceTree = "<group>"; };
@@ -200,7 +210,6 @@
 		456D83C62490AF52005846E6 /* UserPostCommentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPostCommentManager.swift; sourceTree = "<group>"; };
 		456D83C82490BC12005846E6 /* UserPostCommentsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPostCommentsViewController.swift; sourceTree = "<group>"; };
 		456D83CA2490DEC6005846E6 /* CommentViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewCell.swift; sourceTree = "<group>"; };
-		458C5C9824C96D7F0000D813 /* CommunityDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityDetailViewModel.swift; sourceTree = "<group>"; };
 		458C5C9B24C984E80000D813 /* CommunityDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityDetailView.swift; sourceTree = "<group>"; };
 		45920CCA24BC060400365FA1 /* CommunityEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityEditorView.swift; sourceTree = "<group>"; };
 		45920CCC24BC155A00365FA1 /* AmityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmityManager.swift; sourceTree = "<group>"; };
@@ -268,13 +277,24 @@
 		64E1EAB222A9153C004DF57D /* PushNotificationRegistrationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushNotificationRegistrationManager.swift; sourceTree = "<group>"; };
 		64E1EAB322A9153C004DF57D /* AboutTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutTableViewController.swift; sourceTree = "<group>"; };
 		64EF25C3233094C9009700ED /* AmityKeyboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmityKeyboardService.swift; sourceTree = "<group>"; };
+		7249B1762677480500721D4D /* FollowListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowListViewController.swift; sourceTree = "<group>"; };
+		7249B17926774DE000721D4D /* FollowListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowListTableViewCell.swift; sourceTree = "<group>"; };
 		72865FBC25F9DB0800999EE7 /* UserLevelPushNotificationsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLevelPushNotificationsTableViewController.swift; sourceTree = "<group>"; };
 		72865FC125FA155400999EE7 /* SwitchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchTableViewCell.swift; sourceTree = "<group>"; };
 		72865FEE25FB26B200999EE7 /* UserLevelPushNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLevelPushNotificationManager.swift; sourceTree = "<group>"; };
 		72865FF025FB26D500999EE7 /* UserNotificationModuleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationModuleViewModel.swift; sourceTree = "<group>"; };
 		72865FF225FB286300999EE7 /* NotificationModuleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationModuleTableViewCell.swift; sourceTree = "<group>"; };
 		729844C825C96D710026A7B9 /* ChildCommentViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildCommentViewCell.swift; sourceTree = "<group>"; };
+		72B1C0AB2678CF6300044EE2 /* FollowInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowInfoViewController.swift; sourceTree = "<group>"; };
+		787EDE99268CE83E00D51CDB /* CommunityFeedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityFeedViewModel.swift; sourceTree = "<group>"; };
+		787EDE9F268CEDC400D51CDB /* CommunityDetailViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommunityDetailViewModel.swift; sourceTree = "<group>"; };
+		787EDEA1268D6C8400D51CDB /* CommunityFeedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityFeedViewController.swift; sourceTree = "<group>"; };
+		787EDEA2268D6C8400D51CDB /* CommunityFeedViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CommunityFeedViewController.xib; sourceTree = "<group>"; };
+		787EDEA6268D6E4C00D51CDB /* CommunityFeedTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityFeedTableViewCell.swift; sourceTree = "<group>"; };
+		787EDEA7268D6E4C00D51CDB /* CommunityFeedTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CommunityFeedTableViewCell.xib; sourceTree = "<group>"; };
 		A02627B925AC229200D43315 /* Realm.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Realm.xcframework; path = ../Frameworks/Realm.xcframework; sourceTree = "<group>"; };
+		A0E2B1F426A7E6C400F1C4D5 /* PostQuerySettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostQuerySettingsPage.swift; sourceTree = "<group>"; };
+		A0E2B1F626A8005F00F1C4D5 /* PostListPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListPage.swift; sourceTree = "<group>"; };
 		A704FC5F2408BB16002177A1 /* StringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
 		A739ADC323B9B547008FBE12 /* ReactionDatasource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionDatasource.swift; sourceTree = "<group>"; };
 		A74193E62359A8E2006D404C /* AmityCustomViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmityCustomViewController.swift; sourceTree = "<group>"; };
@@ -297,10 +317,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1AE8D192264243A50052C136 /* AmitySDK.xcframework in Frameworks */,
-				1AE8D194264243A50052C136 /* Realm.xcframework in Frameworks */,
 				6437EBE620C791E9007F2F4B /* QuartzCore.framework in Frameworks */,
+				1A320907261F21BA00F470D3 /* AmitySDK.xcframework in Frameworks */,
 				F0A1D9F72093104F0051BAC9 /* AVKit.framework in Frameworks */,
+				A02627BB25AC229200D43315 /* Realm.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -333,8 +353,10 @@
 				64ED5F2522C4BB710018BE77 /* ApiKey */,
 				1AA24DE9252CA73300050200 /* ImagePicker */,
 				45F4EE8E24B8257E00AFC32E /* Community */,
+				7249B17826774DC300721D4D /* FollowList */,
 				1A143EE624695CD0001107CF /* UserList */,
 				1A3CC4EE24569569008A26D0 /* Feed */,
+				A0E2B1F326A7E66D00F1C4D5 /* Post */,
 				1A3CC4F42456A38D008A26D0 /* MainTabViewController.swift */,
 				1AA24DED252CB07600050200 /* ChannelDetailsView.swift */,
 				1AFFECC325380D45004B8663 /* TestController.swift */,
@@ -417,7 +439,8 @@
 			children = (
 				45920CD424BC3C0000365FA1 /* CommunityEditorViewModel.swift */,
 				4551E88524BC72C600E44E37 /* CommunityListViewModel.swift */,
-				458C5C9824C96D7F0000D813 /* CommunityDetailViewModel.swift */,
+				787EDE9F268CEDC400D51CDB /* CommunityDetailViewModel.swift */,
+				787EDE99268CE83E00D51CDB /* CommunityFeedViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -435,6 +458,9 @@
 				1A17451524D80B7D00D524C8 /* CommunityCategoryListView.swift */,
 				1AFA446E252E260500ED1941 /* CommunityParticipationView.swift */,
 				1A8915B2258A2008008EEB01 /* CommunityMemberViewModel.swift */,
+				787EDEA1268D6C8400D51CDB /* CommunityFeedViewController.swift */,
+				787EDEA2268D6C8400D51CDB /* CommunityFeedViewController.xib */,
+				787EDEA5268D6E3D00D51CDB /* Cell */,
 			);
 			path = Community;
 			sourceTree = "<group>";
@@ -651,6 +677,7 @@
 				A7A3B3B123B0D1CD00D7D7B4 /* AmityAddReactionsViewController.swift */,
 				A7481E1823B1C13900F41F59 /* AmityReactionsViewController.swift */,
 				1AEAF16A2567909900FF46AB /* AudioMessageHandler.swift */,
+				1A8B76A72643B2920068799C /* CustomMessageView.swift */,
 			);
 			path = EkoChatViewController;
 			sourceTree = "<group>";
@@ -727,6 +754,16 @@
 			path = ApiKey;
 			sourceTree = "<group>";
 		};
+		7249B17826774DC300721D4D /* FollowList */ = {
+			isa = PBXGroup;
+			children = (
+				7249B1762677480500721D4D /* FollowListViewController.swift */,
+				7249B17926774DE000721D4D /* FollowListTableViewCell.swift */,
+				72B1C0AB2678CF6300044EE2 /* FollowInfoViewController.swift */,
+			);
+			path = FollowList;
+			sourceTree = "<group>";
+		};
 		72865FB825F9D8CD00999EE7 /* UserLevelPushNotification */ = {
 			isa = PBXGroup;
 			children = (
@@ -737,6 +774,24 @@
 				72865FF025FB26D500999EE7 /* UserNotificationModuleViewModel.swift */,
 			);
 			path = UserLevelPushNotification;
+			sourceTree = "<group>";
+		};
+		787EDEA5268D6E3D00D51CDB /* Cell */ = {
+			isa = PBXGroup;
+			children = (
+				787EDEA6268D6E4C00D51CDB /* CommunityFeedTableViewCell.swift */,
+				787EDEA7268D6E4C00D51CDB /* CommunityFeedTableViewCell.xib */,
+			);
+			path = Cell;
+			sourceTree = "<group>";
+		};
+		A0E2B1F326A7E66D00F1C4D5 /* Post */ = {
+			isa = PBXGroup;
+			children = (
+				A0E2B1F626A8005F00F1C4D5 /* PostListPage.swift */,
+				A0E2B1F426A7E6C400F1C4D5 /* PostQuerySettingsPage.swift */,
+			);
+			path = Post;
 			sourceTree = "<group>";
 		};
 		A743ED92237E5B040086D59A /* EkoEditViewController */ = {
@@ -752,8 +807,6 @@
 			children = (
 				1A320906261F21BA00F470D3 /* AmitySDK.xcframework */,
 				A02627B925AC229200D43315 /* Realm.xcframework */,
-				1AE8D190264243A50052C136 /* AmitySDK.xcframework */,
-				1AE8D191264243A50052C136 /* Realm.xcframework */,
 				6437EBE520C791E9007F2F4B /* QuartzCore.framework */,
 				F0A1D9F62093104E0051BAC9 /* AVKit.framework */,
 				F0A1D9F42093103F0051BAC9 /* AVFoundation.framework */,
@@ -771,7 +824,7 @@
 				637D701A204F26060033A53C /* Sources */,
 				637D701B204F26060033A53C /* Frameworks */,
 				637D701C204F26060033A53C /* Resources */,
-				1AE8D196264243A50052C136 /* Embed Frameworks */,
+				A02627BF25AC229200D43315 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -834,6 +887,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A80D99D260A60BC00733767 /* AddTagTableViewCell.xib in Resources */,
+				787EDEA9268D6E4C00D51CDB /* CommunityFeedTableViewCell.xib in Resources */,
 				A74193E323597984006D404C /* SampleAppTableViewCell.xib in Resources */,
 				A74193E423597984006D404C /* Chats.storyboard in Resources */,
 				6438BDAC2327B43C00A1CFFB /* Home.storyboard in Resources */,
@@ -844,6 +898,7 @@
 				1A3CC4F92456A575008A26D0 /* Feed.storyboard in Resources */,
 				6438BDA02327AD7000A1CFFB /* GlobalSettings.storyboard in Resources */,
 				6438BDAE2328DC5B00A1CFFB /* Home.xcassets in Resources */,
+				787EDEA4268D6C8400D51CDB /* CommunityFeedViewController.xib in Resources */,
 				6438BDB02328DCE000A1CFFB /* Chats.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -863,6 +918,7 @@
 				64215E37225DBDE00034B04B /* MembershipListDataSource.swift in Sources */,
 				4551E88624BC72C600E44E37 /* CommunityListViewModel.swift in Sources */,
 				A7B1842C235839B7001CCB41 /* AmityChatFileViewCell.swift in Sources */,
+				787EDEA3268D6C8400D51CDB /* CommunityFeedViewController.swift in Sources */,
 				1A995F122456E8220052BD66 /* FeedPostMultilineLabelCell.swift in Sources */,
 				1AA24DBE252B28C300050200 /* ListViewController.swift in Sources */,
 				6480449922B39375000DD097 /* ChannelLevelPushNotificationManager.swift in Sources */,
@@ -882,6 +938,7 @@
 				A7A3B3B223B0D1CD00D7D7B4 /* AmityAddReactionsViewController.swift in Sources */,
 				1A8915CE258B4351008EEB01 /* UserPermissionView.swift in Sources */,
 				649676342271B6C800F0B24B /* AmityChatTextTableViewCell.swift in Sources */,
+				A0E2B1F726A8005F00F1C4D5 /* PostListPage.swift in Sources */,
 				A74193E72359A8E2006D404C /* AmityCustomViewController.swift in Sources */,
 				1A32431F249366F600BA6408 /* AppProtocols.swift in Sources */,
 				646AB71822819D1600B71128 /* DisplayNameButtonController.swift in Sources */,
@@ -895,17 +952,18 @@
 				72865FC325FA155400999EE7 /* SwitchTableViewCell.swift in Sources */,
 				1A17451624D80B7E00D524C8 /* CommunityCategoryListView.swift in Sources */,
 				1A995F142456E83B0052BD66 /* FeedPostFooterCell.swift in Sources */,
-				458C5C9924C96D7F0000D813 /* CommunityDetailViewModel.swift in Sources */,
 				1A143EEC24695CE2001107CF /* UserListTableViewCell.swift in Sources */,
 				729844C925C96D710026A7B9 /* ChildCommentViewCell.swift in Sources */,
 				D4EC7B9A260E491E00921A6D /* FeedPostCommentsCell.swift in Sources */,
 				6426912F228965F300774D64 /* AmityMessagesTableViewController.swift in Sources */,
 				1AA24DC0252B85B200050200 /* UserQueryView.swift in Sources */,
 				64054D0D22B0BB13006E1CEE /* CommentTableViewCell.swift in Sources */,
+				787EDEA0268CEDC400D51CDB /* CommunityDetailViewModel.swift in Sources */,
 				64054D0A22AFB009006E1CEE /* AmityCommentsTableViewController.swift in Sources */,
 				646AB7152281951E00B71128 /* ChannelsTableViewControllerDelegate.swift in Sources */,
 				1A143EEB24695CE2001107CF /* UserListManager.swift in Sources */,
 				6419F5A722730A860028F738 /* ChannelListDataSource.swift in Sources */,
+				72B1C0AC2678CF6300044EE2 /* FollowInfoViewController.swift in Sources */,
 				64215E33225DA6DC0034B04B /* MembershipListTableViewController.swift in Sources */,
 				45920CCD24BC155A00365FA1 /* AmityManager.swift in Sources */,
 				1A3CC4F52456A38D008A26D0 /* MainTabViewController.swift in Sources */,
@@ -917,10 +975,13 @@
 				45920CD524BC3C0000365FA1 /* CommunityEditorViewModel.swift in Sources */,
 				1AA24DEE252CB07600050200 /* ChannelDetailsView.swift in Sources */,
 				72865FF325FB286300999EE7 /* NotificationModuleTableViewCell.swift in Sources */,
+				A0E2B1F526A7E6C400F1C4D5 /* PostQuerySettingsPage.swift in Sources */,
 				1AFA446F252E260500ED1941 /* CommunityParticipationView.swift in Sources */,
 				64054D0B22AFB009006E1CEE /* CommentsDataSource.swift in Sources */,
+				7249B17A26774DE000721D4D /* FollowListTableViewCell.swift in Sources */,
 				64B7821622F9667600DC223C /* ParentFilterPreferenceViewController.swift in Sources */,
 				1A3208C8261E2DA800F470D3 /* UserUpdateManager.swift in Sources */,
+				787EDE9A268CE83E00D51CDB /* CommunityFeedViewModel.swift in Sources */,
 				A7B1842E23583A6C001CCB41 /* Data+Extensions.swift in Sources */,
 				64054D0422AF681D006E1CEE /* AmityChannelType.swift in Sources */,
 				64BBACA322B220DD009EC435 /* ChannelSettingsTableViewController.swift in Sources */,
@@ -934,6 +995,7 @@
 				1AD291D7252611E500367C99 /* ChannelUpdateViewModel.swift in Sources */,
 				72865FF125FB26D500999EE7 /* UserNotificationModuleViewModel.swift in Sources */,
 				64C87AC7225EF621003B6E87 /* SampleAppTableViewCell.swift in Sources */,
+				787EDEA8268D6E4C00D51CDB /* CommunityFeedTableViewCell.swift in Sources */,
 				6480449322B38EA4000DD097 /* PushNotificationState.swift in Sources */,
 				A739ADC423B9B547008FBE12 /* ReactionDatasource.swift in Sources */,
 				1A964598247B92A5003C40BF /* UserPostReactionsViewController.swift in Sources */,
@@ -946,8 +1008,10 @@
 				A743ED94237E5CAC0086D59A /* AmityEditMessageViewController.swift in Sources */,
 				1AA24DE7252CA65800050200 /* UIKitImagePicker.swift in Sources */,
 				64B0D1FC2186FD2400D01FB6 /* UserDefaults.swift in Sources */,
+				7249B1772677480500721D4D /* FollowListViewController.swift in Sources */,
 				64B0D1FA2186D5F300D01FB6 /* FilterByTagPreferenceTableViewController.swift in Sources */,
 				1AA24DB8252B26A400050200 /* PostFlagManager.swift in Sources */,
+				1A8B76A82643B2920068799C /* CustomMessageView.swift in Sources */,
 				1A995F102456E8120052BD66 /* FeedPostHeaderCell.swift in Sources */,
 				64D5C0A420AC40BF005B077D /* AmityChatImageTableViewCell.swift in Sources */,
 				1A7B755124BD72C600C9758D /* UserPostsFeedManager+Extension.swift in Sources */,
@@ -1091,7 +1155,7 @@
 				CODE_SIGN_ENTITLEMENTS = SampleApp/SampleApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 37Z583JR6K;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1128,7 +1192,7 @@
 				CODE_SIGN_ENTITLEMENTS = SampleApp/SampleApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 37Z583JR6K;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

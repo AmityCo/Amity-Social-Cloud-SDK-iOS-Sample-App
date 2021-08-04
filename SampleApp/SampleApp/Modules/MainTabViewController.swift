@@ -9,6 +9,9 @@
 import UIKit
 import SwiftUI
 
+/*
+ This class sets up various screens in sample app.
+ */
 class MainTabViewController: UITabBarController {
     
     override func viewDidLoad() {
@@ -18,25 +21,8 @@ class MainTabViewController: UITabBarController {
     }
     
     func setupTabControllers() {
-        
-        guard let apiKey: String = UserDefaults.standard.currentApiKey else {
-            assertionFailure("API Key not found")
-            return
-        }
-        
-        var client: AmityClient
-        if let customHttpEndpoint = UserDefaults.standard.customHttpEndpoint, let customSocketEndpoint = UserDefaults.standard.customSocketEndpoint {
-                        
-            client = AmityClient(apiKey: apiKey, httpUrl: customHttpEndpoint, socketUrl: customSocketEndpoint)!
-            Log.add(info: "AmityClient setup with custom endpoints: http: \(customHttpEndpoint), socket: \(customSocketEndpoint)")
-        } else {
-            client = AmityClient(apiKey: apiKey)!
-            Log.add(info: "AmityClient setup with default endpoints")
-        }
-        
-        // Put client to manager
-        AmityManager.setClient(client: client)
-        
+        // Our sdk also supports push notification. We regisiter for push notification here
+        let client = AmityManager.shared.client!
         if let token = UserDefaults.standard.deviceToken, (UserDefaults.standard.isRegisterdForPushNotification ?? true) {
             let pushNotificationManager =  PushNotificationRegistrationManager(client: client)
             pushNotificationManager.register(token: token) { (result) in
@@ -52,7 +38,6 @@ class MainTabViewController: UITabBarController {
         // Home Screen
         let homeStoryboard = UIStoryboard(name: "Home", bundle: nil)
         let homeController = homeStoryboard.instantiateViewController(withIdentifier: "HomeViewController") as! HomeViewController
-        homeController.client = client
         homeController.tabBarItem = UITabBarItem(title: "Chat", image: UIImage(named: "tab_chat"), tag: 0)
         homeController.channelType = .standard
         
@@ -62,7 +47,13 @@ class MainTabViewController: UITabBarController {
         // Post Selection Screen
         let postListController = ListViewController()
         postListController.listTitle = "Feed"
-        postListController.items = ["Normal Feed", "Global Feed", "Create Comment", "Get Latest Comment"].map{ ListItem(id: $0, title: $0) }
+        postListController.items = [
+            "Normal Feed",
+            "Global Feed",
+            "Create Comment",
+            "Get Latest Comment",
+            "Get Posts"
+        ].map{ ListItem(id: $0, title: $0) }
         postListController.listItemTapAction = { item, index in
             switch index {
             case 0, 1:
@@ -76,9 +67,20 @@ class MainTabViewController: UITabBarController {
             case 2:
                 let controller = UIHostingController(rootView: CommentCreateTestView())
                 postListController.navigationController?.pushViewController(controller, animated: true)
-            default:
+            case 3:
                 let controller = UIHostingController(rootView: LatestCommentView())
                 postListController.navigationController?.pushViewController(controller, animated: true)
+            case 4:
+                if #available(iOS 14.0, *) {
+                    let postQuerySettingsPage = PostQuerySettingsPage()
+                    let vc = UIHostingController(rootView: postQuerySettingsPage)
+                    postListController.navigationController?.pushViewController(vc, animated: true)
+                } else {
+                    assertionFailure("Unhandled case")
+                }
+            default:
+                assertionFailure("Unhandled case")
+                break
             }
         }
         postListController.tabBarItem = UITabBarItem(title: "My Feed", image: UIImage(named: "tab_feed"), tag: 1)
@@ -86,13 +88,12 @@ class MainTabViewController: UITabBarController {
         // User Selection Screen
         let userListOptionController = ListViewController()
         userListOptionController.listTitle = "Users"
-        userListOptionController.items = ["User List","Individual User", "Check Permission"].map{ ListItem(id: $0, title: $0)}
+        userListOptionController.items = ["User List","Individual User", "Check Permission", "My Following List", "My Follower List"].map{ ListItem(id: $0, title: $0)}
         userListOptionController.listItemTapAction = { item, index in
             
             switch index {
             case 0:
                 let userListController = postsFeedStoryboard.instantiateViewController(withIdentifier: UserListViewController.identifier) as! UserListViewController
-                userListController.client = client
                 userListOptionController.navigationController?.pushViewController(userListController, animated: true)
                 
             case 1:
@@ -103,6 +104,16 @@ class MainTabViewController: UITabBarController {
             case 2:
                 let permissionController = UIHostingController(rootView: UserPermissionView(channelId: nil))
                 userListOptionController.navigationController?.pushViewController(permissionController, animated: true)
+                
+            case 3:
+                let followingListController = postsFeedStoryboard.instantiateViewController(withIdentifier: FollowListViewController.identifier) as! FollowListViewController
+                followingListController.pageType = .following
+                userListOptionController.navigationController?.pushViewController(followingListController, animated: true)
+                
+            case 4:
+                let followingListController = postsFeedStoryboard.instantiateViewController(withIdentifier: FollowListViewController.identifier) as! FollowListViewController
+                followingListController.pageType = .follower
+                userListOptionController.navigationController?.pushViewController(followingListController, animated: true)
                 
             default:
                 break
@@ -133,11 +144,13 @@ class MainTabViewController: UITabBarController {
         }
         communitiesListController.tabBarItem = UITabBarItem(title: "Communities", image: UIImage(named: "tab_comm"), tag: 3)
         
+        var controllers = [homeController, postListController, userListOptionController, communitiesListController]
+        
         let testController = TestController()
         testController.tabBarItem = UITabBarItem(title: "Test", image: UIImage(systemName: "note"), tag: 4)
+        controllers.append(testController)
         
         // Tabs
-        var controllers = [homeController, postListController, userListOptionController, communitiesListController, testController]
         controllers = controllers.map{
             
             let navController = UINavigationController(rootViewController: $0)

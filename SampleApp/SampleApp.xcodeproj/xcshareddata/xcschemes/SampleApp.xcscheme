@@ -27,15 +27,6 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "637D701D204F26060033A53C"
-            BuildableName = "SampleApp.app"
-            BlueprintName = "SampleApp"
-            ReferencedContainer = "container:SampleApp.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <Testables>
       </Testables>
    </TestAction>

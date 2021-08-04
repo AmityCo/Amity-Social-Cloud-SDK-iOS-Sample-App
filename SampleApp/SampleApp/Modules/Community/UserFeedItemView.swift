@@ -32,6 +32,7 @@ struct UserFeedItemView: View {
             Divider()
                 .padding(.top, 8)
             
+            
             HStack {
                 
                 ReactionView(reactionTitle: "Like", reactionImage: Image("feed_like"), reactHandler: {
@@ -45,11 +46,15 @@ struct UserFeedItemView: View {
                     
                 })
             }
+            
+            
+            
         }
         .padding(16)
         .background(Color.white)
     }
 }
+
 
 struct ReactionView: View {
     

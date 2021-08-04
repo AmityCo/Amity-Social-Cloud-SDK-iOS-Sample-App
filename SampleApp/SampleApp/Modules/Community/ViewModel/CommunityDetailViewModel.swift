@@ -67,6 +67,11 @@ struct CommunityPostModel: Identifiable, Equatable {
     let postId: String
     let postedUserDisplayName: String?
     let text: String?
+    let feedType: AmityFeedType
+    let isDeleted: Bool
+    let postDataType: String
+    let isOwner: Bool
+    let createdAt: Date
 }
 
 // Concrete implementor
@@ -86,6 +91,8 @@ class CommunityDetailViewModel: ObservableObject {
     @Published var updateFeed: Bool
     @Published var communityNotification: CommunityNotification?
         
+    var feedType: AmityFeedType = .published
+    
     init(community: CommunityListModel) {
         self.community = community
         self.feed = []
@@ -93,7 +100,8 @@ class CommunityDetailViewModel: ObservableObject {
     }
     
     func queryFeed(sort: AmityCommunityFeedSortOption) {
-        postCollection = feedRepository.getCommunityFeed(withCommunityId: community.id, sortBy: sort, includeDeleted: false)
+        feed = []
+        postCollection = feedRepository.getCommunityFeed(withCommunityId: community.id, sortBy: sort, includeDeleted: false, feedType: feedType)
         token = postCollection?.observe({ [weak self] (collection, _, _) in
             guard collection.dataStatus == .fresh, let strongSelf = self else { return }
             
@@ -103,7 +111,14 @@ class CommunityDetailViewModel: ObservableObject {
             var list = [CommunityPostModel]()
             for i in 0..<collection.count() {
                 guard let post = collection.object(at: i) else { return }
-                let model = CommunityPostModel(postId: post.postId, postedUserDisplayName: post.postedUser?.displayName, text: post.data?["text"] as? String)
+                let model = CommunityPostModel(postId: post.postId,
+                                               postedUserDisplayName: post.postedUser?.displayName,
+                                               text: post.data?["text"] as? String,
+                                               feedType: post.getFeedType(),
+                                               isDeleted: post.isDeleted,
+                                               postDataType: post.dataType,
+                                               isOwner: post.postedUserId == AmityManager.shared.client?.currentUserId,
+                                               createdAt: post.createdAt)
                 list.append(model)
             }
             
@@ -141,4 +156,5 @@ class CommunityDetailViewModel: ObservableObject {
     func fetchNextPage() {
         postCollection?.nextPage()
     }
+
 }

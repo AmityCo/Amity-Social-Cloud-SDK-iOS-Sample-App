@@ -15,6 +15,7 @@ struct UserPostCommentModel {
     let text: String
     let date: String
     let reaction: String
+    let isEdited: Bool
 }
 
 enum UserPostCommentItem {
@@ -120,10 +121,10 @@ class UserPostCommentManager {
         }
     }
     
-    func updateComment(text: String, onCompletion: @escaping (_ isSuccess: Bool)->()) {
+    func updateComment(text: String?, onCompletion: @escaping (_ isSuccess: Bool)->()) {
         guard editedComment != nil else { return }
         
-        editor?.editText(text, completion: { (success, _) in
+        editor?.editText(text ?? "", completion: { (success, _) in
             onCompletion(success)
         })
         
@@ -275,9 +276,9 @@ private extension AmityComment {
         
         if let raction = reactions as? [String: Int] {
             let formattedReaction = raction.map { $1 > 0 ? "\($0): \($1)" : "" }.joined(separator: " ")
-            return UserPostCommentModel(commentId: commentId, displayName: displayName, text: textData, date: dateStr, reaction: formattedReaction)
+            return UserPostCommentModel(commentId: commentId, displayName: displayName, text: textData, date: dateStr, reaction: formattedReaction, isEdited: isEdited)
         } else {
-            return UserPostCommentModel(commentId: commentId, displayName: displayName, text: textData, date: dateStr, reaction: "")
+            return UserPostCommentModel(commentId: commentId, displayName: displayName, text: textData, date: dateStr, reaction: "", isEdited: isEdited)
         }
     }
     

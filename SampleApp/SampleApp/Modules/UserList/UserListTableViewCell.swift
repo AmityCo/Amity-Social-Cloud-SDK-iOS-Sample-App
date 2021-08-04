@@ -8,12 +8,18 @@
 
 import UIKit
 
+protocol UserListTableViewCellDelegate: AnyObject {
+    func cellOptionDidTap(_ cell: UserListTableViewCell)
+}
+
 class UserListTableViewCell: UITableViewCell {
     
     @IBOutlet weak var userImageView: UIImageView!
     @IBOutlet weak var userNameLabel: UILabel!
     @IBOutlet weak var userIdLabel: UILabel!
     @IBOutlet weak var avatarLabel: UILabel!
+    
+    weak var delegate: UserListTableViewCellDelegate?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -28,4 +34,9 @@ class UserListTableViewCell: UITableViewCell {
         userNameLabel.textColor = .darkText
         userIdLabel.textColor = .darkGray
     }
+    
+    @IBAction func optionTapped(_ sender: Any) {
+        delegate?.cellOptionDidTap(self)
+    }
+    
 }

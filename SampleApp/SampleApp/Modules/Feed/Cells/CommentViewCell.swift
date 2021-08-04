@@ -13,6 +13,7 @@ class CommentViewCell: FeedTableViewCell {
     @IBOutlet weak var avatarView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subtitleLabel: UILabel!
+    @IBOutlet weak var commentLabel: UILabel!
     @IBOutlet weak var reactionLabel: UILabel!
     
     var replyButtonAction: (() -> Void)?
@@ -29,9 +30,10 @@ class CommentViewCell: FeedTableViewCell {
         avatarView.layer.borderColor = UIColor.systemGroupedBackground.cgColor
     }
     
-    func configure(displayName: String, comment: String, displayImage: UIImage?) {
+    func configure(displayName: String, createdDate: String, comment: String, displayImage: UIImage?, isEdited: Bool) {
         titleLabel.text = "\(displayName) commented to this post."
-        subtitleLabel.text = comment
+        subtitleLabel.text = "\(createdDate) \(isEdited ? "Edited" : "")"
+        commentLabel.text = comment
         avatarView.image = displayImage
     }
     

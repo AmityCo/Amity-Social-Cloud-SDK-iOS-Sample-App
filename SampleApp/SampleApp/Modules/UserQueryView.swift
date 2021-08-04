@@ -18,6 +18,7 @@ struct UserQueryView: View {
     var body: some View {
         VStack {
             TextField("Enter User Id", text: $userId)
+                .autocapitalization(.none)
                 .padding()
                 .frame(height: 50)
                 .background(Color(UIColor.systemGroupedBackground))

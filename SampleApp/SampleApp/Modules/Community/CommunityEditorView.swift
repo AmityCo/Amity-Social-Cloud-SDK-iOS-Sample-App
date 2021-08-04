@@ -26,6 +26,9 @@ struct CommunityEditorView<Model>: View where Model: EditorViewModel {
                     Toggle(isOn: $viewModel.datasource.draft.isPrivate) {
                         Text("Private Community")
                     }
+                    Toggle(isOn: $viewModel.datasource.draft.isPostReview) {
+                        Text("Post Review")
+                    }
                 }
 
                 Section(header: Text("TAGS")) {

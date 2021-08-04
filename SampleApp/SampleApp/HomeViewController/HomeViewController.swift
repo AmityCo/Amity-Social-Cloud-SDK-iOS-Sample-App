@@ -19,7 +19,7 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
     private var totalUnreadCountObservationToken: NSKeyValueObservation?
 
     // Only place where client should be held strongly
-    var client: AmityClient!
+    var client: AmityClient = AmityManager.shared.client!
     lazy var channelRepository = AmityChannelRepository(client: client)
     lazy var fileRepository = AmityFileRepository(client: client)
     var channelType: AmityChannelType = .standard

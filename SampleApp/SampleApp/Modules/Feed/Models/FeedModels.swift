@@ -33,6 +33,7 @@ enum FeedItemType {
     case text
     case image
     case file
+    case video
 }
 
 protocol FeedItemModel {
@@ -81,6 +82,15 @@ struct FileFeedModel: FeedItemModel {
         self.userName = userName
         self.date = date
     }
+}
+
+struct VideoFeedModel: FeedItemModel {
+    let type: FeedItemType = .video
+    var allVideosInfo: Array<[NSNumber : AmityVideoData]> = []
+    var thumbnailInfo: AmityImageData?
+    var postId: String
+    var userName: String
+    var date: String
 }
 
 protocol FeedItemAction {

@@ -34,6 +34,7 @@ struct CommunityListModel: Identifiable, Equatable {
     let userId: String
     let tags: [String]
     let categoryIds: [String]?
+    let isPostReview: Bool
     
     var isCreator: Bool {
         return AmityManager.shared.client?.currentUserId == userId
@@ -55,17 +56,30 @@ struct CommunityListModel: Identifiable, Equatable {
         userId = community.userId
         tags = community.tags ?? []
         categoryIds = community.categoryIds
-        
-        Log.add(info: "\n--- Community ---")
-        Log.add(info: "Id: \(communityId) | Display Name: \(displayName)")
-        Log.add(info: "Avatar: id: \(String(describing: community.avatar?.fileId)) | Attributes: \(String(describing: community.avatar?.attributes))")
-        Log.add(info: "Category Id: \(String(describing: categoryIds))")
-        Log.add(info: "Categories: \(community.categories.map{ $0.categoryId })")
-        Log.add(info: "User Id: \(userId) | Display Name: \(String(describing: community.user?.displayName))")
+        isPostReview = community.isPostReviewEnabled
     }
     
     func getCommunityObject() -> AmityCommunity {
         return communityObject
+    }
+    
+    func getPreviewData() -> [(key: String, value: String)] {
+        var items = [(key: String, value: String)]()
+        
+        items.append(("Community Id:", "\(communityId)"))
+        items.append(("Channel Id:", "\(channelId)"))
+        items.append(("Is Public:", "\(isPublic ? "YES" : "NO")"))
+        items.append(("Is Post Review Enabled", "\(isPostReview ? "YES" : "NO")"))
+        items.append(("MetaData:", "\(metadata?.description ?? "")"))
+        items.append(("Post Count:", "\(postsCount)"))
+        items.append(("Post Published Count:", "\(getCommunityObject().getPostCount(feedType: .published))"))
+        items.append(("Post Reviewing Count:", "\(getCommunityObject().getPostCount(feedType: .reviewing))"))
+        items.append(("Members Count:", "\(membersCount)"))
+        items.append(("Created At:", "\(createdAt)"))
+        items.append(("Categories Count:", "\(categoryIds?.count ?? 0)"))
+        items.append(("Categories","\(communityObject.categories.map{ $0.name }.joined(separator: ","))"))
+        
+        return items
     }
 }
 
@@ -99,9 +113,14 @@ class CommunityListViewModel: ObservableObject {
     private var token: AmityNotificationToken?
     private var communityCollection: AmityCollection<AmityCommunity>?
     
+    var debouncer = Debouncer(delay: 0.3)
+    
     var searchKeyword: String = "" {
         didSet {
-            queryCommunity()
+            debouncer.setCallback { [weak self] in
+                self?.queryCommunity()
+            }
+            debouncer.call()
         }
     }
     

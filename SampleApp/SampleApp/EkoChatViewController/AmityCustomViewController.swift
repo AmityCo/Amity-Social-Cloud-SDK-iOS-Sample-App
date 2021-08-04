@@ -7,11 +7,11 @@
 //
 
 import UIKit
+import SwiftUI
 
 protocol AmityCustomViewControllerDelegate: AnyObject {
     func amityCustom(_ viewController: AmityCustomViewController, willSendCustomDataWithData data: [String: Any])
     func amityCustom(_ viewController: AmityCustomViewController, willUpdateCustomDataWithData data: [String: Any], onMessage message: AmityMessage?)
-    
     func amityCustom(_ viewController: AmityCustomViewController, willSendVoiceMessageWithData audioFileURL: URL, fileName: String)
 }
 
@@ -34,7 +34,6 @@ final class AmityCustomViewController: UIViewController {
     
     var isRecordingAudio = false
     var isPlayingAudio = false
-    
     
     
     override func viewDidLoad() {
@@ -102,21 +101,22 @@ final class AmityCustomViewController: UIViewController {
     }
     
     @IBAction func handleSendButton(_ sender: Any) {
-        guard let key = keyField.text, let value = valueField.text,
-            !key.isEmpty, !value.isEmpty else { return }
         
-        let map: [String: Any] = [
-            "key": key,
-            "value": value
-        ]
+        let controller = UIHostingController(rootView: CustomMessageView(sendButtonAction: { [weak self] input in
+            guard !input.isEmpty else { return }
+            
+            guard let strongSelf = self else { return }
+            
+            if let parentMessage = strongSelf.message {
+                strongSelf.delegate?.amityCustom(strongSelf, willUpdateCustomDataWithData: input, onMessage: parentMessage)
+                strongSelf.dismiss(animated: true, completion: nil)
+            } else {
+                strongSelf.delegate?.amityCustom(strongSelf, willSendCustomDataWithData: input)
+                strongSelf.dismiss(animated: true, completion: nil)
+            }
+        }))
         
-        if let message = message {
-            delegate?.amityCustom(self, willUpdateCustomDataWithData: map, onMessage: message)
-            navigationController?.dismiss(animated: true, completion: nil)
-        } else {
-            delegate?.amityCustom(self, willSendCustomDataWithData: map)
-            navigationController?.popViewController(animated: true)
-        }
+        self.present(UINavigationController(rootViewController: controller), animated: true, completion: nil)
     }
     
     static func makeViewController() -> UIViewController {

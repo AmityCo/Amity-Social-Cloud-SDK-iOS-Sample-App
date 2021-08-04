@@ -23,42 +23,45 @@ struct CommunityCategoryListView: View{
     @State var shouldIncludeDeleted: Bool = false
     
     var body: some View {
-        VStack(alignment: .leading) {
-            
-            Button(action: {
-                self.actionSheetFilter = .sort
-                self.showActionSheet.toggle()
-            }) {
-                HStack {
-                    Text("Sorted By → \(sortedBy)")
-                        .foregroundColor(Color.red)
-                        .font(.system(size: 16, weight: .semibold))
-                }.padding([.top, .leading], 15)
-            }
-            
-            Button(action: {
-                self.actionSheetFilter = .isDeleted
-                self.showActionSheet.toggle()
-            }) {
-                HStack {
-                    Text("Include Deleted Categories → \(shouldIncludeDeleted ? "YES" : "NO" )")
-                        .foregroundColor(Color.blue)
-                        .font(.system(size: 16, weight: .semibold))
-                }.padding([.top, .leading], 15)
-            }
-            
-            List(viewModel.categories) { category in
-                VStack(alignment: .leading) {
-                    Text("Name: \(category.name)")
-                        .padding(.top, 4)
-                    Text("Id: \(category.id)")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                        .padding(.top, 4)
-                    Text("Avatar: \(category.fileId)")
-                        .asDescription()
+        NavigationView {
+            VStack(alignment: .leading) {
+                
+                Button(action: {
+                    self.actionSheetFilter = .sort
+                    self.showActionSheet.toggle()
+                }) {
+                    HStack {
+                        Text("Sorted By → \(sortedBy)")
+                            .foregroundColor(Color.red)
+                            .font(.system(size: 16, weight: .semibold))
+                    }.padding([.top, .leading], 15)
+                }
+                
+                Button(action: {
+                    self.actionSheetFilter = .isDeleted
+                    self.showActionSheet.toggle()
+                }) {
+                    HStack {
+                        Text("Include Deleted Categories → \(shouldIncludeDeleted ? "YES" : "NO" )")
+                            .foregroundColor(Color.blue)
+                            .font(.system(size: 16, weight: .semibold))
+                    }.padding([.top, .leading], 15)
+                }
+                
+                List(viewModel.categories) { category in
+                    VStack(alignment: .leading) {
+                        Text("Name: \(category.name)")
+                            .padding(.top, 4)
+                        Text("Id: \(category.id)")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 4)
+                        Text("Avatar: \(category.fileId)")
+                            .asDescription()
+                    }
                 }
             }
+            .navigationBarTitle("Community Categories", displayMode: .inline)
         }
         .onAppear {
             self.viewModel.queryAllCategories()
@@ -98,7 +101,6 @@ struct CommunityCategoryListView: View{
                 ])
             }
         })
-            .navigationBarTitle("", displayMode: .inline)
     }
 }
 

@@ -121,7 +121,7 @@ protocol AmityChatTextTableViewCellDelegate: AnyObject {
         } else if message.messageType == .text {
             setText(message.data?["text"] as? String)
         } else if message.messageType == .custom {
-            let string = "This is custom file message type:\n\(message.data?.description ?? "")"
+            let string = message.data?.description
             setText(string)
         }
     }

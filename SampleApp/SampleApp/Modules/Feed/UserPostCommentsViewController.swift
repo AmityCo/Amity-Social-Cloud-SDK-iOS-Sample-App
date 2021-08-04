@@ -194,7 +194,7 @@ extension UserPostCommentsViewController: UITableViewDataSource {
         switch item {
         case .parent(let comment):
             let cell = cell as? CommentViewCell
-            cell?.configure(displayName: comment.displayName, comment: comment.text, displayImage: nil)
+            cell?.configure(displayName: comment.displayName, createdDate: comment.date, comment: comment.text, displayImage: nil, isEdited: comment.isEdited)
             cell?.reactionLabel.text = comment.reaction
             
             cell?.moreButtonAction = { [weak self] in

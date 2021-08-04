@@ -29,11 +29,11 @@ class AudioMessageHandler: NSObject, AVAudioRecorderDelegate, AVAudioPlayerDeleg
     
     func initializePermissionForRecording() {
         switch AVAudioSession.sharedInstance().recordPermission {
-        case AVAudioSessionRecordPermission.granted:
+        case AVAudioSession.RecordPermission.granted:
             canRecordAudio = true
-        case AVAudioSessionRecordPermission.denied:
+        case AVAudioSession.RecordPermission.denied:
             canRecordAudio = false
-        case AVAudioSessionRecordPermission.undetermined:
+        case AVAudioSession.RecordPermission.undetermined:
             // Request permission to record audio here
             AVAudioSession.sharedInstance().requestRecordPermission({ (isAllowed) in
                 self.canRecordAudio = isAllowed

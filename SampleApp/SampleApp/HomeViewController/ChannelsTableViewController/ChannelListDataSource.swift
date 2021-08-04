@@ -53,7 +53,7 @@ final class ChannelListDataSource {
             let builder = AmityBroadcastChannelQueryBuilder(channelQueryFilter: channelFilter, includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
             channelsCollection = repository.getChannels().broadcast(with: builder).query()
         case .conversation:
-            let builder = AmityConversationChannelQueryBuilder(includingTags: nil, excludingTags: nil, includeDeleted: false)
+            let builder = AmityConversationChannelQueryBuilder(includingTags: includingTags, excludingTags: nil, includeDeleted: false)
             channelsCollection = repository.getChannels().conversation(with: builder).query()
             
         case .live:
