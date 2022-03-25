@@ -26,17 +26,22 @@ This sample app is designed to showcase our Amity iOS SDK. If you are checking o
 <br />
 
 ## Getting Started
+
+### Installation
+1. Open project
+2. On Xcode, click **File > Packages > Resolve Package Versions**
+3. Build and Run the project
+
+### Manual Installation
 We distribute our `AmitySDK` and its dependency `Realm` as an `.xcframework` file. You can download it from [Download Link](https://s3-ap-southeast-1.amazonaws.com/ekosdk-release/ios/amitysdk.zip)
-
-<br />
-
-## Installation
 
 1. Add `AmitySDK.xcframework` and `Realm.xcframework` file into the sample app xcode project under `Framework, Libraries & Embedded Content` section.
 
 ![Adding frameworks to sample app project](Assets/link-framework.png)
 
 2. Build and Run the project
+
+<br />
 
 ## Api Key
 
