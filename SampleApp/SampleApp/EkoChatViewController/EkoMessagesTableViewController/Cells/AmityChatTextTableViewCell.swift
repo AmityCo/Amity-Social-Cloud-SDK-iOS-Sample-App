@@ -11,9 +11,11 @@ import AmitySDK
 
 protocol AmityChatTextTableViewCellDelegate: AnyObject {
     func chatTextDidReact(_ cell: AmityChatTextTableViewCell, withReaction reaction: String)
+    func chatTextDidTapOnMention(_ cell: AmityChatTextTableViewCell, withType type: AmityMessageMentionType, userId: String?)
 }
 
 @objc final class AmityChatTextTableViewCell: UITableViewCell, AmityChatTableViewCell {
+    
     @IBOutlet private weak var bubbleImageView: UIImageView!
     @IBOutlet private weak var messageLabel: UILabel!
     @IBOutlet private weak var displayNameLabel: UILabel!
@@ -22,6 +24,8 @@ protocol AmityChatTextTableViewCellDelegate: AnyObject {
     @IBOutlet private weak var likeButton: UIButton!
     
     weak var delegate: AmityChatTextTableViewCellDelegate?
+    private var message: AmityMessage?
+    private var mentions: [AmityMention] = [AmityMention]()
     
     // MARK: Lifecyle
         
@@ -41,6 +45,9 @@ protocol AmityChatTextTableViewCellDelegate: AnyObject {
         likeButton.layer.cornerRadius = 2
         likeButton.layer.borderWidth = 1
         likeButton.layer.borderColor = UIColor.black.cgColor
+        messageLabel.attributedText = nil
+        messageLabel.text = ""
+        mentions = []
     }
     
     @IBAction func handleLikeButton(_ sender: Any) {
@@ -114,28 +121,63 @@ protocol AmityChatTextTableViewCellDelegate: AnyObject {
             return UIColor(named: "AmityRed")
         }
     }
-
+    
     private func setText(for message: AmityMessage) {
+        if let metadata = message.metadata {
+            mentions = AmityMentionMapper.mentions(fromMetadata: metadata)
+        }
         if message.isDeleted {
             setText("Message deleted")
         } else if message.messageType == .text {
-            setText(message.data?["text"] as? String)
+            if !mentions.isEmpty {
+                setMentionText(for: message)
+            } else {
+                setText(message.data?["text"] as? String)
+            }
         } else if message.messageType == .custom {
             let string = message.data?.description
             setText(string)
         }
+        
     }
 
     private func setText(_ text: String?) {
         messageLabel.text = text ?? ""
+        
     }
 
+    private func setMentionText(for message: AmityMessage) {
+        guard let text = message.data?["text"] as? String, !text.isEmpty else { return }
+        self.message = message
+        let attributedString = NSMutableAttributedString.init(string: text)
+        
+        for mention in mentions {
+            let mentioneesUser = message.mentionees?.filter({ mentionee in
+                mentionee.type == .user
+            })
+            
+            if let mentioneesUserArray = mentioneesUser, !mentioneesUserArray.isEmpty, let users = mentioneesUserArray.first?.users  {
+                let user = users.filter { $0.userId == mention.userId && $0.isGlobalBan }
+
+                if !user.isEmpty { continue }
+            }
+            
+            let range = NSRange(location: mention.index, length: mention.length + 1)
+            if range.location != NSNotFound && range.location + range.length <= text.count {
+                attributedString.addAttribute(.foregroundColor, value: UIColor.green, range: range)
+            }
+        }
+        
+        messageLabel.attributedText = attributedString
+        messageLabel.isUserInteractionEnabled = true
+        messageLabel.addGestureRecognizer(UITapGestureRecognizer(target:self, action: #selector(tappedOnLabel(_:))))
+    }
+    
     private func setDisplayName(for message: AmityMessage) {
-        setDisplayName(message.user?.displayName)
-    }
-
-    private func setDisplayName(_ name: String?) {
-        displayNameLabel.text = name
+        let messageInfo = message.user?.displayName ?? ""
+        let flagCount = message.flagCount
+        
+        displayNameLabel.text = messageInfo + "- F:(\(flagCount))"
     }
 
     private func setMetadata(for message: AmityMessage) {
@@ -209,5 +251,51 @@ protocol AmityChatTextTableViewCellDelegate: AnyObject {
             return NSAttributedString(string: "🧒🏻")
         }
         return nil
+    }
+    
+    @objc func tappedOnLabel(_ gesture: UITapGestureRecognizer) {
+        guard let _ = self.messageLabel.text else { return }
+        
+        for mention in mentions {
+            if mention.type == .channel {
+                continue
+            }
+            
+            let range = NSRange(location: mention.index, length: mention.length)
+            if gesture.didTapAttributedTextInLabel(label: messageLabel, inRange: range) {
+                delegate?.chatTextDidTapOnMention(self, withType: mention.type, userId: mention.userId)
+                return
+            }
+        }
+    }
+}
+
+extension UITapGestureRecognizer {
+    func didTapAttributedTextInLabel(label: UILabel, inRange targetRange: NSRange) -> Bool {
+            // Create instances of NSLayoutManager, NSTextContainer and NSTextStorage
+        let layoutManager = NSLayoutManager()
+        let textContainer = NSTextContainer(size: CGSize.zero)
+        let textStorage = NSTextStorage(attributedString: label.attributedText!)
+        
+        // Configure layoutManager and textStorage
+        layoutManager.addTextContainer(textContainer)
+        textStorage.addLayoutManager(layoutManager)
+            
+        // Configure textContainer
+        textContainer.lineFragmentPadding = 0.0
+        textContainer.lineBreakMode = label.lineBreakMode
+        textContainer.maximumNumberOfLines = label.numberOfLines
+        let labelSize = label.bounds.size
+        textContainer.size = labelSize
+            
+        // Find the tapped character location and compare it to the specified range
+        let locationOfTouchInLabel = self.location(in: label)
+        let textBoundingBox = layoutManager.usedRect(for: textContainer)
+        let textContainerOffset = CGPoint(x: (labelSize.width - textBoundingBox.size.width) * 0.5 - textBoundingBox.origin.x, y: (labelSize.height - textBoundingBox.size.height) * 0.5 - textBoundingBox.origin.y)
+        let locationOfTouchInTextContainer = CGPoint(x: locationOfTouchInLabel.x - textContainerOffset.x,
+                                                         y: locationOfTouchInLabel.y - textContainerOffset.y)
+        var indexOfCharacter = layoutManager.characterIndex(for: locationOfTouchInTextContainer, in: textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
+        indexOfCharacter = indexOfCharacter + 4
+        return NSLocationInRange(indexOfCharacter, targetRange)
     }
 }

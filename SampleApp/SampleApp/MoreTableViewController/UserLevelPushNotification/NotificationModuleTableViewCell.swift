@@ -6,9 +6,9 @@
 //  Copyright © 2564 BE David Zhang. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
-protocol NotificationModuleTableViewCellDelegate: class {
+protocol NotificationModuleTableViewCellDelegate: AnyObject {
     func cell(_ cell: NotificationModuleTableViewCell, valueDidChange isEnabled: Bool)
     func cellRoleButtonDidTap(_ cell: NotificationModuleTableViewCell)
 }

@@ -6,6 +6,8 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
+import UIKit
+
 final class ParentFilterPreferenceViewController: UITableViewController {
     // to be injected.
     var channelId: String!

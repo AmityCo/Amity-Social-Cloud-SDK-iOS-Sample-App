@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AmitySDK
 
 class CommunityFeedViewModel: ObservableObject {
     
@@ -35,14 +36,14 @@ class CommunityFeedViewModel: ObservableObject {
         
     }
     
-    func queryFeed(sort: AmityCommunityFeedSortOption, feedType: AmityFeedType, completion: (() -> Void)?) {
+    func queryFeed(sort: AmityPostQuerySortOption, feedType: AmityFeedType, completion: (() -> Void)?) {
         self.feedType = feedType
         if !feed.isEmpty {
             feed = []
             completion?()
         }
         isDataUpdated = false
-        postCollection = feedRepository.getCommunityFeed(withCommunityId: community.id, sortBy: sort, includeDeleted: true, feedType: feedType)
+        postCollection = feedRepository.getCommunityFeed(withCommunityId: community.id, sortBy: sort, includeDeleted: false, feedType: feedType)
         token = postCollection?.observe({ [weak self] (collection, _, _) in
             guard collection.dataStatus == .fresh, let strongSelf = self else { return }
             
@@ -50,8 +51,7 @@ class CommunityFeedViewModel: ObservableObject {
             Log.add(info: "Feed observed: \(collection.dataStatus.description), post count: \(collection.count())")
             
             var list = [CommunityPostModel]()
-            for i in 0..<collection.count() {
-                guard let post = collection.object(at: i) else { return }
+            for post in collection.allObjects() {
                 let model = CommunityPostModel(postId: post.postId,
                                                postedUserDisplayName: post.postedUser?.displayName,
                                                text: post.data?["text"] as? String,
@@ -59,7 +59,9 @@ class CommunityFeedViewModel: ObservableObject {
                                                isDeleted: post.isDeleted,
                                                postDataType: post.dataType,
                                                isOwner: post.postedUserId == AmityManager.shared.client?.currentUserId,
-                                               createdAt: post.createdAt)
+                                               createdAt: post.createdAt,
+                                               metadata: post.metadata,
+                                               mentionees: post.mentionees)
                 list.append(model)
             }
             strongSelf.isDataUpdated = true

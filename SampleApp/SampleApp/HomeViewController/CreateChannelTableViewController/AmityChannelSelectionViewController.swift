@@ -37,7 +37,7 @@ final class AmityChannelSelectionViewController: UIViewController {
         case ChannelType.private.rawValue:
             presentHomeViewController(channelType: .private)
         case ChannelType.byTypes.rawValue:
-            presentHomeViewController(channelType: .byTypes)
+            presentHomeViewController(channelType: .unknown)
         case ChannelType.broadcast.rawValue:
             presentHomeViewController(channelType: .broadcast)
         case ChannelType.conversation.rawValue:

@@ -6,14 +6,10 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 final class AmityChatFileViewCell: UITableViewCell, AmityChatTableViewCell {
     @IBOutlet weak var myImageView: UIImageView!
-    @IBOutlet weak var myMessageLabelTrailingConstraint: NSLayoutConstraint!
-    @IBOutlet weak var myDisplayNameLabelTrailingConstraint: NSLayoutConstraint!
-    @IBOutlet weak var someoneMessageLabelLeadingingConstraint: NSLayoutConstraint!
-    @IBOutlet weak var someoneDisplayNameLabelLeadingConstraint: NSLayoutConstraint!
     @IBOutlet weak var displayNameLabel: UILabel!
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var messageStatusImageView: UIImageView!
@@ -38,24 +34,11 @@ final class AmityChatFileViewCell: UITableViewCell, AmityChatTableViewCell {
     func display(_ message: AmityMessage, client: AmityClient) {
         messageId = message.messageId
         
-        if message.userId == client.currentUserId {
-            myMessageLabelTrailingConstraint.isActive = true
-            myDisplayNameLabelTrailingConstraint.isActive = true
-            someoneMessageLabelLeadingingConstraint.isActive = false
-            someoneDisplayNameLabelLeadingConstraint.isActive = false
-        } else {
-            myMessageLabelTrailingConstraint.isActive = false
-            myDisplayNameLabelTrailingConstraint.isActive = false
-            someoneMessageLabelLeadingingConstraint.isActive = true
-            someoneDisplayNameLabelLeadingConstraint.isActive = true
-        }
-        self.needsUpdateConstraints()
-        self.setNeedsLayout()
-        
         if message.isDeleted {
             displayNameLabel.text = "Message deleted"
         } else {
-            displayNameLabel.text = message.user?.displayName
+            let flagCount = message.flagCount
+            displayNameLabel.text = message.user?.displayName ?? "" + " F: \(flagCount)"
             messageStatusImageView.image = symbol(for: message.syncState)
             myImageView.image = UIImage(named:"file")
             timeLabel.text = DateFormatter.localizedString(from: message.createdAtDate, dateStyle: .none, timeStyle: .short)

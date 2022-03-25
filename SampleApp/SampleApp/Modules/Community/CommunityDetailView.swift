@@ -22,24 +22,7 @@ struct CommunityDetailView: View {
             HeaderCard(isCreator: viewModel.community.isCreator,communityId: viewModel.community.communityId, image: Image("comm_header"), membersCount: viewModel.community.membersCount, displayName: viewModel.community.displayName, description: viewModel.community.description, postCount: viewModel.community.postsCount, isOfficial: viewModel.community.isOfficial, tags: viewModel.community.tags).padding()
             
             NotificationPanelView(viewModel: viewModel)
-            
-            Button(action: {
-                self.viewModel.queryFeed(sort: .lastCreated)
-            }, label: {
-                Text("Show community Feed")
-            })
-            .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(8)
-            
-            ForEach(viewModel.feed) { post  in
-                UserFeedItemView(model: post)
-                    .padding([.top, .bottom], 8)
-            }
         }
-        
-
     }
 }
 
@@ -200,7 +183,14 @@ struct NotificationPanelView: View {
             .background(Color.green)
             .foregroundColor(.white)
             .cornerRadius(8)
+            .alert(isPresented: Binding<Bool>(
+                get: { self.viewModel.showNotificationErrorAlert == true },
+                set: { _ in self.viewModel.showNotificationErrorAlert = false }
+            )) {
+                return Alert(title: Text("Simething went wrong"), message: Text("Please enable notifications"), dismissButton: .default(Text("Ok")))
+            }
         }
+        
         .padding()
         .background(Color.white)
         .cornerRadius(15)

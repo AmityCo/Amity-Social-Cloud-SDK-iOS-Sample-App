@@ -6,6 +6,8 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
+import UIKit
+
 final class NotificationRegistrationTableViewController: UITableViewController {
     /// To be injected.
     weak var client: AmityClient!

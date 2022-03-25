@@ -6,25 +6,34 @@
 //  Copyright © 2020 David Zhang. All rights reserved.
 //
 
-import Foundation
+import AmitySDK
+import UIKit
 
 enum FeedType {
+    case globalFeed
+    case customPostRankingGlobalFeed
     case myFeed
     case userFeed
     case singlePost
+    case community
 }
 
 class UserPostsFeedManager {
     
     let client: AmityClient
     let feedRepository: AmityFeedRepository
+    let postRepository: AmityPostRepository
+    let pollRepository: AmityPollRepository
     
     var postCollection: AmityCollection<AmityPost>?
     var feedCollectionToken: AmityNotificationToken?
     
+    var communityParticipation: AmityCommunityParticipation?
+    
     var editedPost: AmityPost?
     let userId: String?
     let userName: String?
+    var community: CommunityListModel?
     var postId: String? // Post id for individual post
     var feedType: FeedType = .myFeed
     
@@ -45,15 +54,10 @@ class UserPostsFeedManager {
     let uploadTracker = DispatchGroup()
     
     var flagger = PostFlagManager()
-    var isGlobalFeed = false
     
-    var feedSortOption: AmityUserFeedSortOption = .lastCreated
+    var feedSortOption: AmityPostQuerySortOption = .lastCreated
+    var feedSortCommunityOption: FeedItemDefaultAction = .publishedAndSortLastCreated
     var includeDeletedPosts = true
-    
-    lazy var communityRepo: AmityCommunityRepository = {
-        let repo = AmityCommunityRepository(client: self.client)
-        return repo
-    }()
     
     lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -61,12 +65,18 @@ class UserPostsFeedManager {
         return formatter
     }()
     
+    var postFeedType: AmityFeedType = .published
+    var sortCommunityHandler: (() -> Void)?
+    
     // Make sure your AmityClient is setup and then setup AmityFeedRepository & AmityPostCreator
-    init(client: AmityClient, userId: String?, userName: String? = nil) {
+    init(client: AmityClient, userId: String?, userName: String? = nil, community: CommunityListModel? = nil) {
         self.client = client
         self.userId = userId
         self.userName = userName
+        self.community = community
         self.feedRepository = AmityFeedRepository(client: client)
+        self.postRepository = AmityPostRepository(client: client)
+        self.pollRepository = AmityPollRepository(client: client)
         self.fileRepository = AmityFileRepository(client: client)
         self.reactionRepository = AmityReactionRepository(client: client)
     }
@@ -77,16 +87,27 @@ class UserPostsFeedManager {
     // would be notified.
     // Note: Retain that AmityNotificationToken
     func observePostsFeedChanges(changeHandler:@escaping ()->()) {
-        
+                
         switch feedType {
-        case .myFeed, .userFeed:
             
-            if isGlobalFeed {
-                postCollection = feedRepository.getGlobalFeed()
-            } else {
-                sortCurrentFeed(option: feedSortOption)
-            }
+        case .globalFeed:
+            postCollection = feedRepository.getGlobalFeed()
+            feedCollectionToken?.invalidate()
+            feedCollectionToken = postCollection?.observe({(collection, _, error) in
+                Log.add(info: "Post collection observer called")
+                changeHandler()
+            })
+        case .customPostRankingGlobalFeed:
+            postCollection = feedRepository.getCustomPostRankingGlobalfeed()
+            feedCollectionToken?.invalidate()
+            feedCollectionToken = postCollection?.observe({(collection, _, error) in
+                Log.add(info: "Post collection observer called")
+                changeHandler()
+            })
+        case .myFeed, .userFeed, .community:
+            sortCurrentFeed(option: feedSortOption)
             
+            feedCollectionToken?.invalidate()
             feedCollectionToken = postCollection?.observe({(collection, _, error) in
                 Log.add(info: "Post collection observer called")
                 changeHandler()
@@ -97,7 +118,8 @@ class UserPostsFeedManager {
                 return
             }
             
-            let postObject = feedRepository.getPostForPostId(id)
+            let postObject = postRepository.getPostForPostId(id)
+            postObjectToken?.invalidate()
             postObjectToken = postObject.observe({ [weak self] (object, error) in
                 self?.individualPost = object.object
                 
@@ -108,7 +130,7 @@ class UserPostsFeedManager {
     
     func getPostAtIndex(index: Int) -> AmityPost? {
         switch feedType {
-        case .myFeed, .userFeed:
+        case .globalFeed, .customPostRankingGlobalFeed, .myFeed, .userFeed, .community:
             return postCollection?.object(at: UInt(index))
         case .singlePost:
             return individualPost
@@ -146,6 +168,9 @@ class UserPostsFeedManager {
                     videos: [URL],
                     isFilePost: Bool,
                     communityId: String?,
+                    streamId: String?,
+                    metadata: [String: Any]?,
+                    mentionees: AmityMentioneesBuilder?,
                     onCompletion: @escaping (_ isSuccess: Bool) -> Void) {
         
         let targetId: String? = communityId == nil ? userId : communityId
@@ -156,7 +181,20 @@ class UserPostsFeedManager {
             onCompletion(false)
         }
         
-        if images.isEmpty, videos.isEmpty {
+        if let streamId = streamId, !streamId.isEmpty {
+            let builder = AmityLiveStreamPostBuilder(streamId: streamId, text: text)
+            if let mentionees = mentionees, let metadata = metadata {
+                postRepository.createPost(builder, targetId: targetId, targetType: targetType, metadata: metadata, mentionees: mentionees) { post, error in
+                    let isSuccess = post != nil
+                    onCompletion(isSuccess)
+                }
+            } else {
+                postRepository.createPost(builder, targetId: targetId, targetType: targetType) { post, error in
+                    let isSuccess = post != nil
+                    onCompletion(isSuccess)
+                }
+            }
+        } else if images.isEmpty, videos.isEmpty {
             
             // Text Post
             
@@ -165,9 +203,16 @@ class UserPostsFeedManager {
                 textBuilder.setText(text)
             }
             
-            feedRepository.createPost(textBuilder, targetId: targetId, targetType: targetType) { (post, error) in
-                let isSuccess = post != nil
-                onCompletion(isSuccess)
+            if let mentionees = mentionees, let metadata = metadata {
+                postRepository.createPost(textBuilder, targetId: targetId, targetType: targetType, metadata: metadata, mentionees: mentionees) { (post, error) in
+                    let isSuccess = post != nil
+                    onCompletion(isSuccess)
+                }
+            } else {
+                postRepository.createPost(textBuilder, targetId: targetId, targetType: targetType) { (post, error) in
+                    let isSuccess = post != nil
+                    onCompletion(isSuccess)
+                }
             }
         } else if isFilePost {
             
@@ -198,7 +243,7 @@ class UserPostsFeedManager {
             }
             
             uploadTracker.notify(queue: .main) { [weak self] in
-                self?.createFilePost(fileIds: filesData, text: text, targetId: targetId, targetType: targetType, completion: onCompletion)
+                self?.createFilePost(fileIds: filesData, text: text, targetId: targetId, targetType: targetType, metadata: metadata, mentionees: mentionees, completion: onCompletion)
             }
             
         } else if !images.isEmpty {
@@ -226,7 +271,7 @@ class UserPostsFeedManager {
             }
             
             uploadTracker.notify(queue: .main) { [weak self] in
-                self?.createImagePost(fileIds: imagesData, text: text, targetId: targetId, targetType: targetType, completion: onCompletion)
+                self?.createImagePost(fileIds: imagesData, text: text, targetId: targetId, targetType: targetType, metadata: metadata, mentionees: mentionees, completion: onCompletion)
             }
             
         } else if !videos.isEmpty {
@@ -255,7 +300,11 @@ class UserPostsFeedManager {
             }
             
             uploadTracker.notify(queue: .main) { [weak self] in
-                self?.createVideoPost(videosData: videosData, text: text, targetId: targetId, targetType: targetType, completion: onCompletion)
+                if !videosData.isEmpty {
+                    self?.createVideoPost(videosData: videosData, text: text, targetId: targetId, targetType: targetType, metadata: metadata, mentionees: mentionees, completion: onCompletion)
+                } else {
+                    onCompletion(false)
+                }
             }
             
         } else {
@@ -264,35 +313,49 @@ class UserPostsFeedManager {
         
     }
     
-    func createFilePost(fileIds: [AmityFileData], text: String?, targetId: String?, targetType: AmityPostTargetType, completion: @escaping (_ isSuccess: Bool) -> ()) {
+    func createFilePost(fileIds: [AmityFileData], text: String?, targetId: String?, targetType: AmityPostTargetType, metadata: [String: Any]?, mentionees: AmityMentioneesBuilder?, completion: @escaping (_ isSuccess: Bool) -> ()) {
         
         let filePostBuilder = AmityFilePostBuilder()
         if let text = text {
             filePostBuilder.setText(text)
         }
-        filePostBuilder.setFileData(fileIds)
+        filePostBuilder.setFiles(fileIds)
         
-        feedRepository.createPost(filePostBuilder, targetId: targetId, targetType: targetType) { (post, error) in
-            let isSuccess = post != nil
-            completion(isSuccess)
+        if let mentionees = mentionees {
+            postRepository.createPost(filePostBuilder, targetId: targetId, targetType: targetType, metadata: metadata, mentionees: mentionees) { (post, error) in
+                let isSuccess = post != nil
+                completion(isSuccess)
+            }
+        } else {
+            postRepository.createPost(filePostBuilder, targetId: targetId, targetType: targetType) { (post, error) in
+                let isSuccess = post != nil
+                completion(isSuccess)
+            }
         }
     }
     
-    func createImagePost(fileIds: [AmityImageData], text: String?, targetId: String?, targetType: AmityPostTargetType, completion: @escaping (_ isSuccess: Bool) -> ()) {
+    func createImagePost(fileIds: [AmityImageData], text: String?, targetId: String?, targetType: AmityPostTargetType,metadata: [String: Any]?, mentionees: AmityMentioneesBuilder?, completion: @escaping (_ isSuccess: Bool) -> ()) {
         
         let imagePostBuilder = AmityImagePostBuilder()
         if let text = text {
             imagePostBuilder.setText(text)
         }
-        imagePostBuilder.setImageData(fileIds)
+        imagePostBuilder.setImages(fileIds)
         
-        feedRepository.createPost(imagePostBuilder, targetId: targetId, targetType: targetType) { (post, error) in
-            let isSuccess = post != nil
-            completion(isSuccess)
+        if let mentionees = mentionees {
+            postRepository.createPost(imagePostBuilder, targetId: targetId, targetType: targetType, metadata: metadata, mentionees: mentionees) { (post, error) in
+                let isSuccess = post != nil
+                completion(isSuccess)
+            }
+        } else {
+            postRepository.createPost(imagePostBuilder, targetId: targetId, targetType: targetType) { (post, error) in
+                let isSuccess = post != nil
+                completion(isSuccess)
+            }
         }
     }
     
-    func createVideoPost(videosData: [AmityVideoData], text: String?, targetId: String?, targetType: AmityPostTargetType, completion: @escaping (_ isSuccess: Bool) -> ()) {
+    func createVideoPost(videosData: [AmityVideoData], text: String?, targetId: String?, targetType: AmityPostTargetType, metadata: [String: Any]?, mentionees: AmityMentioneesBuilder?, completion: @escaping (_ isSuccess: Bool) -> ()) {
         
         let videoPostBuilder = AmityVideoPostBuilder()
         if let text = text {
@@ -300,14 +363,82 @@ class UserPostsFeedManager {
         }
         videoPostBuilder.setVideos(videosData)
         
-        feedRepository.createPost(videoPostBuilder, targetId: targetId, targetType: targetType) { (post, error) in
-            let isSuccess = post != nil
-            completion(isSuccess)
+        if let mentionees = mentionees {
+            postRepository.createPost(videoPostBuilder, targetId: targetId, targetType: targetType, metadata: metadata, mentionees: mentionees) { (post, error) in
+                let isSuccess = post != nil
+                completion(isSuccess)
+            }
+        } else {
+            postRepository.createPost(videoPostBuilder, targetId: targetId, targetType: targetType) { (post, error) in
+                let isSuccess = post != nil
+                completion(isSuccess)
+            }
         }
-        
     }
     
-    func updatePost(text: String?, onCompletion: @escaping (_ isSuccess: Bool)->()) {
+    // MARK: - Poll
+    func createPollPost(text: String?,
+                        numOptions: String?,
+                        numDayToClose: String?,
+                        isMultipleVote: Bool,
+                        communityId: String?,
+                        metadata: [String: Any]?,
+                        mentionees: AmityMentioneesBuilder?,
+                        completion: @escaping (_ isSuccess: Bool) -> ()) {
+        guard let text = text, let options = Int(numOptions ?? "2"), (options > 1 && options <= 10), let numDay = Int(numDayToClose ?? "1") else {
+            completion(false)
+            return
+        }
+        
+        let targetId: String? = communityId == nil ? userId : communityId
+        let targetType: AmityPostTargetType = communityId == nil ? .user : .community
+        
+        let milliSec = numDay * (24 * 60 * 60 * 1000)
+        
+        let pollBuilder = AmityPollCreationBuilder()
+        
+        pollBuilder.setQuestion(text)
+        pollBuilder.setTimeToClosePoll(milliSec)
+        pollBuilder.setAnswerType(isMultipleVote ? .multiple : .single)
+        
+        for index in 1...options {
+            pollBuilder.setAnswer("Poll Option \(index)")
+        }
+        
+        pollRepository.createPoll(pollBuilder) { [weak self] pollId, error in
+            if error == nil {
+                guard let pollId = pollId else { return }
+                let builder = AmityPollPostBuilder()
+                builder.setText(text)
+                builder.setPollId(pollId)
+                if let mentionees = mentionees, let metadata = metadata {
+                    self?.postRepository.createPost(builder, targetId: targetId, targetType: targetType, metadata: metadata, mentionees: mentionees) { post, error in
+                        let isSuccess = post != nil
+                        completion(isSuccess)
+                    }
+                } else {
+                    self?.postRepository.createPost(builder, targetId: targetId, targetType: targetType) { post, error in
+                        let isSuccess = post != nil
+                        completion(isSuccess)
+                    }
+                }
+            }
+        }
+    }
+    
+    func votePoll(withPollid pollId: String, answerIds: [String], onCompletion: @escaping (_ isSuccess: Bool)->()) {
+        pollRepository.votePoll(withId: pollId, answerIds: answerIds) { isSuccess, error in
+            onCompletion(isSuccess)
+        }
+    }
+    
+    func closedPoll(withPollId pollId: String, onCompletion: @escaping (_ isSuccess: Bool)->() ) {
+        pollRepository.closePoll(withId: pollId) { isSuccess, error in
+            onCompletion(isSuccess)
+        }
+    }
+    
+    func updatePost(text: String?, metadata: [String: Any]?, mentionees: AmityMentioneesBuilder?, onCompletion: @escaping (_ isSuccess: Bool)->()) {
         
         guard let post = editedPost else { return }
         
@@ -320,18 +451,24 @@ class UserPostsFeedManager {
         
         Log.add(info: "Updating post with id: \(post.postId)")
         
-        feedRepository.updatePost(withPostId: post.postId, builder: textBuilder) { (post, error) in
-            let isSuccess = post != nil
-            onCompletion(isSuccess)
+        if let mentionees = mentionees {
+            postRepository.updatePost(withPostId: post.postId, builder: textBuilder, metadata: metadata, mentionees: mentionees) { (post, error) in
+                let isSuccess = post != nil
+                onCompletion(isSuccess)
+            }
+        } else {
+            postRepository.updatePost(withPostId: post.postId, builder: textBuilder) { (post, error) in
+                let isSuccess = post != nil
+                onCompletion(isSuccess)
+            }
         }
         
         editedPost = nil
     }
     
-    func deletePost(at index: Int, onCompletion: @escaping (_ isSuccess: Bool)->()) {
+    func deletePost(at index: Int, hardDelete: Bool, onCompletion: @escaping (_ isSuccess: Bool)->()) {
         guard let post = postCollection?.object(at: UInt(index)) else { return }
-        
-        feedRepository.deletePost(withPostId: post.postId, parentId: nil) { (isSuccess, error) in
+        postRepository.deletePost(withPostId: post.postId, parentId: nil, hardDelete: hardDelete) { (isSuccess, error) in
             onCompletion(isSuccess)
         }
     }
@@ -348,9 +485,10 @@ class UserPostsFeedManager {
         
         Log.add(info: "[Delete]: Deleting child post with id: \(childPostId)")
         
-        feedRepository.deletePost(withPostId: childPostId, parentId: parentPostId) { (isSuccess, error) in
+        postRepository.deletePost(withPostId: childPostId, parentId: parentPostId, hardDelete: false) { (isSuccess, error) in
             onCompletion(isSuccess)
         }
+        
     }
     
     
@@ -359,7 +497,7 @@ class UserPostsFeedManager {
         var selectedPost: AmityPost?
         
         switch feedType {
-        case .myFeed, .userFeed:
+        case .globalFeed, .customPostRankingGlobalFeed, .myFeed, .userFeed, .community:
             selectedPost = postCollection?.object(at: UInt(index))
         case .singlePost:
             selectedPost = individualPost
@@ -379,14 +517,54 @@ class UserPostsFeedManager {
         }
     }
     
-    func sortCurrentFeed(option: AmityUserFeedSortOption) {
+    func sortCurrentFeed(option: AmityPostQuerySortOption) {
         guard feedType != .singlePost else { return }
         self.feedSortOption = option
 
-        if let id = userId {
-            postCollection = feedRepository.getUserFeed(id, sortBy: option, includeDeleted: includeDeletedPosts)
-        } else {
-            postCollection = feedRepository.getMyFeedSorted(by: option, includeDeleted: includeDeletedPosts)
+        switch feedType {
+        case .myFeed, .userFeed:
+            if let id = userId {
+                postCollection = feedRepository.getUserFeed(id, sortBy: option, includeDeleted: includeDeletedPosts)
+            } else {
+                postCollection = feedRepository.getMyFeedSorted(by: option, includeDeleted: includeDeletedPosts)
+            }
+        case .community:
+            guard let communityId = community?.communityId else { return }
+            let communityOption: AmityPostQuerySortOption = option == .firstCreated ? .firstCreated:.lastCreated
+            postCollection = feedRepository.getCommunityFeed(withCommunityId: communityId, sortBy: communityOption, includeDeleted: includeDeletedPosts, feedType: postFeedType)
+        case .globalFeed, .customPostRankingGlobalFeed, .singlePost:
+            break
+        }
+    }
+    
+    func sortCurrentFeedCommunity(option: FeedItemDefaultAction) {
+        guard feedType != .singlePost else { return }
+        switch option {
+        case .publishedAndSortFirstCreated:
+            self.feedSortOption = .firstCreated
+            self.postFeedType = .published
+        case .publishedAndSortLastCreated:
+            self.feedSortOption = .lastCreated
+            self.postFeedType = .published
+        case .reviewingAndSortFirstCreated:
+            self.feedSortOption = .firstCreated
+            self.postFeedType = .reviewing
+        case .reviewingAndSortLastCreated:
+            self.feedSortOption = .lastCreated
+            self.postFeedType = .reviewing
+        
+        default:
+            return
+        }
+        
+        switch feedType {
+        case .community:
+            guard let communityId = community?.communityId else { return }
+            let communityOption: AmityPostQuerySortOption = feedSortOption == .firstCreated ? .firstCreated:.lastCreated
+            postCollection = feedRepository.getCommunityFeed(withCommunityId: communityId, sortBy: communityOption, includeDeleted: includeDeletedPosts, feedType: postFeedType)
+            sortCommunityHandler?()
+        default:
+            return
         }
     }
     
@@ -395,8 +573,6 @@ class UserPostsFeedManager {
         
         postCollection?.nextPage()
     }
-    
-    var communityParticipation: AmityCommunityParticipation?
     
     func viewCommunityMembership(index: Int) -> String {
         guard let post = self.getPostAtIndex(index: index) else { return "" }
@@ -415,6 +591,29 @@ class UserPostsFeedManager {
             }
         } else {
             return "This post is not community post"
+        }
+    }
+    
+    // pending posts
+    func approve(post: AmityPost?, completion: ((String) -> Void)?) {
+        guard let post = post else { return }
+        postRepository.approvePost(withPostId: post.postId) { success, error in
+            if success {
+                completion?("Success! Approved post")
+            } else {
+                completion?("Something wrong!, \(error)")
+            }
+        }
+    }
+    
+    func decline(post: AmityPost?, completion: ((String) -> Void)?) {
+        guard let post = post else { return }
+        postRepository.declinePost(withPostId: post.postId) { success, error in
+            if success {
+                completion?("Success! Decline post")
+            } else {
+                completion?("Something wrong!, \(error)")
+            }
         }
     }
 }

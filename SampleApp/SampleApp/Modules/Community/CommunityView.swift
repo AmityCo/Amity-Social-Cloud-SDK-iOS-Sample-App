@@ -7,11 +7,12 @@
 //
 
 import SwiftUI
+import AmitySDK
 
 struct CommunityView: View {
     
     @ObservedObject var viewModel: CommunityListViewModel
-    
+    @Environment(\.navigationController) var navigationController
     // HACK: Temporary bcs observed object for replaced an index doesn't trigger the cell unless scroll out and in back
     @State var forceUpdate: Bool = false
     @State private var showingFilterSheet = false
@@ -19,13 +20,12 @@ struct CommunityView: View {
     @State private var showCategoryListScreen = false
     @State private var showCreateScreen = false
     @State private var selection: String?
+    @State var showUnableLeaveAlert = false
     
     var body: some View {
         VStack {
-            
             if viewModel.type == .normal {
                 HStack {
-                    
                     Button(action: {
                         self.showingFilterSheet.toggle()
                     }) {
@@ -88,9 +88,21 @@ struct CommunityView: View {
                     }
                 }.padding()
                 
-                TextField("Search Here", text: $viewModel.searchKeyword)
-                    .padding([.leading, .trailing, .top])
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                
+                HStack {
+                    TextField("Search Here", text: $viewModel.searchKeyword)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        viewModel.searchCommunities()
+                    }, label: {
+                        Text("Search")
+                    })
+                }
+                .padding([.leading, .trailing])
+                
             }
             
             List(viewModel.community) { community in
@@ -109,6 +121,22 @@ struct CommunityView: View {
                         self.selection = community.id + "+participation"
                     }, feedAction: {
                         self.selection = community.id + "+feed"
+                        if selection == (community.id + "+feed") {
+                            let feedManager = UserPostsFeedManager(client: AmityManager.shared.client!, userId: nil, userName: nil, community: community)
+                            feedManager.feedType = .community
+                            feedManager.community = community
+                            
+                            let postsFeedStoryboard = UIStoryboard(name: "Feed", bundle: nil)
+                            let postsFeedController = postsFeedStoryboard.instantiateViewController(withIdentifier: UserPostsFeedViewController.identifier) as! UserPostsFeedViewController
+                            postsFeedController.feedManager = feedManager
+                            self.navigationController?.pushViewController(postsFeedController, animated: true)
+                        }
+                    }, realTimeEventAction: {
+                        let eventController = CommunityRealTimeEventController()
+                        let manager = CommunityRealTimeEventManager(community: community.communityObject)
+                        eventController.manager = manager
+                        
+                        self.navigationController?.pushViewController(eventController, animated: true)
                     })
                     .onAppear {
                         if self.viewModel.community.last == community {
@@ -141,18 +169,6 @@ struct CommunityView: View {
                         .buttonStyle(PlainButtonStyle())
                         .hidden()
                     
-                    // Feed
-                    NavigationLink(
-                        destination: CommunityFeedViews(viewModel: CommunityFeedViewModel(community: community)),
-                        tag: community.id + "+feed",
-                        selection: self.$selection,
-                        label: {
-                            EmptyView()
-                        })
-                        .buttonStyle(PlainButtonStyle())
-                        .hidden()
-           
-                    
                     // Details
                     NavigationLink(
                         destination: CommunityDetailView(viewModel: CommunityDetailViewModel(community: community)),
@@ -163,7 +179,6 @@ struct CommunityView: View {
                         })
                         .buttonStyle(PlainButtonStyle())
                         .hidden()
-                    
                 }
             }
         }
@@ -178,7 +193,6 @@ struct CommunityView: View {
             UITableViewCell.appearance().selectionStyle = .none
             UITableView.appearance().separatorStyle = .none
         })
-        
     }
 }
 
@@ -186,130 +200,6 @@ struct CommunitiesView_Previews: PreviewProvider {
     
     static var previews: some View {
         return Text("Community View")
-    }
-}
-
-struct CardView: View {
-    typealias Action = (() -> Void)?
-    
-    var model: CommunityListModel
-    var deleteAction: (() -> Void)?
-    var leaveAction: (() -> Void)?
-    var detailsAction: (() -> Void)?
-    var joinAction: (() -> Void)?
-    var updateAction: (() -> Void)?
-    var membershipAction: (() -> Void)?
-    var feedAction: (() -> Void)?
-    
-    @State var showAction: Bool = false
-    
-    init(model: CommunityListModel, joinAction: Action, leaveAction: Action, deleteAction: Action, detailsAction: Action, updateAction: Action, membershipAction: Action, feedAction: Action) {
-        self.model = model
-        self.joinAction = joinAction
-        self.leaveAction = leaveAction
-        self.deleteAction = deleteAction
-        self.detailsAction = detailsAction
-        self.updateAction = updateAction
-        self.membershipAction = membershipAction
-        self.feedAction = feedAction
-    }
-    
-    var body: some View {
-        VStack {
-
-            // Header Title
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("\(model.displayName.capitalized)")
-                        .font(.title)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .padding(.top, 12)
-                    
-                    if !model.description.isEmpty {
-                        Text("\(model.description.capitalized)")
-                            .foregroundColor(Color.white.opacity(0.9))
-                            .padding(.top, 4)
-                            .font(.body)
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
-                
-                Spacer()
-                
-                Button(action: {
-                    self.showAction.toggle()
-                }, label: {
-                    Image(systemName: "ellipsis.circle")
-                        .resizable()
-                        .frame(width: 24, height: 24)
-                        .padding()
-                })
-                .padding()
-                .actionSheet(isPresented: $showAction, content: {
-                    ActionSheet(title: Text("Choose Actions"), message: Text("What do you want to do?"), buttons: getAllActions())
-                })
-            }
-            
-            VStack(spacing: 5) {
-                
-                let data = model.getPreviewData()
-                
-                ForEach(0..<data.count, id: \.self) { index in
-                    let item = data[index]
-                    CardTextView(key: item.0, value: item.1)
-                }
-                
-            }
-            .padding([.top, .bottom], 16)
-        }
-        .background(model.isJoined ? Color("NeonGreen") : Color("PastelBlue"))
-        .cornerRadius(20)
-        .shadow(color: Color.gray.opacity(0.6), radius: 8, x: 0, y: 0)
-        .padding([.top, .bottom], 8)
-    }
-    
-    func getAllActions() -> [ActionSheet.Button] {
-        var actions = [ActionSheet.Button]()
-        
-        if model.isJoined {
-            actions.append(.default(Text("View Community Details"), action: {
-                detailsAction?()
-            }))
-            
-            actions.append(.default(Text("View Community Feed"), action: {
-                feedAction?()
-            }))
-            
-            actions.append(.default(Text("Leave Community"), action: {
-                leaveAction?()
-            }))
-            
-            // Actions related to creator
-            if model.isCreator {
-                actions.append(.default(Text("Add/Remove Members"), action: {
-                    membershipAction?()
-                }))
-                
-                actions.append(.default(Text("Update Community"), action: {
-                    updateAction?()
-                }))
-                
-                actions.append(.default(Text("Delete Community"), action: {
-                    deleteAction?()
-                }))
-            }
-        } else {
-            actions.append(.default(Text("Join Community"), action: {
-                joinAction?()
-            }))
-        }
-        
-        // Default dismiss action
-        actions.append(.cancel(Text("Dismiss")))
-        
-        return actions
     }
 }
 

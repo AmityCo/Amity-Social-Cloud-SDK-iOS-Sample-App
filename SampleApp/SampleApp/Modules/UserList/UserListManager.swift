@@ -69,8 +69,7 @@ class UserListManager {
     func populateSearchedUsers(completion:@escaping ()->()) {
         
         var results = [AmityUser]()
-        for i in 0..<searchCollection!.count() {
-            guard let item = searchCollection!.object(at: UInt(i)) else { continue }
+        for item in searchCollection!.allObjects() {
             results.append(item)
         }
         
@@ -105,38 +104,4 @@ class UserListManager {
             userCollection?.nextPage()
         }
     }
-}
-
-
-// Simple debouncer for search
-@objc public class Debouncer: NSObject {
-    
-    @objc public var delay: Double
-    
-    private var callback: (() -> Void)?
-    
-    private weak var timer: Timer?
-    
-    @objc public init(delay: TimeInterval) {
-        self.delay = delay
-    }
-    
-    deinit {
-        timer?.invalidate()
-    }
-    
-    @objc public func setCallback(_ callback: (() -> Void)?) {
-        self.callback = callback
-    }
-    
-    @objc public func call() {
-        timer?.invalidate()
-        let nextTimer = Timer.scheduledTimer(timeInterval: delay, target: self, selector: #selector(fire), userInfo: nil, repeats: false)
-        timer = nextTimer
-    }
-    
-    @objc public func fire() {
-        self.callback?()
-    }
-    
 }

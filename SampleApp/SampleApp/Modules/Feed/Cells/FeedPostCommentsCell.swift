@@ -21,7 +21,21 @@ class FeedPostCommentsCell: FeedTableViewCell {
     func setData(model: PostCommentModel) {
         firstCommentLabel.isHidden = model.firstComment == nil
         secondCommentLabel.isHidden = model.secondComment == nil
-        firstCommentLabel.text = model.firstComment
-        secondCommentLabel.text = model.secondComment
+        
+        if let firstComment = model.firstComment, let text = firstComment.data?["text"] as? String {
+            if let mentionees = firstComment.mentionees, let metadata = firstComment.metadata {
+                firstCommentLabel.attributedText = AmityMentionManager.getAttributedString(text: text, withMetadata: metadata, mentionees: mentionees)
+            } else {
+                firstCommentLabel.text = text
+            }
+        }
+        
+        if let secondComment = model.secondComment, let text = secondComment.data?["text"] as? String {
+            if let mentionees = secondComment.mentionees, let metadata = secondComment.metadata {
+                secondCommentLabel.attributedText = AmityMentionManager.getAttributedString(text: text, withMetadata: metadata, mentionees: mentionees)
+            } else {
+                secondCommentLabel.text = text
+            }
+        }
     }
 }

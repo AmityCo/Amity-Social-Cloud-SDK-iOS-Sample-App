@@ -36,44 +36,53 @@ final class ChannelListDataSource {
     /*
      This method builds the channel. Then uses AmityChannelRepository instance to fetch channel collection & observe it.
      */
-    func fetchChannels(channelType: AmityChannelType, channelFilter: AmityChannelQueryFilter, includingTags: [String], excludingTags: [String], channelTypeName: Set<String> = Set(arrayLiteral: "standard", "private", "live", "community", "conversation")) {
+    func fetchChannels(
+        channelType: AmityChannelType,
+        channelFilter: AmityChannelQueryFilter,
+        includingTags: [String],
+        excludingTags: [String],
+        channelTypes: Set<String> = Set([
+            AmityChannelQueryType.standard,
+            AmityChannelQueryType.private,
+            AmityChannelQueryType.live,
+            AmityChannelQueryType.community,
+            AmityChannelQueryType.conversation])
+    ) {
+                
+        let query = AmityChannelQuery()
+        
+        query.includingTags = includingTags
+        query.excludingTags = excludingTags
+        query.includeDeleted = false
         
         switch channelType {
         case .private:
-            let builder = AmityPrivateChannelQueryBuilder(includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
-            channelsCollection = repository.getChannels().privateType(with: builder).query()
+            query.types = [AmityChannelQueryType.private]
         case .standard:
-            let builder = AmityStandardChannelQueryBuilder(channelQueryFilter: channelFilter, includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
-            channelsCollection = repository.getChannels().standardType(with: builder).query()
-        case .byTypes:
-            let builderSet: Set<String> = channelTypeName
-            let builder = AmityByTypesChannelQueryBuilder(types: builderSet, channelQueryFilter: channelFilter, includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
-            channelsCollection = repository.getChannels().byTypes(with: builder).query()
+            query.types = [AmityChannelQueryType.standard]
+        case .unknown:
+            query.types = channelTypes
         case .broadcast:
-            let builder = AmityBroadcastChannelQueryBuilder(channelQueryFilter: channelFilter, includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
-            channelsCollection = repository.getChannels().broadcast(with: builder).query()
+            query.types = [AmityChannelQueryType.broadcast]
         case .conversation:
-            let builder = AmityConversationChannelQueryBuilder(includingTags: includingTags, excludingTags: nil, includeDeleted: false)
-            channelsCollection = repository.getChannels().conversation(with: builder).query()
-            
+            query.types = [AmityChannelQueryType.conversation]
         case .live:
-            let builder = AmityLiveChannelQueryBuilder(includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
-            channelsCollection = repository.getChannels().liveType(with: builder).query()
-            
+            query.types = [AmityChannelQueryType.live]
         case .community:
-            let builder = AmityCommunityChannelQueryBuilder(filter: channelFilter, includingTags: includingTags, excludingTags: excludingTags, includeDeleted: false)
-            channelsCollection = repository.getChannels().communityType(with: builder).query()
-            
+            query.types = [AmityChannelQueryType.community]
         @unknown default:
             fatalError()
         }
         
+        channelsCollection = repository.getChannels(with: query)
+        
         dataSourceObserver?.didUpdateDataSource()
+        
         channelsToken = channelsCollection?.observe { [weak self] _, _, _ in
-            
             // Do your changes when you observe changes to channels
             self?.dataSourceObserver?.didUpdateDataSource()
         }
+        
     }
     
     /*

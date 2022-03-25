@@ -6,14 +6,14 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 /// Updates the given `UIButton` `titleLabel` based on the given `AmityUser`
 final class DisplayNameButtonController {
     private unowned let displayNameButton: UIButton
     private var token: AmityNotificationToken?
 
-    init(displayNameButton: UIButton, userObject: AmityObject<AmityUser>) {
+    init(displayNameButton: UIButton) {
         self.displayNameButton = displayNameButton
     }
 

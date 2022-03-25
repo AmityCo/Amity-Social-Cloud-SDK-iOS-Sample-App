@@ -8,14 +8,46 @@
 
 import UIKit
 import SwiftUI
+import Realm
 
 /*
  This class sets up various screens in sample app.
  */
 class MainTabViewController: UITabBarController {
     
+    private enum Menu: String, CaseIterable {
+        case userFeed
+        case globalFeed
+        case customPostRankingGlobalFeed
+        case createComment
+        case getLatestComments
+        case getPosts
+        
+        var title: String {
+            switch self {
+            case .userFeed:
+                return "User Feed"
+            case .globalFeed:
+                return "Global Feed"
+            case .customPostRankingGlobalFeed:
+                return "Custom Post Ranking Global Feed"
+            case .createComment:
+                return "Create Comment"
+            case .getLatestComments:
+                return "Get Latest Comment"
+            case .getPosts:
+                return "Get Posts"
+            }
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Note:
+        // Simple check to catch any fatal exception thrown by realm model from sdk.
+        let realm = RLMRealm.default()
+        Log.add(info: "Realm Classes: \(String(describing: realm.configuration.objectClasses))")
         
         setupTabControllers()
     }
@@ -47,30 +79,36 @@ class MainTabViewController: UITabBarController {
         // Post Selection Screen
         let postListController = ListViewController()
         postListController.listTitle = "Feed"
-        postListController.items = [
-            "Normal Feed",
-            "Global Feed",
-            "Create Comment",
-            "Get Latest Comment",
-            "Get Posts"
-        ].map{ ListItem(id: $0, title: $0) }
+        postListController.items = Menu.allCases.map{ ListItem(id: $0.rawValue, title: $0.title) }
         postListController.listItemTapAction = { item, index in
-            switch index {
-            case 0, 1:
+            guard let menu = Menu(rawValue: item.id) else {
+                assertionFailure("Unhandled case")
+                return
+            }
+            switch menu {
+            case .userFeed, .globalFeed, .customPostRankingGlobalFeed:
                 let postsFeedController = postsFeedStoryboard.instantiateViewController(withIdentifier: UserPostsFeedViewController.identifier) as! UserPostsFeedViewController
-                postsFeedController.isGlobalFeed = index == 1
-                
                 let feedManager = UserPostsFeedManager(client: client, userId: nil)
                 postsFeedController.feedManager = feedManager
+                postsFeedController.title = item.title
+                
+                if menu == .userFeed {
+                    postsFeedController.feedManager.feedType = .myFeed
+                } else if menu == .globalFeed {
+                    postsFeedController.feedManager.feedType = .globalFeed
+                } else {
+                    postsFeedController.feedManager.feedType = .customPostRankingGlobalFeed
+                }
                 
                 postListController.navigationController?.pushViewController(postsFeedController, animated: true)
-            case 2:
+            case .createComment:
                 let controller = UIHostingController(rootView: CommentCreateTestView())
                 postListController.navigationController?.pushViewController(controller, animated: true)
-            case 3:
-                let controller = UIHostingController(rootView: LatestCommentView())
-                postListController.navigationController?.pushViewController(controller, animated: true)
-            case 4:
+            case .getLatestComments:
+                
+                    let controller = UIHostingController(rootView: LatestCommentView())
+                    postListController.navigationController?.pushViewController(controller, animated: true)
+            case .getPosts:
                 if #available(iOS 14.0, *) {
                     let postQuerySettingsPage = PostQuerySettingsPage()
                     let vc = UIHostingController(rootView: postQuerySettingsPage)
@@ -78,9 +116,6 @@ class MainTabViewController: UITabBarController {
                 } else {
                     assertionFailure("Unhandled case")
                 }
-            default:
-                assertionFailure("Unhandled case")
-                break
             }
         }
         postListController.tabBarItem = UITabBarItem(title: "My Feed", image: UIImage(named: "tab_feed"), tag: 1)
@@ -139,7 +174,7 @@ class MainTabViewController: UITabBarController {
                 break
             }
             
-            let communityController = UIHostingController(rootView: CommunityView(viewModel: CommunityListViewModel(type: communityType)))
+            let communityController = UIHostingController(rootView: CommunityView(viewModel: CommunityListViewModel(type: communityType)).environment(\.navigationController, communitiesListController.navigationController))
             communitiesListController.navigationController?.pushViewController(communityController, animated: true)
         }
         communitiesListController.tabBarItem = UITabBarItem(title: "Communities", image: UIImage(named: "tab_comm"), tag: 3)

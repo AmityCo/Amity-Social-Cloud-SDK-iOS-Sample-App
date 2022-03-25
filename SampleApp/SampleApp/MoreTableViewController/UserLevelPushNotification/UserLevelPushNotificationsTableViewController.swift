@@ -130,6 +130,15 @@ final class UserLevelPushNotificationsTableViewController: UITableViewController
 }
 
 extension UserLevelPushNotificationsTableViewController: UserLevelPushNotificationManagerDelegate {
+    func manager(_ manager: UserLevelPushNotificationManager, didFailWithError error: Error) {
+        let nsError = error as NSError
+        let alertController = UIAlertController(title: "Something went wrong", message: "\(nsError.code) \(nsError.localizedDescription)", preferredStyle: .alert)
+        let ok = UIAlertAction(title: "OK", style: .default, handler: nil)
+        alertController.addAction(ok)
+        present(alertController, animated: true, completion: nil)
+        
+        tableView.reloadData()
+    }
     
     func manager(_ manager: UserLevelPushNotificationManager, didReceiveNotification notification: AmityUserNotificationSettings) {
         print(notification)

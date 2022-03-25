@@ -8,12 +8,24 @@
 
 import Foundation
 import UIKit
+import AmitySDK
 
 // NOTE:
 // Ignore stuffs in this class. This class is just for quick testing of sdk stuffs inside sample app.
 class TestController: UIViewController {
     
+    let client = AmityManager.shared.client!
+    
+    var token: AmityNotificationToken?
+    
+    let userRepo = AmityUserRepository(client: AmityManager.shared.client!)
     let commRepo = AmityCommunityRepository(client: AmityManager.shared.client!)
+    let commentRepo = AmityCommentRepository(client: AmityManager.shared.client!)
+    let postRepo = AmityPostRepository(client: AmityManager.shared.client!)
+    
+    let topicSubscription = AmityTopicSubscription(client: AmityManager.shared.client!)
+    
+    var followObject: AmityObject<AmityUserFollowInfo>?
     
     override func loadView() {
         view = UIView()
@@ -32,19 +44,18 @@ class TestController: UIViewController {
     }
         
     @objc func onButton1Tap() {
-        
+
     }
-        
+    
     @objc func onButton2Tap() {
         
     }
     
     @objc func onButton3Tap() {
-
+        
     }
     
     @objc func onButton4Tap() {
-
     }
     
     func getUserInput(completion: @escaping (String, String) -> Void) {
@@ -63,56 +74,5 @@ class TestController: UIViewController {
             completion(id, role)
         }))
         self.present(alert, animated: true, completion: nil)
-    }
-}
-
-extension AmityDataStatus {
-    var description: String {
-        switch self {
-        case .local:
-            return "Local"
-        case .error:
-            return "Error"
-        case .fresh:
-            return "Fresh"
-        case .notExist:
-            return "Not Exists"
-        default:
-            return "Unknown"
-        }
-    }
-}
-
-extension AmitySyncState {
-    var description: String {
-        switch self {
-        case .default:
-            return "Default"
-        case .error:
-            return "Error"
-        case .synced:
-            return "Synced"
-        case .syncing:
-            return "Syncing"
-        default:
-            return "Unknown"
-        }
-    }
-}
-
-extension AmityMediaSize {
-    var description: String {
-        switch self {
-        case .full:
-            return "Full"
-        case .large:
-            return "Large"
-        case .medium:
-            return "Medium"
-        case .small:
-            return "Small"
-        default:
-            return "Not Available"
-        }
     }
 }

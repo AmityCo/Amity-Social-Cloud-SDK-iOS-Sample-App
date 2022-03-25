@@ -6,7 +6,7 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import AmitySDK
 
 final class ChannelListTableViewCellConfigurator {
@@ -62,7 +62,8 @@ final class ChannelListTableViewCellConfigurator {
         if
             channel.currentUserMembership == .member,
             channel.unreadCount != 0 {
-            detailText = "🆕 \(channel.unreadCount)"
+            let mentionIndicator = channel.hasMention ? "@" : ""
+            detailText = "🆕 \(channel.unreadCount) \(mentionIndicator)"
         } else {
             let memberCount = channel.memberCount
             detailText = channel.currentUserMembership.description + " (\(memberCount))"

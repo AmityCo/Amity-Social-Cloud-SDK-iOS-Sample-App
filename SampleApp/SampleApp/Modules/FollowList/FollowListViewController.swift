@@ -7,117 +7,7 @@
 //
 
 import UIKit
-
-enum FollowListType {
-    case myFollowing(status: AmityFollowQueryOption)
-    case myFollower(status: AmityFollowQueryOption)
-    case userFollowing(userId: String)
-    case userFollower(userId: String)
-}
-
-protocol FollowManagerDelegate: AnyObject {
-    func dataDidChange()
-}
-
-class FollowManager {
-    
-    private let userRepo: AmityUserRepository
-    private var followManager: AmityUserFollowManager {
-        return userRepo.followManager
-    }
-    private var followCollection: AmityCollection<AmityFollowRelationship>?
-    private var token: AmityNotificationToken?
-    
-    weak var delegate: FollowManagerDelegate?
-    
-    private(set) var follows: [AmityFollowRelationship] = []
-    
-    init() {
-        userRepo = AmityUserRepository(client: AmityManager.shared.client!)
-    }
-    
-    var type: FollowListType = .myFollower(status: .pending) {
-        didSet {
-            setup()
-        }
-    }
-    
-    func reloadData() {
-        followManager.clearAmityFollowRelationshipLocalData()
-        setup()
-    }
-    
-    func nextPage() {
-        if let followCollection = followCollection, followCollection.loadingStatus == .loaded {
-            followCollection.nextPage()
-        }
-    }
-    
-    private func setup() {
-        token?.invalidate()
-        
-        switch type {
-        case .myFollowing(let status):
-            followCollection = followManager.getMyFollowingList(with: status)
-        case .myFollower(let status):
-            followCollection = followManager.getMyFollowerList(with: status)
-        case .userFollowing(let userId):
-            followCollection = followManager.getUserFollowingList(withUserId: userId)
-        case .userFollower(let userId):
-            followCollection = followManager.getUserFollowerList(withUserId: userId)
-        }
-        
-        token = followCollection?.observe { [weak self] (collection, _, error) in
-            var follows: [AmityFollowRelationship] = []
-            for i in 0..<collection.count() {
-                guard let follow = collection.object(at: i) else { continue }
-                follows.append(follow)
-            }
-            self?.follows = follows
-            self?.delegate?.dataDidChange()
-        }
-    }
-    
-    func getMyFollowInfo(completion: ((Result<AmityMyFollowInfo, Error>) -> Void)?) {
-        followManager.getMyFollowInfo { (success, info, error) in
-            if let info = info {
-                completion?(.success(info))
-            } else {
-                completion?(.failure(error!))
-            }
-        }
-    }
-    
-    func getUserFollowInfo(userId: String, completion: ((Result<AmityUserFollowInfo, Error>) -> Void)?) {
-        followManager.getUserFollowInfo(withUserId: userId) { (success, info, error) in
-            if let info = info {
-                completion?(.success(info))
-            } else {
-                completion?(.failure(error!))
-            }
-        }
-    }
-    
-    func acceptUserRequest(userId: String) {
-        followManager.acceptUserRequest(withUserId: userId) { (success, _, _) in
-            print("-> accept \(success ? "success" : "fail")")
-        }
-    }
-    
-    func declineUserRequest(userId: String) {
-        followManager.declineUserRequest(withUserId: userId) { (success, _, error) in
-            print("-> decline \(success ? "success" : "fail")")
-        }
-        
-    }
-    
-    func unfollowUser(userId: String) {
-        followManager.unfollowUser(withUserId: userId) { (success, _, _) in
-            print("-> cancel request \(success ? "success" : "fail")")
-        }
-    }
-    
-}
+import AmitySDK
 
 enum FollowListPageType {
     case following
@@ -164,7 +54,6 @@ class FollowListViewController: UIViewController {
             case (.follower, _):
                 manager.type = .myFollower(status: option)
             }
-            
         }
     }
 
@@ -177,14 +66,14 @@ class FollowListViewController: UIViewController {
         
         tableView.dataSource = self
         tableView.delegate = self
-        title = pageType == .following ? "Following" : "Follower"
+        setPageTitle()
         
         filterButton = UIBarButtonItem(image: #imageLiteral(resourceName: "Filter"), style: .plain, target: self, action: #selector(filterTapped))
         infoButton = UIBarButtonItem(image: #imageLiteral(resourceName: "error"), style: .plain, target: self, action: #selector(infoTapped))
         navigationItem.rightBarButtonItems = [filterButton, infoButton]
         
         manager.delegate = self
-        manager.reloadData()
+        self.fetchList(option: .pending)
     }
     
     @objc func infoTapped() {
@@ -208,15 +97,14 @@ class FollowListViewController: UIViewController {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let pendingMenu = UIAlertAction(title: "Pending", style: .default) { [weak self] (_) in
             print("Pending")
-            self?.option = .pending
+            self?.fetchList(option: .pending)
         }
         let acceptedMenu = UIAlertAction(title: "Accepted", style: .default) { [weak self]  (_) in
             print("Accepted")
-            self?.option = .accepted
+            self?.fetchList(option: .accepted)
         }
         let allMenu = UIAlertAction(title: "All", style: .default) { [weak self]  (_) in
-            print("All")
-            self?.option = .all
+            self?.fetchList(option: .all)
         }
         let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         alertController.addAction(pendingMenu)
@@ -226,6 +114,16 @@ class FollowListViewController: UIViewController {
         present(alertController, animated: true, completion: nil)
     }
     
+    func fetchList(option: AmityFollowQueryOption) {
+        self.option = option
+        self.setPageTitle()
+        self.manager.reloadData()
+    }
+    
+    func setPageTitle() {
+        let optionTitle = self.option.title
+        title = pageType == .following ? "Following (\(optionTitle))" : "Follower (\(optionTitle))"
+    }
 }
 
 extension FollowListViewController: FollowManagerDelegate {
@@ -240,7 +138,6 @@ extension FollowListViewController: UITableViewDataSource {
         return follows.count
     }
     
- 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: FollowListTableViewCell.identifier) as! FollowListTableViewCell
@@ -336,6 +233,19 @@ extension AmityFollowStatus {
             return "None"
         @unknown default:
             return "-"
+        }
+    }
+}
+
+extension AmityFollowQueryOption {
+    var title: String {
+        switch self {
+        case .all:
+            return "All"
+        case .pending:
+            return "Pending"
+        case .accepted:
+            return "Accepted"
         }
     }
 }

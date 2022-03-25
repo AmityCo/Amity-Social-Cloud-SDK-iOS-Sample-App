@@ -9,15 +9,26 @@
 import Foundation
 
 struct CommunityMember: Identifiable {
-    var id: String
-    var title: String
+    let id: String
+    let displayName: String
     var roles: String = ""
+    let isBanned: Bool
     
     init(member: AmityCommunityMember) {
         id = member.userId
-        title = member.displayName
-        if let memberRoles = member.roles as? [String], !memberRoles.isEmpty {
-            roles = memberRoles.joined(separator: ",")
+        displayName = member.displayName
+        isBanned = member.isBanned
+        if !member.roles.isEmpty {
+            roles = member.roles.joined(separator: ",")
+        }
+    }
+    
+    init(member: AmityUser) {
+        id = member.userId
+        displayName = member.displayName ?? member.userId
+        isBanned = false
+        if !member.roles.isEmpty {
+            roles = member.roles.joined(separator: ",")
         }
     }
 }
@@ -41,14 +52,14 @@ class CommunityMemberViewModel: ObservableObject {
         self.commModeration = AmityCommunityModeration(client: AmityManager.shared.client!, andCommunity: communityId)
     }
     
-    func addRole(role: String, userId: String) {
-        self.commModeration.addRole(role, userIds: [userId]) { [weak self] (success, error) in
+    func addRoles(roles: [String], userId: String) {
+        self.commModeration.addRoles(roles, userIds: [userId]) { [weak self] (success, error) in
             self?.roleUpdateStatus = success ? "Role Added" : "Error"
         }
     }
     
-    func removeRole(role: String, userId: String) {
-        self.commModeration.removeRole(role, userIds: [userId]) { [weak self] (success, error) in
+    func removeRoles(roles: [String], userId: String) {
+        self.commModeration.removeRoles(roles, userIds: [userId]) { [weak self] (success, error) in
             self?.roleUpdateStatus = success ? "Role Removed" : "Error"
         }
     }
@@ -65,11 +76,10 @@ class CommunityMemberViewModel: ObservableObject {
     }
     
     func fetchMembers(roles: [String]) {
-        self.token = self.commParticipation.getMembers(filter: .all, roles: roles, sortBy: .lastCreated).observe({ [weak self] (collection,_, error) in
+        self.token = self.commParticipation.getMembers(membershipOptions: [.member], roles: roles, sortBy: .lastCreated).observe({ [weak self] (collection,_, error) in
             
             var list = [CommunityMember]()
-            for i in 0..<collection.count() {
-                guard let member = collection.object(at: i) else { return }
+            for member in collection.allObjects() {
                 let model = CommunityMember(member: member)
                 list.append(model)
             }

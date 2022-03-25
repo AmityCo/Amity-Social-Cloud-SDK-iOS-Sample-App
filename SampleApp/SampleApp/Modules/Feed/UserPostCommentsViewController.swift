@@ -7,18 +7,25 @@
 //
 
 import UIKit
+import AmitySDK
 
-class UserPostCommentsViewController: UIViewController, UITextFieldDelegate {
+class UserPostCommentsViewController: UIViewController {
+private let reuseIdentifier = "SampleAppTableViewCell"
     
     var client: AmityClient?
     var commentManager: UserPostCommentManager!
+    var community: CommunityListModel?
     
-    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var commentsTableView: UITableView!
     @IBOutlet weak var inputContainer: UIView!
-    @IBOutlet weak var textField: UITextField!
+    @IBOutlet weak var textView: UITextView!
     @IBOutlet weak var replyContainerView: UIView!
     @IBOutlet weak var replyLabel: UILabel!
-    @IBOutlet weak var bottom: NSLayoutConstraint!
+    @IBOutlet weak var inputContainerBottomConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var membersTableView: UITableView!
+    @IBOutlet private weak var tableViewHeightConstraint: NSLayoutConstraint!
+    
+    private var mentionManager: AmityMentionManager?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,12 +33,34 @@ class UserPostCommentsViewController: UIViewController, UITextFieldDelegate {
         let queryOptionButton = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(onQueryOptionButtonTap))
         self.navigationItem.rightBarButtonItem = queryOptionButton
         
-        textField.delegate = self
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.separatorStyle = .singleLine
-        tableView.reloadData()
+        textView.delegate = self
+        setPlaceholder()
+        
+        commentsTableView.dataSource = self
+        commentsTableView.delegate = self
+        commentsTableView.separatorStyle = .singleLine
+        commentsTableView.reloadData()
         replyContainerView.isHidden = true
+        
+        membersTableView.delegate = self
+        membersTableView.dataSource = self
+        
+        let nib = UINib(nibName: "SampleAppTableViewCell", bundle: nil)
+        membersTableView?.register(nib, forCellReuseIdentifier: reuseIdentifier)
+        
+        membersTableView?.tableFooterView = UIView()
+        
+        hideMentionsTableView()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        mentionManager?.delegate = nil
+    }
+    
+    private func hideMentionsTableView() {
+        tableViewHeightConstraint.constant = 0
+        membersTableView?.isHidden = true
     }
     
     @objc func onQueryOptionButtonTap() {
@@ -52,12 +81,24 @@ class UserPostCommentsViewController: UIViewController, UITextFieldDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        KeyboardService.shared.delegate = self
         fetchComments()
+        
+        setupMentionManager()
+    }
+    
+    private func setupMentionManager() {
+        var mentionType = AmityMentionManagerType.comment(communityId: nil)
+        if let community = community, !community.isPublic {
+            mentionType = .comment(communityId: community.communityId)
+        }
+        mentionManager = AmityMentionManager(withType: mentionType)
+        mentionManager?.delegate = self
     }
     
     func fetchComments() {
         commentManager.observeCommentFeedChanges { [weak self] in
-           self?.tableView.reloadData()
+           self?.commentsTableView.reloadData()
         }
     }
     
@@ -70,40 +111,30 @@ class UserPostCommentsViewController: UIViewController, UITextFieldDelegate {
         replyContainerView.isHidden = true
     }
     
-    // MARK: UITextFieldDelegate
+    private func sendTextComment() {
+        guard let text: String = textView.text, !text.isEmpty else { return }
 
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        sendTextComment()
-        return true
-    }
-
-    // MARK: KeyboardServiceDelegate
-
-    func keyboardWillChange(service: KeyboardService,
-                            height: CGFloat,
-                            animationDuration duration: TimeInterval) {
-        let offset = height > 0 ? view.safeAreaInsets.bottom : 0
-        bottom.constant = -height + offset
-
-        view.setNeedsUpdateConstraints()
-        view.layoutIfNeeded()
-        let count = commentManager.getNumberOfCommentItems()
-        if count > 0 {
-            // Scroll to bottom
-            tableView.layoutIfNeeded()
-            let indexPath: IndexPath = IndexPath(item: Int(count) - 1, section: 0)
-            tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+        if text.count > 50000 {
+            showAlertForMaximumCharacters()
+            return
         }
+        
+        if let metadata = mentionManager?.getMetadata(), let mentionees = mentionManager?.getMentionees() {
+            commentManager.createComment(text: text, metadata: metadata, mentionees: mentionees)
+        } else {
+            commentManager.createComment(text: text)
+        }
+        
+        mentionManager?.resetState()
+        textView.text = ""
+        textView.attributedText = nil
+        textView.textColor = .black
+        textView.resignFirstResponder()
     }
     
-    private func sendTextComment() {
-        guard
-            let text: String = textField.text,
-            !text.isEmpty
-            else { return }
-        textField.text = ""
-
-        commentManager.createComment(text: text)
+    private func setPlaceholder() {
+        textView.text = "Enter message here"
+        textView.textColor = UIColor.lightGray
     }
     
     private func displayMoreActions(title: String, actions: [FeedItemAction], at index: Int) {
@@ -130,7 +161,12 @@ class UserPostCommentsViewController: UIViewController, UITextFieldDelegate {
             displayNewPostsScreen(isEditMode: true)
             
         case CommentItemDefaultAction.delete.id:
-            commentManager.deleteComment(at: index) { [weak self] (isSuccess) in
+            commentManager.deleteComment(at: index, hardDelete: false) { [weak self] (isSuccess) in
+                let alertMessage = isSuccess ? "Comment successfully deleted" : "Error while deleting comment"
+                self?.showAlert(alertMessage: alertMessage)
+            }
+        case CommentItemDefaultAction.hardDelete.id:
+            commentManager.deleteComment(at: index, hardDelete: true) { [weak self] (isSuccess) in
                 let alertMessage = isSuccess ? "Comment successfully deleted" : "Error while deleting comment"
                 self?.showAlert(alertMessage: alertMessage)
             }
@@ -160,8 +196,9 @@ class UserPostCommentsViewController: UIViewController, UITextFieldDelegate {
     
     private func displayNewPostsScreen(isEditMode: Bool) {
         let controller = self.storyboard?.instantiateViewController(withIdentifier: NewUserPostsViewController.identifier) as! NewUserPostsViewController
-        controller.currentMode = isEditMode ? .edit(type: .comment) : .create
+        controller.currentMode = isEditMode ? .edit(type: .comment) : .create(type: .comment)
         controller.commentManager = commentManager
+        controller.delegate = self
         if #available(iOS 13.0, *) {
             // Prevents screen to dismiss when swiping down on ios 13
             controller.isModalInPresentation = true
@@ -171,50 +208,97 @@ class UserPostCommentsViewController: UIViewController, UITextFieldDelegate {
     }
 }
 
+extension UserPostCommentsViewController: KeyboardServiceDelegate {
+
+    // MARK: KeyboardServiceDelegate
+    
+    func keyboardWillChange(service: KeyboardService,
+                            height: CGFloat,
+                            animationDuration duration: TimeInterval) {
+        let offset = height > 0 ? view.safeAreaInsets.bottom : 0
+        inputContainerBottomConstraint.constant = height - offset
+        
+        view.setNeedsUpdateConstraints()
+        view.layoutIfNeeded()
+        let count = commentManager.getNumberOfCommentItems()
+        if count > 0 {
+            // Scroll to bottom
+            commentsTableView.layoutIfNeeded()
+            let indexPath: IndexPath = IndexPath(item: Int(count) - 1, section: 0)
+            commentsTableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+        }
+    }
+}
+
 extension UserPostCommentsViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if tableView == membersTableView {
+            return mentionManager?.itemsCount ?? 0
+        }
         return commentManager.getNumberOfCommentItems()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        if tableView == membersTableView {
+            guard let sampleAppCell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier) as? SampleAppTableViewCell else { return UITableViewCell() }
+            if let model = mentionManager?.item(at: indexPath) {
+                sampleAppCell.titleLabel?.text = model.displayName
+            }
+            
+            return sampleAppCell
+        }
+        
         let item = commentManager.getCommentItem(at: indexPath.row)
         switch item {
-        case .parent:
-            return tableView.dequeueReusableCell(withIdentifier: CommentViewCell.identifier, for: indexPath)
-        case .child:
-            return tableView.dequeueReusableCell(withIdentifier: ChildCommentViewCell.identifier, for: indexPath)
+        case .parent(let comment):
+            let cell = tableView.dequeueReusableCell(withIdentifier: CommentViewCell.identifier, for: indexPath) as! CommentViewCell
+            cell.configureCell(withComment: comment)
+            if !comment.isDeleted {
+                cell.moreButtonAction = { [weak self] in
+                    self?.commentManager.prepareToFlagComment(at: indexPath.row)
+                    self?.commentManager.isFlaggedByMe(onCompletion: { isFlaggedByMe in
+                        let actions: [CommentItemDefaultAction] = [.edit, .delete, .hardDelete, .flag(isFlagged: isFlaggedByMe)]
+                        self?.displayMoreActions(title: "Options", actions: actions, at: indexPath.row)
+                    })
+                }
+                cell.replyButtonAction = { [weak self] in
+                    self?.replyLabel.text = "Reply to \(comment.displayName)"
+                    self?.replyContainerView.isHidden = false
+                    self?.commentManager.parentCommentId = self?.commentManager.getCommentId(at: indexPath.row)
+                }
+                cell.reactButtonAction = { [weak self] in
+                    self?.commentManager.toggleReaction(at: indexPath.row)
+                }
+            }
+            return cell
+        case .child(let comment):
+            let cell = tableView.dequeueReusableCell(withIdentifier: ChildCommentViewCell.identifier, for: indexPath) as! ChildCommentViewCell
+            cell.configure(withComment: comment)
+            if !comment.isDeleted {
+                cell.moreButtonAction = { [weak self] in
+                    self?.displayMoreActions(title: "Options", actions: [CommentItemDefaultAction.edit, CommentItemDefaultAction.delete], at: indexPath.row)
+                }
+            }
+            return cell
         }
+        
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if tableView == membersTableView {
+            return 40.0
+        }
+        return UITableView.automaticDimension
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         
-        let item = commentManager.getCommentItem(at: indexPath.row)
-        
-        switch item {
-        case .parent(let comment):
-            let cell = cell as? CommentViewCell
-            cell?.configure(displayName: comment.displayName, createdDate: comment.date, comment: comment.text, displayImage: nil, isEdited: comment.isEdited)
-            cell?.reactionLabel.text = comment.reaction
-            
-            cell?.moreButtonAction = { [weak self] in
-                self?.commentManager.prepareToFlagComment(at: indexPath.row)
-                self?.commentManager.isFlaggedByMe(onCompletion: { isFlaggedByMe in
-                    self?.displayMoreActions(title: "Options", actions: [CommentItemDefaultAction.edit, CommentItemDefaultAction.delete, CommentItemDefaultAction.flag(isFlagged: isFlaggedByMe)], at: indexPath.row)
-                })
+        if tableView == membersTableView {
+            if indexPath.row == (mentionManager?.itemsCount ?? 0) - 4 {
+                mentionManager?.loadMore()
             }
-            cell?.replyButtonAction = { [weak self] in
-                self?.replyLabel.text = "Reply to \(comment.displayName)"
-                self?.replyContainerView.isHidden = false
-                self?.commentManager.parentCommentId = self?.commentManager.getCommentId(at: indexPath.row)
-            }
-            cell?.reactButtonAction = { [weak self] in
-                self?.commentManager.toggleReaction(at: indexPath.row)
-            }
-        case .child(let comment):
-            let cell = cell as? ChildCommentViewCell
-            cell?.configure(displayName: comment.displayName, comment: comment.text, displayImage: nil)
-            break
         }
     }
 
@@ -236,5 +320,96 @@ extension UserPostCommentsViewController: UITableViewDelegate {
         if distanceFromBottom < frameHeight {
             commentManager.loadMoreComments()
         }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if tableView != membersTableView { return }
+        mentionManager?.addMention(from: textView, in: textView.text ?? "", at: indexPath)
+    }
+}
+
+// MARK: UITextViewDelegate
+extension UserPostCommentsViewController: UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == UIColor.lightGray {
+            textView.text = nil
+            textView.textColor = UIColor.black
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            setPlaceholder()
+        }
+    }
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n" {
+            sendTextComment()
+            textView.resignFirstResponder()
+            return true
+        }
+        
+        if (textView.text ?? "").count > AmityMentionManager.maximumCharacterCountForPost {
+            showAlertForMaximumCharacters()
+            return false
+        }
+        
+        return mentionManager?.shouldChangeTextIn(textView, inRange: range, replacementText: text, currentText: textView.text ?? "") ?? true
+    }
+    
+    func textViewDidChangeSelection(_ textView: UITextView) {
+        mentionManager?.changeSelection(textView)
+    }
+}
+
+extension UserPostCommentsViewController: NewUserPostsViewControllerDelegate {
+    func newUserPostsViewControllerDidCreateNewPost(_ controller: NewUserPostsViewController) {
+    }
+    
+    func newUserPostsViewControllerDidUpdateComment() {
+        fetchComments()
+    }
+}
+
+extension UserPostCommentsViewController: AmityMentionManagerDelegate {
+    func didGetUsers(users: [AmityMentionUserModel]) {
+        if users.isEmpty {
+            tableViewHeightConstraint.constant = 0
+            membersTableView.isHidden = true
+        } else {
+            var heightConstraint: CGFloat = 240.0
+            if users.count < 5 {
+                heightConstraint = CGFloat(users.count) * 52.0
+            }
+            tableViewHeightConstraint.constant = heightConstraint
+            membersTableView.isHidden = false
+            membersTableView.reloadData()
+        }
+    }
+    
+    func didCreateAttributedString(attributedString: NSAttributedString) {
+        textView.attributedText = attributedString
+    }
+    
+    func didMentionsReachToMaximumLimit() {
+        let message = "Mentions are reached to maximum limit"
+        let alertController = UIAlertController(title: "Unable to mention", message: message, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "Done", style: .cancel, handler: nil)
+        alertController.addAction(cancelAction)
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    func didCharactersReachToMaximumLimit() {
+        showAlertForMaximumCharacters()
+    }
+    
+    private func showAlertForMaximumCharacters() {
+        let title = "Unable to mention"
+        let message = "Text reached to maximum characters limit"
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "Done", style: .cancel, handler: nil)
+        alertController.addAction(cancelAction)
+        present(alertController, animated: true, completion: nil)
     }
 }

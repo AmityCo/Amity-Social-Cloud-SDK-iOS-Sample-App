@@ -6,13 +6,15 @@
 //  Copyright © 2564 BE David Zhang. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 class ChildCommentViewCell: FeedTableViewCell {
     
     @IBOutlet weak var avatarView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var subtitleLabel: UILabel!
+    
+    var moreButtonAction: (() -> Void)?
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -24,10 +26,25 @@ class ChildCommentViewCell: FeedTableViewCell {
         avatarView.layer.borderColor = UIColor.systemGroupedBackground.cgColor
     }
     
-    func configure(displayName: String, comment: String, displayImage: UIImage?) {
-        titleLabel.text = displayName
-        subtitleLabel.text = comment
-        avatarView.image = displayImage
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        avatarView.image = nil
+        titleLabel.text = nil
+        subtitleLabel.text = nil
     }
     
+    func configure(withComment comment: UserPostCommentModel) {
+        titleLabel.text = comment.displayName
+        if let metadata = comment.metadata, let mentionees = comment.mentionees {
+            subtitleLabel.attributedText = AmityMentionManager.getAttributedString(text: comment.text, withMetadata: metadata, mentionees: mentionees)
+        } else {
+            subtitleLabel.text = comment.text
+        }
+        avatarView.image = nil
+    }
+    
+    @IBAction func handleMoreButton(_ sender: Any) {
+        moreButtonAction?()
+    }
 }

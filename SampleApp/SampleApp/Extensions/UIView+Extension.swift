@@ -15,6 +15,12 @@ extension UIView {
     static var identifier: String {
         return String(describing: self)
     }
+    
+    func addRoundedCorner(radius: CGFloat, cornerCurve: CALayerCornerCurve = .continuous) {
+        self.layer.masksToBounds = true
+        self.layer.cornerRadius = radius
+        self.layer.cornerCurve = cornerCurve
+    }
 }
 
 extension View where Self == ActivityIndicator {

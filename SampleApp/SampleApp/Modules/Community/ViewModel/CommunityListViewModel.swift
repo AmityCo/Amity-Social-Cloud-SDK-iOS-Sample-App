@@ -115,14 +115,7 @@ class CommunityListViewModel: ObservableObject {
     
     var debouncer = Debouncer(delay: 0.3)
     
-    var searchKeyword: String = "" {
-        didSet {
-            debouncer.setCallback { [weak self] in
-                self?.queryCommunity()
-            }
-            debouncer.call()
-        }
-    }
+    var searchKeyword: String = ""
     
     private var filter: AmityCommunityQueryFilter = .all
     private var sort: AmityCommunitySortOption = .lastCreated
@@ -157,13 +150,16 @@ class CommunityListViewModel: ObservableObject {
         token = communityCollection?.observe({ [weak self] (collection, _, _) in
             guard let self = self else { return }
             var list = [CommunityListModel]()
-            for index in (0..<collection.count()) {
-                guard let object = collection.object(at: index) else { continue }
-                let model = CommunityListModel(community: object)
+            for community in collection.allObjects() {
+                let model = CommunityListModel(community: community)
                 list.append(model)
             }
             self.community = list
         })
+    }
+    
+    func searchCommunities() {
+        self.queryCommunity()
     }
     
     func queryAllCategories() {
@@ -194,16 +190,11 @@ class CommunityListViewModel: ObservableObject {
     }
     
     func updateCategoryList() {
-        
         guard let collection = categoryColllection else { return }
-        
-        Log.add(info: "[Community] Categories collection updated")
         
         var models = [CommunityCategoryModel]()
         
-        for index in 0..<collection.count() {
-            guard let category = collection.object(at: index) else { continue }
-            
+        for category in collection.allObjects() {
             Log.add(info: "Category Name: \(category.name)")
             Log.add(info: "Category AvatarId: \(category.avatarFileId)")
             Log.add(info: "Category Avatar: \(category.avatar?.fileId ?? "")")
@@ -251,15 +242,21 @@ class CommunityListViewModel: ObservableObject {
         }
     }
     
-    func leaveCommunity(for community: CommunityListModel, completion: ((Bool, Error?) -> Void)?) {
+    func leaveCommunity(for community: CommunityListModel, completion: ((Bool, NSError?) -> Void)?) {
         communityRepository.leaveCommunity(withId: community.communityId) { [weak self] (success, error) in
             guard let self = self else { return }
+            if let error = error {
+                completion?(false, error as NSError)
+                Log.add(info: error)
+                return
+            }
+            
             if let index = self.community.firstIndex(where: { $0.communityId == community.communityId }) {
                 self.community[index].isJoined = false
                 self.community[index].membersCount -= 1
             }
-            completion?(success, error)
+            
+            completion?(success, nil)
         }
     }
 }
-

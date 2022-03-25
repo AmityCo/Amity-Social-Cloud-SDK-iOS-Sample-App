@@ -18,6 +18,8 @@ final class MoreTableViewController: UITableViewController {
     weak var client: AmityClient!
     weak var delegate: MoreTableViewControllerDelegate?
 
+    lazy var pushNotificationManager = PushNotificationRegistrationManager(client: self.client)
+    
     private var channelRepository: AmityChannelRepository?
     
     private var createToken: AmityNotificationToken?
@@ -44,31 +46,71 @@ final class MoreTableViewController: UITableViewController {
         case (2,0):
             // Update metadata
             updateUserMeta()
+            
         case (2, 1):
+            // Unregister
+            pushNotificationManager.unregisterUser { _ in
+            }
+            
+            pushNotificationManager.unregisterDevice { _ in
+            }
+            
             // Disconnect
-            client.unregisterDevice()
+            client.logout()
+            
+            showAlert(title: "Logout Successful", message: "Session is now disconnected. Everything related to this user should be cleared.")
+            
+        case (2,2):
+            
+            showInputAlert(title: "Login New User", message: "This will login new user without calling unregister for previous user", placeholder: "Enter User Id:") { [weak self] userId in
+                guard let weakSelf = self else { return }
+                
+                weakSelf.client.login(userId: userId, displayName: nil, authToken: nil) { success, error in
+                    
+                    let message = success ? "Login Successful" : "Login Failed: \(String(describing: error))"
+                    weakSelf.showAlert(title: "Login Response", message: message)
+                }
+            }
+            
+        case (2,3):
+            client.disconnect()
+            showAlert(title: "Disconnected", message: "SDK disconnects from the server without logging out the user.")
         default:
             break
         }
     }
     
     private func updateUserMeta() {
-        let alertController = UIAlertController(title: "Update User Meta",
-                                                message: "",
-                                                preferredStyle: .alert)
-        alertController.addTextField { textField in
-            textField.placeholder = "Type the meta here"
-        }
-        let addAction = UIAlertAction(title: "Update", style: .default) { action in
-            guard let meta = alertController.textFields?.first?.text, !meta.isEmpty else { return }
+        showInputAlert(title: "Update user meta", message: "", placeholder: "Type meta here") { meta in
+            
             let data = [
                 "meta": meta
             ]
             UserUpdateManager.shared.updateMetadata(metadata: data, completion: nil)
         }
+    }
+    
+    private func showAlert(title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        
+        present(alertController, animated: true, completion: nil)
+    }
+    
+    private func showInputAlert(title: String, message: String, placeholder: String, completion: @escaping (_ input: String) -> Void) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alertController.addTextField { textField in
+            textField.placeholder = placeholder
+        }
+        
+        let addAction = UIAlertAction(title: "Submit", style: .default) { action in
+            guard let meta = alertController.textFields?.first?.text, !meta.isEmpty else { return }
+            completion(meta)
+        }
+        
         alertController.addAction(addAction)
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        alertController.addAction(cancelAction)
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
         present(alertController, animated: true, completion: nil)
     }
 }

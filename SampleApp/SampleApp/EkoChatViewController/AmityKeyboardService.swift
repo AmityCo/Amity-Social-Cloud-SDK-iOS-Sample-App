@@ -6,7 +6,7 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 protocol KeyboardServiceDelegate: AnyObject {
     func keyboardWillAppear(service: KeyboardService)

@@ -6,6 +6,7 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
+import UIKit
 import AmitySDK
 
 private let kContentOffsetY: CGFloat = 10
@@ -26,6 +27,10 @@ final class AmityMessagesTableViewController: UITableViewController, DataSourceL
     
     private var dataSource: MessageDataSource?
     private var reactionDataSource: ReactionDatasource?
+    
+    private let userRepo = AmityUserRepository(client: AmityManager.shared.client!)
+    private var fetchedUser: AmityObject<AmityUser>?
+    private var userToken: AmityNotificationToken?
     
     private lazy var reactionRepo = AmityReactionRepository(client: client)
     
@@ -113,7 +118,7 @@ final class AmityMessagesTableViewController: UITableViewController, DataSourceL
         
         if message.messageType == .image {
             Log.add(info: "-- List Item -- \n")
-            Log.add(info: "Message Id: \(message.messageId)")
+            Log.add(info: "Message Id: \(message.messageId) | Message channel segment: \(message.channelSegment)")
             Log.add(info: "Sync State: \(message.syncState.description)")
             
             let imageInfo = message.getImageInfo()
@@ -139,9 +144,9 @@ final class AmityMessagesTableViewController: UITableViewController, DataSourceL
         case .text:
             return "ChatTextOtherCell"
         case .image:
-            return "ChatImageCell"
+            return message.userId == client.currentUserId ? "ChatImageMeCell" : "ChatImageCell"
         case .file, .audio:
-            return "ChatFileCell"
+            return message.userId == client.currentUserId ? "ChatFileMeCell" : "ChatFileCell"
         @unknown default:
             return nil
         }
@@ -329,14 +334,29 @@ final class AmityMessagesTableViewController: UITableViewController, DataSourceL
         
         alert.addAction(UIAlertAction(title: "Print Details", style: .default, handler: { action in
             
+            let messageId = message.messageId
+            let channelId = message.channelId
+            let messageType = message.messageType.description
+            let messageFlagCount = message.flagCount
+            let messageData = message.data?.description ?? ""
+            
+            let details = """
+                MessageId: \(messageId),
+                ChannelId: \(channelId),
+                MessageType: \(messageType),
+                Flag Count: \(messageFlagCount),
+                Message Data: \(messageData)
+                """
+            
+            self.showMessageDetails(details: details)
+
             Log.add(info: "\n---- Details ----")
             Log.add(info: "Message Id: \(message.messageId)")
             Log.add(info: "Channel Id: \(message.channelId)")
             Log.add(info: "Sync State: \(message.syncState.description)")
             Log.add(info: "Message Type: \(message.messageType.description)")
-            Log.add(info: "File Id: \(String(describing: message.fileId))")
-            Log.add(info: "File Info: \(String(describing: message.getFileInfo()?.attributes))")
-            Log.add(info: "Image Info: \(String(describing: message.getImageInfo()?.attributes))")
+            Log.add(info: "Message Flag Count: \(message.flagCount)")
+            
             Log.add(info: "Data: \(String(describing: message.data?.description))")
             Log.add(info: "----------------- \n")
             
@@ -346,6 +366,15 @@ final class AmityMessagesTableViewController: UITableViewController, DataSourceL
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         present(alert, animated: true, completion: nil)
     }
+    
+    func showMessageDetails(details: String) {
+        let alertController = UIAlertController(title: "Message Details", message: details, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
+    
     
     private func deleteFailedMessage(message: AmityMessage) {
         guard message.syncState == .error else { return }
@@ -358,38 +387,64 @@ final class AmityMessagesTableViewController: UITableViewController, DataSourceL
     
     // MARK: - Alert Sheet Action
     private func deleteAction(forMessage message: AmityMessage) {
-        if message.userId != client.currentUserId {
-            showRestrictionAlert()
-        } else {
-            messageRepository?.deleteMessage(withId: message.messageId, completion: { [weak self] (success, error) in
+        let performDeleteAction: (Bool) -> Void = { [weak self] hasPermission in
+            guard hasPermission else {
+                self?.showRestrictionAlert()
+                return
+            }
+            self?.messageRepository?.deleteMessage(withId: message.messageId) { (success, error) in
                 let alert = UIAlertController(title: nil, message: "Message succesfully deleted", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                 self?.present(alert, animated: true, completion: nil)
                 self?.tableView.reloadData()
-            })
+            }
+        }
+        
+        // if current user is a message owner, then remove message.
+        // else check if the user has a permission or not.
+        if message.userId == client.currentUserId {
+            performDeleteAction(true)
+        } else {
+            client.hasPermission(.deleteMessage, forChannel: channelId) { (hasPermission) in
+                performDeleteAction(hasPermission)
+            }
         }
     }
     
     private func updateAction(forMessage message: AmityMessage) {
-        if message.userId != client.currentUserId {
-            showRestrictionAlert()
-        } else {
+        let performUpdateAction: (Bool) -> Void = { [weak self] hasPermission in
+            guard hasPermission else {
+                self?.showRestrictionAlert()
+                return
+            }
             if message.messageType == .text {
                 guard let vc = AmityEditMessageViewController.make() as? AmityEditMessageViewController else { return }
                 vc.delegate = self
+                vc.client = self?.client
+                vc.channelId = self?.channelId
                 vc.setMessage(message: message)
                 let nvc = UINavigationController(rootViewController: vc)
-                navigationController?.present(nvc, animated: true, completion: nil)
+                self?.navigationController?.present(nvc, animated: true, completion: nil)
             } else if message.messageType == .custom {
                 guard let vc = AmityCustomViewController.makeViewController() as? AmityCustomViewController else { return }
                 vc.setMessage(message: message)
                 vc.delegate = self
                 let nvc = UINavigationController(rootViewController: vc)
-                navigationController?.present(nvc, animated: true, completion: nil)
+                self?.navigationController?.present(nvc, animated: true, completion: nil)
             } else {
                 let alert = UIAlertController(title: "Error", message: "Message type not supported for editing", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                present(alert, animated: true, completion: nil)
+                self?.present(alert, animated: true, completion: nil)
+            }
+        }
+        
+        // if current user is a message owner, then edit message.
+        // else check if the user has a permission or not.
+        if message.userId == client.currentUserId {
+            performUpdateAction(true)
+        } else {
+            client.hasPermission(.editMessage, forChannel: channelId) {  (hasPermission) in
+                performUpdateAction(hasPermission)
             }
         }
     }
@@ -446,11 +501,18 @@ final class AmityMessagesTableViewController: UITableViewController, DataSourceL
     
     // MARK: AmityEditMessageViewControllerDelegate
     
-    func amityEdit(_ viewController: AmityEditMessageViewController, willUpdateText text: String, onMessage message: AmityMessage?) {
+    func amityEdit(_ viewController: AmityEditMessageViewController, willUpdateText text: String, onMessage message: AmityMessage?, metadata: [String: Any]?, mentionees: AmityMentioneesBuilder?) {
         guard let message = message else { return }
+        
         let editor = AmityMessageEditor(client: client, messageId: message.messageId)
-        editor.editText(text) { [weak self] success, error in
-            self?.tableView.reloadData()
+        if let mentionees = mentionees, let metadata = metadata {
+            editor.editText(text, metadata: metadata, mentionees: mentionees) {[weak self] success, error in
+                self?.tableView.reloadData()
+            }
+        } else {
+            editor.editText(text) { [weak self] success, error in
+                self?.tableView.reloadData()
+            }
         }
     }
     
@@ -514,6 +576,26 @@ final class AmityMessagesTableViewController: UITableViewController, DataSourceL
             removeReaction(with: message, reaction: reaction)
         } else {
             sendReaction(with: message, reaction: reaction)
+        }
+    }
+    
+    func chatTextDidTapOnMention(_ cell: AmityChatTextTableViewCell, withType type: AmityMessageMentionType, userId: String?) {
+        if type == .channel { return }
+        fetchedUser = userRepo.getUser(userId!)
+        userToken = fetchedUser?.observe { [weak self] (user, error) in
+            switch user.dataStatus {
+            case .fresh:
+                self?.userToken?.invalidate()
+                let userId = user.object?.userId ?? ""
+                let displayName = user.object?.displayName ?? ""
+                
+                let alert = UIAlertController(title: "Tapped on the user who is mentioned in the message", message: "userId: \(userId) , display name: \(displayName)", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                self?.present(alert, animated: true, completion: nil)
+                
+            default :
+                break
+            }
         }
     }
     

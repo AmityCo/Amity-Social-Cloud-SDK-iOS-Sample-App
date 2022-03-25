@@ -6,6 +6,7 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
+import UIKit
 import AmitySDK
 
 final class FlagManager {
@@ -29,7 +30,7 @@ final class FlagManager {
 
             DispatchQueue.main.async {
                 guard let client = self?.client else { return }
-                let userFlagger: AmityUserFlagger = .init(client: client, user: user)
+                let userFlagger: AmityUserFlagger = .init(client: client, userId: user.userId)
                 userFlagger.isFlaggedByMe(completion: { isFlagByMe in
                     userFlagged = isFlagByMe
                     flagGroup.leave()
@@ -41,7 +42,7 @@ final class FlagManager {
             flagGroup.enter()
             DispatchQueue.main.async {
                 guard let client = self?.client else { return }
-                let messageFlagger: AmityMessageFlagger = .init(client: client, message: message)
+                let messageFlagger: AmityMessageFlagger = .init(client: client, messageId: message.messageId)
                 messageFlagger.isFlaggedByMe(completion: { isFlagByMe in
                     messageFlagged = isFlagByMe
                     flagGroup.leave()
@@ -52,7 +53,7 @@ final class FlagManager {
             flagGroup.wait()
 
             DispatchQueue.main.async {
-                self?.displayFlagAlertControlle(message: message,
+                self?.displayFlagAlertControlle(messageId: message.messageId,
                                                 user: user,
                                                 userIsFlagged: userFlagged,
                                                 messageIsFlagged: messageFlagged)
@@ -60,13 +61,13 @@ final class FlagManager {
         }
     }
 
-    private func displayFlagAlertControlle(message: AmityMessage,
+    private func displayFlagAlertControlle(messageId: String,
                                            user: AmityUser,
                                            userIsFlagged: Bool,
                                            messageIsFlagged: Bool) {
         let alertController = UIAlertController(title: "Actions", message: nil, preferredStyle: .alert)
-        let flagMessageAction = createFlagAction(message: message, flagged: messageIsFlagged)
-        let flagUserAction = createFlagAction(user: user, flagged: userIsFlagged)
+        let flagMessageAction = createFlagAction(messageId: messageId, flagged: messageIsFlagged)
+        let flagUserAction = createFlagAction(userId: user.userId, flagged: userIsFlagged)
 
         let defaultAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
 
@@ -78,30 +79,30 @@ final class FlagManager {
     }
 
     /**
-     creates a @p UIAlertAction for un/flagging the given message
+     creates a @p UIAlertAction for un/flagging the given messageId
 
      @param message the message to un/flag
      @return the @p UITableViewRowAction
      */
-    func createFlagAction(message: AmityMessage, flagged: Bool) -> UIAlertAction {
+    func createFlagAction(messageId: String, flagged: Bool) -> UIAlertAction {
         let title: String = flagTitleForMessage(flagged: flagged)
         let flagMessage = UIAlertAction(title: title, style: .default, handler: { [weak self] _ in
-            self?.flagAction(message: message, flagged: flagged)
+            self?.flagAction(messageId: messageId, flagged: flagged)
         })
         return flagMessage
     }
 
     /**
-     creates a @p UIAlertAction for un/flagging the given user
+     creates a @p UIAlertAction for un/flagging the given userId
 
-     @param user the user to un/flag
+     @param userId the userId to un/flag
      @return the @p UITableViewRowAction
      */
-    private func createFlagAction(user: AmityUser, flagged: Bool) -> UIAlertAction {
+    private func createFlagAction(userId: String, flagged: Bool) -> UIAlertAction {
         let title: String = flagTitleForUser(flagged: flagged)
 
         let flagMessage = UIAlertAction(title: title, style: .default, handler: { [weak self] _ in
-            self?.flagAction(user: user, flagged: flagged)
+            self?.flagAction(userId: userId, flagged: flagged)
         })
         return flagMessage
     }
@@ -160,13 +161,13 @@ final class FlagManager {
     }
 
     /**
-     called when the user wants to un/flag the given message:
+     called when the user wants to un/flag the message for given givenId:
      this method will execute the action and display a @p UIAlertController with the outcome
 
-     @param message the message to un/flag
+     @param messageId of the message to un/flag
      */
-    private func flagAction(message: AmityMessage, flagged: Bool) {
-        let messageFlagger = AmityMessageFlagger(client: client, message: message)
+    private func flagAction(messageId: String, flagged: Bool) {
+        let messageFlagger = AmityMessageFlagger(client: client, messageId: messageId)
 
         if flagged {
             messageFlagger.unflag { success, error in
@@ -188,10 +189,10 @@ final class FlagManager {
      called when the user wants to un/flag the given user:
      this method will execute the action and display a @p UIAlertController with the outcome
 
-     @param user the user to un/flag
+     @param userId the user to un/flag
      */
-    private func flagAction(user: AmityUser, flagged: Bool) {
-        let userFlagger = AmityUserFlagger(client: client, user: user)
+    private func flagAction(userId: String, flagged: Bool) {
+        let userFlagger = AmityUserFlagger(client: client, userId: userId)
 
         if flagged {
             userFlagger.unflag { success, error in

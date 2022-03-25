@@ -8,6 +8,7 @@
 
 
 import Foundation
+import AmitySDK
 
 struct UserPostCommentModel {
     let commentId: String
@@ -16,6 +17,9 @@ struct UserPostCommentModel {
     let date: String
     let reaction: String
     let isEdited: Bool
+    let isDeleted: Bool
+    let metadata: [String: Any]?
+    let mentionees: [AmityMentionees]?
 }
 
 enum UserPostCommentItem {
@@ -33,7 +37,7 @@ class UserPostCommentManager {
     
     let reactionRepo: AmityReactionRepository
     
-    var editedComment: AmityComment?
+    var editedComment: UserPostCommentModel?
     var selectedComment: AmityComment?
     let userId: String?
     let userName: String?
@@ -44,8 +48,10 @@ class UserPostCommentManager {
     
     private var items: [UserPostCommentItem] = []
     
+    let communityId: String?
+    
     var editor: AmityCommentEditor? {
-        return AmityCommentEditor(client: self.client, comment: self.editedComment!)
+        return AmityCommentEditor(client: self.client, commentId: self.editedComment!.commentId)
     }
     
     var flagger: AmityCommentFlagger?
@@ -56,7 +62,7 @@ class UserPostCommentManager {
         return formatter
     }()
     
-    init(client: AmityClient, postId: String?, parentCommentId: String? = nil, userId: String?, userName: String? = nil) {
+    init(client: AmityClient, postId: String?, parentCommentId: String? = nil, userId: String?, userName: String? = nil, communityId: String?) {
         self.client = client
         self.userId = userId
         self.userName = userName
@@ -64,6 +70,7 @@ class UserPostCommentManager {
         self.postId = postId
         self.commentRepository = AmityCommentRepository(client: client)
         self.reactionRepo = AmityReactionRepository(client: client)
+        self.communityId = communityId
     }
     
     // MARK:- Comment Observer
@@ -121,21 +128,49 @@ class UserPostCommentManager {
         }
     }
     
-    func updateComment(text: String?, onCompletion: @escaping (_ isSuccess: Bool)->()) {
+    func createComment(text: String, metadata: [String: Any]?, mentionees: AmityMentioneesBuilder) {
+        
+        // Observe new comment here.
+        newCommentToken?.invalidate()
+        
+        newComment = commentRepository.createComment(forReferenceId: postId!, referenceType: .post, parentId: parentCommentId, text: text, metadata: metadata, mentionees: mentionees)
+        newCommentToken = newComment?.observe { (liveObject, error) in
+            
+            // Can check .syncState to determine if comment has been successfully created. In case of failure, you can
+            // try to show retry alert to user depending upon your use case.
+            let syncState = liveObject.object?.syncState
+            Log.add(info: "[Comment]: Sync state for new comment: \(String(describing: syncState?.rawValue))")
+            Log.add(info: "[Comment]: Data Status: \(liveObject.dataStatus.description)")
+            Log.add(info: "[Comment]: Error: \(error)")
+        }
+    }
+    
+    func updateComment(text: String?, metadata: [String: Any]?, mentionees: AmityMentioneesBuilder?, onCompletion: @escaping (_ isSuccess: Bool)->()) {
         guard editedComment != nil else { return }
-        
-        editor?.editText(text ?? "", completion: { (success, _) in
-            onCompletion(success)
-        })
-        
+        if let mentionees = mentionees {
+            editor?.editText(text ?? "", metadata: metadata, mentionees: mentionees, completion: { (success, error) in
+                onCompletion(success)
+            })
+        } else {
+            editor?.editText(text ?? "", completion: { (success, _) in
+                onCompletion(success)
+            })
+        }
         editedComment = nil
     }
     
-    func deleteComment(at index: Int, onCompletion: @escaping (_ isSuccess: Bool)->()) {
-        guard let comment = commentCollection?.object(at: UInt(index)) else { return }
-        editedComment = comment
+    func deleteComment(at index: Int, hardDelete: Bool, onCompletion: @escaping (_ isSuccess: Bool)->()) {
         
-        commentRepository.delete(editedComment!) { (success, _) in
+        var commentId: String
+        
+        switch items[index] {
+        case .child(let replyModel):
+            commentId = replyModel.commentId
+        case .parent(let commentModel):
+            commentId = commentModel.commentId
+        }
+        
+        commentRepository.deleteComment(withId: commentId, hardDelete: hardDelete) { (success, _) in
             onCompletion(success)
         }
         
@@ -211,17 +246,24 @@ class UserPostCommentManager {
     }
     
     func prepareToFlagComment(at index: Int) {
-        let comment = commentCollection?.object(at: UInt(index))
-        self.selectedComment = comment
+        let uIndex = UInt(index)
+        if uIndex < (commentCollection?.count() ?? 0) {
+            let comment = commentCollection?.object(at: uIndex)
+            self.selectedComment = comment
+        }
     }
     
     func prepareToEditComment(at index: Int) {
-        let comment = commentCollection?.object(at: UInt(index))
-        self.editedComment = comment
+        switch items[index] {
+        case .parent(let comment):
+            self.editedComment = comment
+        case .child(let comment):
+            self.editedComment = comment
+        }
     }
     
     func getEditCommentData() -> UserPostCommentModel? {
-        return editedComment?.asPostCommentModel()
+        return editedComment
     }
     
     func getReadableDate(date: Date?) -> String {
@@ -233,10 +275,12 @@ class UserPostCommentManager {
     }
     
     func isFlaggedByMe(onCompletion: @escaping (_ isSuccess: Bool)->()){
-        flagger = AmityCommentFlagger(client: client, commentId: selectedComment!.commentId)
-        flagger?.isFlaggedByMe(completion: { isFlagged in
-            onCompletion(isFlagged)
-        })
+        if let selectedComment = selectedComment {
+            flagger = AmityCommentFlagger(client: client, commentId: selectedComment.commentId)
+            flagger?.isFlaggedByMe(completion: { isFlagged in
+                onCompletion(isFlagged)
+            })
+        }
     }
     
     // MARK:- Private Helpers
@@ -245,15 +289,13 @@ class UserPostCommentManager {
         guard let commentCollection = commentCollection else { return }
         
         var items: [UserPostCommentItem] = []
-        for i in 0..<commentCollection.count() {
-            if let comment = commentCollection.object(at: i) {
-                // append itself
-                items.append(.parent(comment.asPostCommentModel()))
-                
-                // append comment children
-                let childrenComments: [UserPostCommentItem] = comment.childrenComments.map { UserPostCommentItem.child($0.asPostCommentModel()) }
-                items += childrenComments
-            }
+        for comment in commentCollection.allObjects() {
+            // append itself
+            items.append(.parent(comment.asPostCommentModel()))
+            
+            // append comment children
+            let childrenComments: [UserPostCommentItem] = comment.childrenComments.map { UserPostCommentItem.child($0.asPostCommentModel()) }
+            items += childrenComments
         }
         self.items = items
     }
@@ -274,12 +316,13 @@ private extension AmityComment {
         formatter.dateFormat = "MMM d, HH:mm"
         let dateStr = formatter.string(from: createdAt)
         
+        var formattedReaction = ""
+        
         if let raction = reactions as? [String: Int] {
-            let formattedReaction = raction.map { $1 > 0 ? "\($0): \($1)" : "" }.joined(separator: " ")
-            return UserPostCommentModel(commentId: commentId, displayName: displayName, text: textData, date: dateStr, reaction: formattedReaction, isEdited: isEdited)
-        } else {
-            return UserPostCommentModel(commentId: commentId, displayName: displayName, text: textData, date: dateStr, reaction: "", isEdited: isEdited)
+            formattedReaction = raction.map { $1 > 0 ? "\($0): \($1)" : "" }.joined(separator: " ")
         }
+        
+        return UserPostCommentModel(commentId: commentId, displayName: displayName, text: textData, date: dateStr, reaction: formattedReaction, isEdited: isEdited, isDeleted: isDeleted, metadata: metadata, mentionees: mentionees)
     }
     
 }

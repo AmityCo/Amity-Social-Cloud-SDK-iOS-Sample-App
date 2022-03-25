@@ -72,6 +72,8 @@ struct CommunityPostModel: Identifiable, Equatable {
     let postDataType: String
     let isOwner: Bool
     let createdAt: Date
+    let metadata: [String: Any]?
+    let mentionees: [AmityMentionees]?
 }
 
 // Concrete implementor
@@ -84,12 +86,13 @@ class CommunityDetailViewModel: ObservableObject {
     private var postCollection: AmityCollection<AmityPost>?
     
     private var filter: AmityCommunityQueryFilter = .all
-    private var sort: AmityCommunityFeedSortOption = .firstCreated
+    private var sort: AmityPostQuerySortOption = .firstCreated
     var community: CommunityListModel
     
     @Published var feed = [CommunityPostModel]()
     @Published var updateFeed: Bool
     @Published var communityNotification: CommunityNotification?
+    @Published var showNotificationErrorAlert: Bool
         
     var feedType: AmityFeedType = .published
     
@@ -97,9 +100,11 @@ class CommunityDetailViewModel: ObservableObject {
         self.community = community
         self.feed = []
         self.updateFeed = true
+        self.showNotificationErrorAlert = false
+        self.queryNotificationSetting()
     }
     
-    func queryFeed(sort: AmityCommunityFeedSortOption) {
+    func queryFeed(sort: AmityPostQuerySortOption) {
         feed = []
         postCollection = feedRepository.getCommunityFeed(withCommunityId: community.id, sortBy: sort, includeDeleted: false, feedType: feedType)
         token = postCollection?.observe({ [weak self] (collection, _, _) in
@@ -109,8 +114,7 @@ class CommunityDetailViewModel: ObservableObject {
             Log.add(info: "Feed observed: \(collection.dataStatus.description), post count: \(collection.count())")
             
             var list = [CommunityPostModel]()
-            for i in 0..<collection.count() {
-                guard let post = collection.object(at: i) else { return }
+            for post in collection.allObjects() {
                 let model = CommunityPostModel(postId: post.postId,
                                                postedUserDisplayName: post.postedUser?.displayName,
                                                text: post.data?["text"] as? String,
@@ -118,7 +122,9 @@ class CommunityDetailViewModel: ObservableObject {
                                                isDeleted: post.isDeleted,
                                                postDataType: post.dataType,
                                                isOwner: post.postedUserId == AmityManager.shared.client?.currentUserId,
-                                               createdAt: post.createdAt)
+                                               createdAt: post.createdAt,
+                                               metadata: post.metadata,
+                                               mentionees: post.mentionees)
                 list.append(model)
             }
             
@@ -140,7 +146,11 @@ class CommunityDetailViewModel: ObservableObject {
         let communityManager = communityRepository.notificationManager(forCommunityId: community.id)
         if isPushEnabled {
             communityManager.enable(for: events) { [weak self] (success, error) in
-                if success {
+                if let error = error as NSError? {
+                    if error.code == 400319 {
+                        self?.showNotificationErrorAlert = true
+                    }
+                } else if success {
                     self?.queryNotificationSetting()
                 }
             }

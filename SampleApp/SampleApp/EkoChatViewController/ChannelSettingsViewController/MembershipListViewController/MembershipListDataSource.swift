@@ -21,6 +21,8 @@ final class MembershipListDataSource {
     private var channelToken: AmityNotificationToken?
     private var channelModeration: AmityChannelModeration
     
+    var filter: AmityChannelMembershipFilter = .all
+    
     init(client: AmityClient, channelId: String) {
         self.client = client
         self.channelId = channelId
@@ -34,8 +36,9 @@ final class MembershipListDataSource {
         let channelRepository: AmityChannelRepository = AmityChannelRepository(client: client)
         channelObject = channelRepository.getChannel(channelId)
 
+        membershipsToken?.invalidate()
         guard let channel: AmityChannel = channelObject?.object else { return }
-        membershipsCollection = channel.participation.getMembers(filter: .all, sortBy: .lastCreated, roles: [])
+        membershipsCollection = channel.participation.getMembers(filter: filter, sortBy: .lastCreated, roles: [])
 
         channelToken = channelObject?.observe { [weak self] _, _  in
             self?.dataSourceObserver?.didUpdateDataSource()
@@ -50,6 +53,12 @@ final class MembershipListDataSource {
         return Int(membershipsCollection?.count() ?? 0)
     }
 
+    func fetchNext() {
+        if membershipsCollection?.hasNext ?? false {
+            membershipsCollection?.nextPage()
+        }
+    }
+    
     func membership(for indexPath: IndexPath) -> AmityChannelMember? {
         if
             let membershipsCollection = self.membershipsCollection,
@@ -91,4 +100,43 @@ final class MembershipListDataSource {
             self?.dataSourceObserver?.didUpdateDataSource()
         }
     }
+    
+    public func banMember(at indexPath: IndexPath, completion: @escaping (Bool, Error?) -> Void) {
+        guard let member = membership(for: indexPath) else { return }
+        
+        channelModeration.banMembers([member.userId]) { isSuccess, error in
+            completion(isSuccess, error)
+        }
+    }
+    
+    public func unbanMember(at indexPath: IndexPath, completion: @escaping (Bool, Error?) -> Void) {
+        guard let member = membership(for: indexPath) else { return }
+        
+        channelModeration.unbanMembers([member.userId]) { isSuccess, error in
+            completion(isSuccess, error)
+        }
+    }
+    
+    public func updateMembershipFilter(filter: AmityChannelMembershipFilter) {
+        self.filter = filter
+        self.setupObserver()
+    }
+}
+
+extension AmityChannelMembershipFilter: CaseIterable {
+    public static var allCases: [AmityChannelMembershipFilter] = [.all, .ban, .mute]
+    
+    var description: String {
+        switch self {
+        case .all:
+            return "All"
+        case .ban:
+            return "Ban"
+        case .mute:
+            return "Mute"
+        @unknown default:
+            fatalError()
+        }
+    }
+    
 }

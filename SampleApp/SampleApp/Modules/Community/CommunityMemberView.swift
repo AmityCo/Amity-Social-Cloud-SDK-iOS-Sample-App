@@ -41,7 +41,7 @@ struct CommunityMemberView: View {
                     destination: CommunityRoleView(viewModel: viewModel, userId: m.id),
                     label: {
                         VStack(alignment: .leading) {
-                            Text("\(m.title)")
+                            Text("\(m.displayName)")
                             Text("Role: \(m.roles)")
                                 .font(.body)
                                 .padding(.top, 2)
@@ -63,8 +63,10 @@ struct CommunityMemberView_Previews: PreviewProvider {
 }
 
 struct CommunityRoleView: View {
-    @State var role: String = ""
+    @State var roles: [String] = []
+    @State var enteredRole: String = ""
     @State var selectedPermission: Int = 0
+    @State var rolesText = ""
     
     let viewModel: CommunityMemberViewModel
     let userId: String
@@ -77,15 +79,30 @@ struct CommunityRoleView: View {
     var body: some View {
         Form {
             Section(header: Text("Roles")) {
-                TextField("Enter role", text: $role)
+                TextField("Enter role", text: $enteredRole)
                     .autocapitalization(.none)
                 
+                Text(rolesText.isEmpty ? "The roles to assign/unassign" : rolesText)
+                
+                Button("Add Role") {
+                    if self.roles.contains(self.enteredRole) || self.enteredRole.isEmpty {
+                        return
+                    }
+                    self.roles.append(self.enteredRole)
+                    self.rolesText.append("\(self.roles.count > 1 ? ", " : "")\(self.enteredRole)")
+                    self.enteredRole = ""
+                }
+                
                 Button("Assign Role") {
-                    self.viewModel.addRole(role: role, userId: userId)
+                    self.viewModel.addRoles(roles: self.roles, userId: userId)
+                    self.roles = []
+                    self.rolesText = ""
                 }
                 
                 Button("UnAssign Role") {
-                    self.viewModel.removeRole(role: role, userId: userId)
+                    self.viewModel.removeRoles(roles: self.roles, userId: userId)
+                    self.roles = []
+                    self.rolesText = ""
                 }
                 
                 Text("Result: \(viewModel.roleUpdateStatus)")

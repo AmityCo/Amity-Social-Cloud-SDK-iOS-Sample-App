@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "AmitySDK",
+        "repositoryURL": "https://github.com/AmityCo/Amity-Social-Cloud-SDK-iOS-SwiftPM",
+        "state": {
+          "branch": null,
+          "revision": "13c3285e907694d8f529f92e64daaaeeed4cc2d7",
+          "version": "5.13.1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

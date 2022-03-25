@@ -8,6 +8,23 @@
 
 import UIKit
 import AVKit
+import AmitySDK
+import SwiftUI
+
+struct NavigationControllerKey: EnvironmentKey {
+    static let defaultValue: UINavigationController? = nil
+}
+
+extension EnvironmentValues {
+    var navigationController: NavigationControllerKey.Value {
+        get {
+            return self[NavigationControllerKey.self]
+        }
+        set {
+            self[NavigationControllerKey.self] = newValue
+        }
+    }
+}
 
 // NOTE
 //
@@ -24,29 +41,40 @@ class UserPostsFeedViewController: UIViewController {
     
     var feedManager: UserPostsFeedManager!
     var userName: String?
-    var isGlobalFeed = false
+    var isGlobalFeed: Bool {
+        switch feedManager.feedType {
+            
+        case .globalFeed, .customPostRankingGlobalFeed:
+            return true
+        case .myFeed, .userFeed, .singlePost, .community:
+            return false
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setupViews()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        feedManager.isGlobalFeed = isGlobalFeed
-        feedManager.observePostsFeedChanges { [weak self] in
-            self?.updateUserFeed()
+        setupPostsObserver()
+        feedManager.sortCommunityHandler = { [weak self] in
+            // The post collection has changed via sort function, currently feedManager won't re-observe automatically.
+            // So here we setup and re-observe new post collection manually.
+            self?.setupPostsObserver()
         }
     }
     
-    func updateUserFeed() {
-        self.tableView.reloadData()
+    private func setupPostsObserver() {
+        feedManager.observePostsFeedChanges { [weak self] in
+            self?.tableView.reloadData()
+        }
     }
     
     func setupViews() {
-        if feedManager.feedType == .userFeed {
+        switch feedManager.feedType {
+        case .userFeed:
             userAvatarView.layer.cornerRadius = 25
             userAvatarView.layer.masksToBounds = true
             userAvatarView.image = UIImage(named: "feed_profile")?.withRenderingMode(.alwaysOriginal)
@@ -54,8 +82,10 @@ class UserPostsFeedViewController: UIViewController {
             let feedName = feedManager.getFeedTitle()
             userNameLabel.text = feedName
             userIdLabel.text = feedManager.userId
-        } else {
-            self.title = "My Feed"
+        case .community:
+            self.title = feedManager.getFeedTitle()
+            userInfoContainerView.removeFromSuperview()
+        default:
             userInfoContainerView.removeFromSuperview()
         }
 
@@ -89,8 +119,14 @@ class UserPostsFeedViewController: UIViewController {
     }
     
     @objc func onSortButtonTap() {
-        let actions: [FeedItemDefaultAction] = [.sortFirstCreated, .sortLastCreated]
-        displayMoreActions(title: "Sort the feed by", actions: actions, at: -1)
+        if feedManager.community != nil {
+            let actions: [FeedItemDefaultAction] = [.publishedAndSortFirstCreated, .publishedAndSortLastCreated, .reviewingAndSortFirstCreated, .reviewingAndSortLastCreated]
+            displayMoreActions(title: "Sort the feed by", actions: actions, at: -1)
+        } else {
+            let actions: [FeedItemDefaultAction] = [.sortFirstCreated, .sortLastCreated]
+            displayMoreActions(title: "Sort the feed by", actions: actions, at: -1)
+        }
+        
     }
     
     @objc func onDeletedPostFilterButtonTap() {
@@ -101,8 +137,15 @@ class UserPostsFeedViewController: UIViewController {
     
     func displayNewPostsScreen(isEditMode: Bool) {
         let controller = self.storyboard?.instantiateViewController(withIdentifier: NewUserPostsViewController.identifier) as! NewUserPostsViewController
-        controller.currentMode = isEditMode ? .edit() : .create
+        controller.delegate = self
+        controller.currentMode = isEditMode ? .edit() : .create()
         controller.feedManager = feedManager
+        
+        if let community = feedManager.community {
+            controller.communityId = community.communityId
+            controller.isCommunityPost = true
+        }
+        
         if #available(iOS 13.0, *) {
             // Prevents screen to dismiss when swiping down on ios 13
             controller.isModalInPresentation = true
@@ -190,13 +233,32 @@ extension UserPostsFeedViewController: UITableViewDataSource, UITableViewDelegat
         
         switch currentCellItem {
         case .header:
-            let cell = tableView.dequeueReusableCell(withIdentifier: FeedPostHeaderCell.identifier) as! FeedPostHeaderCell
             
             let data = feedManager.getFeedItemHeaderData(at: indexPath.section)
-            cell.configure(title: data.title, date: data.date, isDeleted: data.isDeleted)
             
+            // create actions list based on business logic.
+            var actions: [FeedItemDefaultAction] = []
+            actions.append(.comment)
+            if !data.isPoll {
+                actions.append(.edit)
+            }
+            actions.append(contentsOf: [
+                .hardDelete,
+                .delete,
+                .viewPost,
+                .flag,
+                .unflag,
+                .viewCommunityMembership,
+                .copyPostId
+            ])
+            if self.feedManager.community != nil {
+                actions.append(contentsOf: [.approve, .decline])
+            }
+            actions.append(.realTimeEvent)
+            
+            let cell = tableView.dequeueReusableCell(withIdentifier: FeedPostHeaderCell.identifier) as! FeedPostHeaderCell
+            cell.configure(title: data.title, date: data.date, isDeleted: data.isDeleted)
             cell.moreButtonAction = { [weak self] in
-                let actions: [FeedItemDefaultAction] = [.comment, .edit, .delete, .viewPost, .flag, .unflag, .viewCommunityMembership, .copyPostId]
                 self?.displayMoreActions(title: "What would you like to do?", actions: actions, at: indexPath.section)
             }
             
@@ -214,6 +276,18 @@ extension UserPostsFeedViewController: UITableViewDataSource, UITableViewDelegat
                 let cell = tableView.dequeueReusableCell(withIdentifier: FeedPostMultilineLabelCell.identifier) as! FeedPostMultilineLabelCell
                 
                 let data = feedManager.getFeedItemTextData(at: indexPath.section)
+                if let post = feedManager.getPostAtIndex(index: indexPath.section), let mentionees = post.mentionees, let metadata = post.metadata {
+                    cell.feedTextLabel.attributedText = AmityMentionManager.getAttributedString(text: data.text, withMetadata: metadata, mentionees: mentionees)
+                } else {
+                    cell.feedTextLabel.text = data.text
+                }
+                return cell
+                
+            case .liveStream:
+                
+                let cell = tableView.dequeueReusableCell(withIdentifier: FeedPostMultilineLabelCell.identifier) as! FeedPostMultilineLabelCell
+                
+                let data = feedManager.getFeedItemLiveStreamData(at: indexPath.section)
                 cell.feedTextLabel.text = data.text
                 
                 return cell
@@ -268,6 +342,13 @@ extension UserPostsFeedViewController: UITableViewDataSource, UITableViewDelegat
                 feedManager.downloadImage(fileUrl: data.fileURL) { image in
                     cell.imageView1.image = image
                 }
+                
+                return cell
+            case .poll:
+                let cell = tableView.dequeueReusableCell(withIdentifier: FeedPostPollCell.identifier, for: indexPath) as! FeedPostPollCell
+                let data = feedManager.getFeedItemPollData(at: indexPath.section)
+                cell.delegate = self
+                cell.display(model: data)
                 
                 return cell
             }
@@ -357,8 +438,24 @@ extension UserPostsFeedViewController: UITableViewDataSource, UITableViewDelegat
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let cellItems = feedManager.getFeedItemViewModels(at: indexPath.section)
+        guard cellItems.count > indexPath.row else { return UITableView.automaticDimension }
         let currentCellItem = cellItems[indexPath.row]
-        return currentCellItem.height
+        switch currentCellItem {
+        case .content(let type):
+            switch type {
+            case .poll:
+                let data = feedManager.getFeedItemPollData(at: indexPath.section)
+                let labelCount: CGFloat = 7
+                let spacer: CGFloat = 8
+                let heightLabel: CGFloat = 20
+                let heightButton: CGFloat = 50
+                return (labelCount * heightLabel) + ((labelCount + 2) * spacer) + (heightButton * 2) + CGFloat(58 * data.answers.count)
+            default:
+                return currentCellItem.height
+            }
+        default:
+            return currentCellItem.height
+        }
     }
 }
 
@@ -391,8 +488,13 @@ extension UserPostsFeedViewController {
             displayNewPostsScreen(isEditMode: true)
             
         case FeedItemDefaultAction.delete.id:
+            feedManager.deletePost(at: index, hardDelete: false) { [weak self] (isSuccess) in
+                let alertMessage = isSuccess ? "Post successfully deleted" : "Error while deleting post"
+                self?.showAlert(alertMessage: alertMessage)
+            }
             
-            feedManager.deletePost(at: index) { [weak self] (isSuccess) in
+        case FeedItemDefaultAction.hardDelete.id:
+            feedManager.deletePost(at: index, hardDelete: true) { [weak self] (isSuccess) in
                 let alertMessage = isSuccess ? "Post successfully deleted" : "Error while deleting post"
                 self?.showAlert(alertMessage: alertMessage)
             }
@@ -407,17 +509,28 @@ extension UserPostsFeedViewController {
             let controller = self.storyboard?.instantiateViewController(withIdentifier: UserPostCommentsViewController.identifier) as! UserPostCommentsViewController
             
             let post = feedManager.getPostAtIndex(index: index)
-            controller.commentManager = UserPostCommentManager(client: feedManager.client, postId: post?.postId, parentCommentId: nil, userId: feedManager.client.currentUserId, userName: feedManager.client.currentUser?.object?.displayName)
+            controller.community = feedManager.community
+            controller.commentManager = UserPostCommentManager(client: feedManager.client, postId: post?.postId, parentCommentId: nil, userId: feedManager.client.currentUserId, userName: feedManager.client.currentUser?.object?.displayName, communityId: nil)
             
             navigationController?.pushViewController(controller, animated: true)
         case FeedItemDefaultAction.sortFirstCreated.id:
             feedManager.sortCurrentFeed(option: .firstCreated)
             updateSortInfoLabel(option: "First Created")
-            
         case FeedItemDefaultAction.sortLastCreated.id:
             feedManager.sortCurrentFeed(option: .lastCreated)
             updateSortInfoLabel(option: "Last Created")
-            
+        case FeedItemDefaultAction.publishedAndSortFirstCreated.id:
+            feedManager.sortCurrentFeedCommunity(option: .publishedAndSortFirstCreated)
+            updateSortInfoLabel(option: FeedItemDefaultAction.publishedAndSortFirstCreated.title)
+        case FeedItemDefaultAction.publishedAndSortLastCreated.id:
+            feedManager.sortCurrentFeedCommunity(option: .publishedAndSortLastCreated)
+            updateSortInfoLabel(option: FeedItemDefaultAction.publishedAndSortLastCreated.title)
+        case FeedItemDefaultAction.reviewingAndSortFirstCreated.id:
+            feedManager.sortCurrentFeedCommunity(option: .reviewingAndSortFirstCreated)
+            updateSortInfoLabel(option: FeedItemDefaultAction.reviewingAndSortFirstCreated.title)
+        case FeedItemDefaultAction.reviewingAndSortLastCreated.id:
+            feedManager.sortCurrentFeedCommunity(option: .reviewingAndSortLastCreated)
+            updateSortInfoLabel(option: FeedItemDefaultAction.reviewingAndSortLastCreated.title)
         case FeedItemDefaultAction.viewPost.id:
             let post = feedManager.getPostAtIndex(index: index)
             displayIndividualPost(post: post)
@@ -440,11 +553,21 @@ extension UserPostsFeedViewController {
             
         case FeedItemDefaultAction.shouldIncludeDeleted.id:
             feedManager.includeDeletedPosts = true
-            feedManager.sortCurrentFeed(option: feedManager.feedSortOption)
+            if feedManager.community != nil {
+                feedManager.sortCurrentFeedCommunity(option: feedManager.feedSortCommunityOption)
+            } else {
+                feedManager.sortCurrentFeed(option: feedManager.feedSortOption)
+            }
+            
             
         case FeedItemDefaultAction.shouldNotIncludeDeleted.id:
             feedManager.includeDeletedPosts = false
-            feedManager.sortCurrentFeed(option: feedManager.feedSortOption)
+            if feedManager.community != nil {
+                feedManager.sortCurrentFeedCommunity(option: feedManager.feedSortCommunityOption)
+            } else {
+                feedManager.sortCurrentFeed(option: feedManager.feedSortOption)
+            }
+            
             
         case FeedItemDefaultAction.viewCommunityMembership.id:
             let membershipData = feedManager.viewCommunityMembership(index: index)
@@ -453,6 +576,27 @@ extension UserPostsFeedViewController {
         case FeedItemDefaultAction.copyPostId.id:
             let postId = feedManager.getPostAtIndex(index: index)?.postId
             UIPasteboard.general.string = postId
+        case FeedItemDefaultAction.approve.id:
+            let post = feedManager.getPostAtIndex(index: index)
+            feedManager.approve(post: post) { [weak self] message in
+                self?.showAlert(alertMessage: message)
+                self?.tableView.reloadData()
+            }
+        case FeedItemDefaultAction.decline.id:
+            let post = feedManager.getPostAtIndex(index: index)
+            feedManager.decline(post: post) { [weak self] message in
+                self?.showAlert(alertMessage: message)
+                self?.tableView.reloadData()
+            }
+            
+        case FeedItemDefaultAction.realTimeEvent.id:
+            guard let post = feedManager.getPostAtIndex(index: index) else { return }
+            
+            let controller = PostRealTimeEventController()
+            let manager = PostRealTimeEventManager(post: post, isObserveMode: false)
+            controller.manager = manager
+            
+            self.navigationController?.pushViewController(controller, animated: true)
         default:
             fatalError("Implementation not found for action \(action.title)")
         }
@@ -480,4 +624,32 @@ extension UserPostsFeedViewController: FeedPostImageCellDelegate {
         presentChooseVideoItemDialogue(data: videoFeedModel)
     }
     
+}
+
+extension UserPostsFeedViewController: NewUserPostsViewControllerDelegate {
+    func newUserPostsViewControllerDidUpdateComment() {
+    }
+    
+    func newUserPostsViewControllerDidCreateNewPost(_ controller: NewUserPostsViewController) {
+        feedManager.observePostsFeedChanges { [weak self] in
+            self?.setupPostsObserver()
+        }
+    }
+}
+    
+extension UserPostsFeedViewController: FeedPostPollCellDelegate {
+    
+    func feedPostPollCellDidTapVotePoll(model: PollFeedModel, answerIds: [String]) {
+        feedManager.votePoll(withPollid: model.id, answerIds: answerIds) { [weak self] isSuccess in
+            let alertMessage = isSuccess ? "Poll successfully Voted" : "Error while voting poll"
+            self?.showAlert(alertMessage: alertMessage)
+        }
+    }
+    
+    func feedPostPollCellDidTapClosePoll(model: PollFeedModel) {
+        feedManager.closedPoll(withPollId: model.id) { [weak self] isSuccess in
+            let alertMessage = isSuccess ? "Poll successfully closed" : "Error while closing poll"
+            self?.showAlert(alertMessage: alertMessage)
+        }
+    }
 }

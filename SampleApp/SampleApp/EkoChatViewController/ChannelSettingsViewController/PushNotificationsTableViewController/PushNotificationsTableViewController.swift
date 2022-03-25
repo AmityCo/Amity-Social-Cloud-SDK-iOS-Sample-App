@@ -57,8 +57,16 @@ final class PushNotificationsTableViewController: UITableViewController {
     }
 
     private func enablePushNotifications() {
-        pushNotificationManager.enablePushNotifications { [weak self] _ in
-            self?.fetchCurrentState()
+        pushNotificationManager.enablePushNotifications { [weak self] result in
+            switch result {
+            case .failure(let error):
+                let alert = UIAlertController(title: "Something went wrong", message: error.localizedDescription, preferredStyle: .alert)
+                let action = UIAlertAction(title: "Ok", style: .cancel, handler: nil)
+                alert.addAction(action)
+                self?.present(alert, animated: false)
+            case .success:
+                self?.fetchCurrentState()
+            }
         }
     }
 

@@ -6,6 +6,7 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
+import UIKit
 import AmitySDK
 
 private let kContentOffsetY: CGFloat = 10

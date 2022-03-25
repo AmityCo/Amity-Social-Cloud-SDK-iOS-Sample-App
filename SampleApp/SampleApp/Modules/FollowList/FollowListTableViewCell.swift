@@ -6,7 +6,7 @@
 //  Copyright © 2564 BE David Zhang. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 protocol FollowListTableViewCellDelegate: AnyObject {
     func actionButtonDidTap(_ cell: FollowListTableViewCell, action: FollowListActionType)

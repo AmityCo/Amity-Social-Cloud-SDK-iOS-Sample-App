@@ -20,4 +20,12 @@ final class SampleAppTableViewCell: UITableViewCell {
         subtitleLabel.text = ""
         detailLabel.text = ""
     }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        titleLabel.text = ""
+        subtitleLabel.text = ""
+        detailLabel.text = ""
+    }
 }

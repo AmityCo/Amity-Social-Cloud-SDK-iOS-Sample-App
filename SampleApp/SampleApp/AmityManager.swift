@@ -19,33 +19,55 @@ final class AmityManager {
     
     private(set) var client: AmityClient?
     
+    /// An array storing json stirng of push payload, sorted in ascending order.
+    private(set) var pushPayloads: [String] = []
+    
     var postRepository: AmityPostRepository?
     
     static let shared: AmityManager = AmityManager()
     
-    func setup() {
-        guard let apiKey: String = UserDefaults.standard.currentApiKey else {
-            assertionFailure("API Key not found")
+    // Production Environment
+    // Note:
+    // If you want to use default region, you can also use `AmityClient(apiKey: _)` method.
+    func setup(apiKey: String, region: AmityRegion) {
+        guard !apiKey.isEmpty else {
+            assertionFailure("Api key is required!")
             return
         }
         
-        if !UserDefaults.standard.isStagingEnvironment, let customHttpEndpoint = UserDefaults.standard.customHttpEndpoint, let customSocketEndpoint = UserDefaults.standard.customSocketEndpoint, !customHttpEndpoint.isEmpty, !customSocketEndpoint.isEmpty {
-            
-            self.client = AmityClient(apiKey: apiKey, httpUrl: customHttpEndpoint, socketUrl: customSocketEndpoint)
-            Log.add(info: "AmityClient setup with custom endpoints: http: \(customHttpEndpoint), socket: \(customSocketEndpoint)")
-            
-        } else {
-            self.client = AmityClient(apiKey: apiKey)
-            Log.add(info: "AmityClient setup with default endpoints")
-        }
+        Log.add(info: "AmityClient setup with production environment")
+        self.client = try? AmityClient(apiKey: apiKey, region: region)
         
+        setupRepositories()
+    }
+    
+    // Custom environment
+    func setup(environment: ApiEnvironment) {
+        let endpoint = AmityEndpoint(httpUrl: environment.httpUrl, rpcUrl: environment.rpcUrl, mqttHost: environment.mqttHost)
+        
+        Log.add(info: "AmityClient setup with custom environment \(environment.description)")
+        self.client = try? AmityClient(apiKey: environment.apiKey, endpoint: endpoint)
+        
+        setupRepositories()
+    }
+    
+    func setupRepositories() {
         guard let client = client else {
-            assertionFailure("client must not be nil at this point.")
+            assertionFailure("Client must not be nil at this point.")
             return
         }
         
         postRepository = AmityPostRepository(client: client)
-        
+    }
+    
+    func appendNotificationPayload(_ userInfo: [AnyHashable: Any]) {
+        do {
+            let data = try JSONSerialization.data(withJSONObject: userInfo, options: [.prettyPrinted])
+            let json = String(data: data, encoding: .utf8)
+            pushPayloads.append(json ?? "Unable to convert to json string.")
+        } catch {
+            Log.add(info: "Unable to convert notification payload to json string.")
+        }
     }
     
 }

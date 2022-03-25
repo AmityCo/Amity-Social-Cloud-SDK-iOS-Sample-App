@@ -14,7 +14,7 @@ protocol ChannelCreator: AnyObject {
 }
 
 protocol ChannelRepositoryDelegate: AnyObject {
-    func createChannel(channelId: String, type: AmityChannelCreateType, userIds: [String], avatar: UIImage?)
+    func createChannel(channelId: String, type: AmityChannelType, userIds: [String], avatar: UIImage?)
     func createConversation(userId: String, avatar: UIImage?)
 }
 

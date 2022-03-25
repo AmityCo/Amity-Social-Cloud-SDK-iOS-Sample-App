@@ -82,7 +82,9 @@ struct ChannelFilterView_Previews: PreviewProvider {
 }
 
 extension AmityChannelType: CaseIterable {
+    
     public static var allCases: [AmityChannelType] {
-        return [.standard, .private, .broadcast, .conversation, .byTypes, .live, .community]
+        return [.standard, .private, .broadcast, .conversation, .live, .community, .unknown]
     }
+    
 }

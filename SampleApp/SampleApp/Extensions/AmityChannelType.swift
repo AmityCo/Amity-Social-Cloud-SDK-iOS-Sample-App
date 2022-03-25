@@ -14,7 +14,7 @@ extension AmityChannelType: CustomStringConvertible {
         switch self {
         case .standard: return "Standard"
         case .private: return "Private"
-        case .byTypes: return "All (By Types)"
+        case .unknown: return "All (By Types)"
         case .broadcast: return "Broadcast"
         case .conversation: return "Conversation"
         case .live: return "Live"
@@ -22,14 +22,6 @@ extension AmityChannelType: CustomStringConvertible {
         @unknown default: return "Unknown"
         }
     }
+    
 }
 
-extension AmityChannelCreateType: CustomStringConvertible {
-    public var description: String {
-        switch self {
-        case .standard: return "Standard"
-        case .private: return "Private"
-        @unknown default: return "Unknown"
-        }
-    }
-}

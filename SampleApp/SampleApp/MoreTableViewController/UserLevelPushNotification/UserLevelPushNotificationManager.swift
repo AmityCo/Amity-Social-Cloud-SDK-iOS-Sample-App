@@ -7,9 +7,11 @@
 //
 
 import AmitySDK
+import Foundation
 
-protocol UserLevelPushNotificationManagerDelegate: class {
+protocol UserLevelPushNotificationManagerDelegate: AnyObject {
     func manager(_ manager: UserLevelPushNotificationManager, didReceiveNotification notification: AmityUserNotificationSettings)
+    func manager(_ manager: UserLevelPushNotificationManager, didFailWithError error: Error)
 }
 
 final class UserLevelPushNotificationManager {
@@ -43,9 +45,23 @@ final class UserLevelPushNotificationManager {
                 return AmityUserNotificationModule(moduleType: module.type, isEnabled: module.isEnabled, roleFilter: .onlyFilter(withRoleIds: roleIds))
             }
             notificationManager.enable(for: _modules, completion: nil)
+            notificationManager.enable(for: _modules) { [weak self] success, error in
+                guard let strongSelf = self else { return }
+                strongSelf.handleResponse(error: error)
+            }
         } else {
-            notificationManager.disable(completion: nil)
+            notificationManager.disable { [weak self] success, error in
+                guard let strongSelf = self else { return }
+                strongSelf.handleResponse(error: error)
+            }
         }
     }
 
+    private func handleResponse(error: Error?) {
+        if let error = error {
+            delegate?.manager(self, didFailWithError: error)
+        }
+        
+        fetchUserNotification()
+    }
 }

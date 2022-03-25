@@ -30,11 +30,26 @@ class CommentViewCell: FeedTableViewCell {
         avatarView.layer.borderColor = UIColor.systemGroupedBackground.cgColor
     }
     
-    func configure(displayName: String, createdDate: String, comment: String, displayImage: UIImage?, isEdited: Bool) {
-        titleLabel.text = "\(displayName) commented to this post."
-        subtitleLabel.text = "\(createdDate) \(isEdited ? "Edited" : "")"
-        commentLabel.text = comment
-        avatarView.image = displayImage
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        avatarView.image = nil
+        titleLabel.text = nil
+        subtitleLabel.text = nil
+        commentLabel.text = nil
+        reactionLabel.text = nil
+    }
+    
+    func configureCell(withComment comment: UserPostCommentModel) {
+        titleLabel.text = "\(comment.displayName) commented to this post."
+        subtitleLabel.text = "\(comment.date) \(comment.isEdited ? "Edited" : "")"
+        if let metadata = comment.metadata, let mentionees = comment.mentionees {
+            commentLabel.attributedText = AmityMentionManager.getAttributedString(text: comment.text, withMetadata: metadata, mentionees: mentionees)
+        } else {
+            commentLabel.text = comment.text
+        }
+        reactionLabel.text = comment.reaction
+        avatarView.image = nil
     }
     
     @IBAction func handleReplyButton(_ sender: Any) {

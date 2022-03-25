@@ -155,15 +155,17 @@ final class ChannelTagsTableViewController: UITableViewController, DataSourceLis
     var updateToken: AmityNotificationToken?
     
     func updateTags(tags: [String], channelId: String) {
+        
         updateToken?.invalidate()
         
-        let channelUpdater = channelRepo.updateChannel(channelId)
-        channelUpdater.setTags(tags)
-        updateToken = channelUpdater.update().observe { [weak self] (liveObject, error) in
+        let builder = AmityChannelUpdateBuilder(channelId: channelId)
+        builder.setTags(tags)
+        
+        updateToken = channelRepo.updateChannel(with: builder).observe { [weak self] (liveObject, error) in
             guard let channel = liveObject.object, liveObject.dataStatus == .fresh else { return }
-            
             self?.updateToken?.invalidate()
         }
+        
     }
     
 

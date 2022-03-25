@@ -77,10 +77,8 @@ struct PostListPage: View {
         collection = postRepository.getPosts(options)
         token = collection?.observe { _collection, changes, error in
             var newPosts: [AmityPost] = []
-            for index in (0..<_collection.count()) {
-                if let post = _collection.object(at: index) {
-                    newPosts.append(post)
-                }
+            for post in _collection.allObjects() {
+                newPosts.append(post)
             }
             errorMessage = error?.localizedDescription
             hasNext = _collection.hasNext

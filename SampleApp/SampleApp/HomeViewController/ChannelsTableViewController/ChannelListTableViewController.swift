@@ -86,9 +86,20 @@ final class ChannelListTableViewController: UIViewController, DataSourceListener
         refreshControl.endRefreshing()
 
         if (channelFilter == .userIsNotMember || channelFilter == .all) && channelType == .private {
-            dataSource.fetchChannels(channelType: .byTypes, channelFilter: channelFilter, includingTags: includingTags, excludingTags: excludingTags, channelTypeName: Set(arrayLiteral: "private"))
+            dataSource.fetchChannels(
+                channelType: .unknown,
+                channelFilter: channelFilter,
+                includingTags: includingTags,
+                excludingTags: excludingTags,
+                channelTypes: Set(arrayLiteral: "private")
+            )
         } else {
-            dataSource.fetchChannels(channelType: channelType, channelFilter: channelFilter, includingTags: includingTags, excludingTags: excludingTags)
+            dataSource.fetchChannels(
+                channelType: channelType,
+                channelFilter: channelFilter,
+                includingTags: includingTags,
+                excludingTags: excludingTags
+            )
         }
     }
     

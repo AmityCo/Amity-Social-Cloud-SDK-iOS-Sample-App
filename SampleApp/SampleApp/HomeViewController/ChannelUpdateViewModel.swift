@@ -6,7 +6,7 @@
 //  Copyright © 2020 David Zhang. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 class ChannelUpdateViewModel: ObservableObject {
     
@@ -32,14 +32,14 @@ class ChannelUpdateViewModel: ObservableObject {
         self.channelRepo = AmityChannelRepository(client: AmityManager.shared.client!)
         self.fileRepo = AmityFileRepository(client: AmityManager.shared.client!)
         
-        let channelUpdater = AmityChannelUpdateBuilder(id: id, andClient: AmityManager.shared.client!)
+        let builder = AmityChannelUpdateBuilder(channelId: id)
         
         if shouldRemoveAvatar {
-            channelUpdater.setAvatar(nil)
+            builder.setAvatar(nil)
         }
         
         if !displayName.isEmpty {
-            channelUpdater.setDisplayName(displayName)
+            builder.setDisplayName(displayName)
         }
         
         if !keys.isEmpty {
@@ -47,27 +47,26 @@ class ChannelUpdateViewModel: ObservableObject {
             for (index, key) in keys.enumerated() {
                 metadata[key] = values[index]
             }
-            
             if !metadata.isEmpty {
-                channelUpdater.setMetadata(metadata)
+                builder.setMetadata(metadata)
             }
         }
         
         if let avatar = selectedAvatar {
             channelUpdateStatus = "In Progress..."
             fileRepo?.uploadImage(avatar, progress: nil, completion: { [weak self] (imageData, error) in
-                
-                channelUpdater.setAvatar(imageData)
-                self?.updateChannel(updater: channelUpdater)
+                builder.setAvatar(imageData)
+                self?.updateChannel(builder: builder)
             })
         } else {
             channelUpdateStatus = "In Progress..."
-            updateChannel(updater: channelUpdater)
+            updateChannel(builder: builder)
         }
+        
     }
     
-    func updateChannel(updater: AmityChannelUpdateBuilder) {
-        token = updater.update().observe({ [weak self] (channel, error) in
+    func updateChannel(builder: AmityChannelUpdateBuilder) {
+        token = channelRepo?.updateChannel(with: builder).observe({ [weak self] (channel, error) in
             self?.token?.invalidate()
             
             if let err = error {

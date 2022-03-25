@@ -46,6 +46,7 @@ class FollowInfoViewController: UIViewController {
             }
         }
         manager.type = .userFollowing(userId: userId)
+        manager.reloadData()
     }
     
     @IBAction func segmentedControlChanged(_ sender: UISegmentedControl) {
@@ -56,9 +57,7 @@ class FollowInfoViewController: UIViewController {
             manager.type = .userFollower(userId: userId)
             pageType = .follower
         }
-        
     }
-
 }
 
 extension FollowInfoViewController: FollowManagerDelegate {

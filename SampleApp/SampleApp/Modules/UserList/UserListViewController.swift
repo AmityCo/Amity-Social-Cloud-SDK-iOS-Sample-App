@@ -13,9 +13,13 @@ class UserListViewController: UIViewController, UISearchBarDelegate {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var searchBar: UISearchBar!
     
+    let feedbackImpactGenerator = UIImpactFeedbackGenerator()
+    
     var listManager: UserListManager!
     var userRepository: AmityUserRepository!
     var followManager: AmityUserFollowManager!
+    
+    var flagger: AmityUserFlagger?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -114,7 +118,73 @@ extension UserListViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let user = listManager.getUserItem(at: indexPath.row) else { return }
-        displayUserFeed(userId: user.userId, userName: user.displayName)
+        
+        var actions = [UIAlertAction]()
+        actions.append(UIAlertAction(title: "View User Feed", style: .default, handler: { [weak self] action in
+            self?.displayUserFeed(userId: user.userId, userName: user.displayName)
+        }))
+        
+        actions.append(UIAlertAction(title: "Real Time Event", style: .default, handler: { [weak self] action in
+            self?.displayRealTimeEventScreen(user: user)
+        }))
+        
+        actions.append(UIAlertAction(title: "Flag User", style: .default, handler: { [weak self] action in
+            self?.flagUser(user: user)
+        }))
+        
+        actions.append(UIAlertAction(title: "Unflag User", style: .default, handler: { [weak self] action in
+            self?.unflagUser(user: user)
+        }))
+        
+        AppUtility.showActionSheet(in: self, title: "", message: "What do you want to do?", actions: actions)
+    }
+    
+    func displayRealTimeEventScreen(user: AmityUser) {
+        let manager = UserRealTimeEventManager(user: user)
+        
+        let controller = UserRealTimeEventController()
+        controller.manager = manager
+        
+        self.navigationController?.pushViewController(controller, animated: true)
+    }
+    
+    func flagUser(user: AmityUser) {
+        isUserFlagged(user: user) { [weak self] isFlagged in
+            guard let strongSelf = self else { return }
+            
+            guard !isFlagged else {
+                AppUtility.showAlert(in: strongSelf, title: "", message: "User is previously flagged", action: nil)
+                return
+            }
+            
+            strongSelf.flagger?.flag(completion: { success, error in
+                let message = success ? "User is flagged successfully" : "Error: \(String(describing: error?.localizedDescription))"
+                AppUtility.showAlert(in: strongSelf, title: "", message: message, action: nil)
+            })
+        }
+    }
+    
+    func unflagUser(user: AmityUser) {
+        isUserFlagged(user: user) { [weak self] isFlagged in
+            guard let strongSelf = self else { return }
+            
+            guard isFlagged else {
+                AppUtility.showAlert(in: strongSelf, title: "", message: "User is not flagged yet", action: nil)
+                return
+            }
+            
+            strongSelf.flagger?.unflag(completion: { success, error in
+                let message = success ? "User is unflagged successfully" : "Error: \(String(describing: error?.localizedDescription))"
+                AppUtility.showAlert(in: strongSelf, title: "", message: message, action: nil)
+            })
+        }
+    }
+    
+    func isUserFlagged(user: AmityUser, completion: @escaping (Bool) -> Void) {
+        flagger = AmityUserFlagger(client: AmityManager.shared.client!, userId: user.userId)
+        flagger?.isFlaggedByMe(completion: { isFlagged in
+            completion(isFlagged)
+        })
     }
 }
 
@@ -130,8 +200,10 @@ extension UserListViewController: UserListTableViewCellDelegate {
     func cellOptionDidTap(_ cell: UserListTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell),
               let userId = listManager.getUserItem(at: indexPath.row)?.userId else { return }
-        followManager = userRepository.followManager
         
+        feedbackImpactGenerator.impactOccurred()
+        
+        followManager = userRepository.followManager
         
         let completion: (FollowAction, Bool, AmityFollowResponse?, Error?) -> Void = { [weak self] (action, success, response, error) in
             var title = ""

@@ -28,7 +28,7 @@ final class PushNotificationRegistrationManager {
 
     func unregisterUser(completion: @escaping (Result<Void, Error>) -> Void) {
         guard let currentUserId = client.currentUserId else { return }
-        client.unregisterDeviceForPushNotification(forUserId: currentUserId) { (_, success, error) in
+        client.unregisterDeviceForPushNotification(forUserId: currentUserId) { (success, error) in
             if let error = error {
                 completion(.failure(error))
             } else {
@@ -39,7 +39,7 @@ final class PushNotificationRegistrationManager {
 
     func unregisterDevice(completion: @escaping (Result<Void, Error>) -> Void) {
         UserDefaults.standard.isRegisterdForPushNotification = false
-        client.unregisterDeviceForPushNotification(forUserId: nil) { (_, success, error) in
+        client.unregisterDeviceForPushNotification(forUserId: nil) { (success, error) in
             if let error = error {
                 completion(.failure(error))
             } else {

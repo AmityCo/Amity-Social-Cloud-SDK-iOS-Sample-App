@@ -6,7 +6,10 @@
 //  Copyright © 2018 David Zhang. All rights reserved.
 //
 
+import Foundation
+
 extension UserDefaults {
+    
     typealias ChannelId = String
 
     var filter: AmityChannelQueryFilter {
@@ -90,23 +93,25 @@ extension UserDefaults {
         set { set(newValue, forKey: #function) }
     }
     
-    var isStagingEnvironment: Bool {
-        get { return value(forKey: #function) as? Bool ?? true }
-        set { set(newValue, forKey: #function) }
-    }
-    
-    var customHttpEndpoint: String? {
-        get { return string(forKey: #function) }
-        set { set(newValue, forKey: #function) }
-    }
-    
-    var customSocketEndpoint: String? {
-        get { return string(forKey: #function) }
-        set { set(newValue, forKey: #function) }
-    }
-    
     var isRegisterdForPushNotification: Bool? {
         get { return bool(forKey: #function) }
         set { set(newValue, forKey: #function) }
+    }
+    
+    func getSavedEnvironments() -> [ApiEnvironment] {
+        var savedEnvironments = [ApiEnvironment]()
+        if let data = self.value(forKey: "saved_environments") as? Data, let savedData = try? PropertyListDecoder().decode([ApiEnvironment].self, from: data) {
+            savedEnvironments = savedData
+        }
+        return savedEnvironments
+    }
+    
+    func saveEnvironment(environment: ApiEnvironment) {
+        var savedEnvironments = getSavedEnvironments()
+        savedEnvironments.append(environment)
+        
+        if let data = try? PropertyListEncoder().encode(savedEnvironments) {
+            self.set(data, forKey: "saved_environments")
+        }
     }
 }

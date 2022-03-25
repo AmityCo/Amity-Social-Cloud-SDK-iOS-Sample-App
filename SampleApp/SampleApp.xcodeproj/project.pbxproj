@@ -14,8 +14,6 @@
 		1A17451624D80B7E00D524C8 /* CommunityCategoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A17451524D80B7D00D524C8 /* CommunityCategoryListView.swift */; };
 		1A1CD6D524A5A267002503F4 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1CD6D424A5A267002503F4 /* Log.swift */; };
 		1A3208C8261E2DA800F470D3 /* UserUpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3208C7261E2DA800F470D3 /* UserUpdateManager.swift */; };
-		1A320907261F21BA00F470D3 /* AmitySDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A320906261F21BA00F470D3 /* AmitySDK.xcframework */; };
-		1A320908261F21BA00F470D3 /* AmitySDK.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1A320906261F21BA00F470D3 /* AmitySDK.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1A32431F249366F600BA6408 /* AppProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A32431E249366F600BA6408 /* AppProtocols.swift */; };
 		1A3CC4F52456A38D008A26D0 /* MainTabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3CC4F42456A38D008A26D0 /* MainTabViewController.swift */; };
 		1A3CC4F92456A575008A26D0 /* Feed.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1A3CC4F82456A575008A26D0 /* Feed.storyboard */; };
@@ -23,6 +21,20 @@
 		1A3CC4FD2456A5DC008A26D0 /* UIView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3CC4FC2456A5DC008A26D0 /* UIView+Extension.swift */; };
 		1A3CC5042456C6BB008A26D0 /* NewUserPostsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3CC5032456C6BB008A26D0 /* NewUserPostsViewController.swift */; };
 		1A65FC3624613C5F006CBA50 /* UserPostsFeedManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A65FC3524613C5F006CBA50 /* UserPostsFeedManager.swift */; };
+		1A6610DA274D37B3007F4ED1 /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6610D9274D37B3007F4ED1 /* Debouncer.swift */; };
+		1A6610E0274DFCBA007F4ED1 /* UserRealTimeEventController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6610DF274DFCBA007F4ED1 /* UserRealTimeEventController.swift */; };
+		1A6610E6274DFFF9007F4ED1 /* RealTimeEventHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6610E4274DFFF9007F4ED1 /* RealTimeEventHeaderCell.swift */; };
+		1A6610E7274DFFF9007F4ED1 /* RealTimeEventHeaderCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A6610E5274DFFF9007F4ED1 /* RealTimeEventHeaderCell.xib */; };
+		1A6610E9274E068B007F4ED1 /* UserRealTimeEventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6610E8274E068B007F4ED1 /* UserRealTimeEventManager.swift */; };
+		1A6610EB274E1582007F4ED1 /* AppUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6610EA274E1582007F4ED1 /* AppUtility.swift */; };
+		1A6610ED274E21BA007F4ED1 /* SDKModel+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6610EC274E21BA007F4ED1 /* SDKModel+Extension.swift */; };
+		1A6610F1274E31CC007F4ED1 /* CommunityRealTimeEventController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6610F0274E31CC007F4ED1 /* CommunityRealTimeEventController.swift */; };
+		1A6610F3274E3535007F4ED1 /* CommunityRealTimeEventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6610F2274E3535007F4ED1 /* CommunityRealTimeEventManager.swift */; };
+		1A6610F6274E3C9E007F4ED1 /* CommentRealTimeEventController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6610F5274E3C9E007F4ED1 /* CommentRealTimeEventController.swift */; };
+		1A6610F8274E3CA9007F4ED1 /* CommentRealTimeEventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6610F7274E3CA9007F4ED1 /* CommentRealTimeEventManager.swift */; };
+		1A6610FB274E3F93007F4ED1 /* PostRealTimeEventController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6610FA274E3F93007F4ED1 /* PostRealTimeEventController.swift */; };
+		1A6610FD274E3FBC007F4ED1 /* PostRealTimeEventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6610FC274E3FBC007F4ED1 /* PostRealTimeEventManager.swift */; };
+		1A733BE727AA472600DC3926 /* FollowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A733BE627AA472600DC3926 /* FollowManager.swift */; };
 		1A76C71D25E60DCD00D4FE5E /* CommentCreateTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A76C71C25E60DCD00D4FE5E /* CommentCreateTestView.swift */; };
 		1A78C8F124581B9B00C79010 /* FeedModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A78C8F024581B9B00C79010 /* FeedModels.swift */; };
 		1A79B0FA25F0938500D03E62 /* LatestCommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A79B0F925F0938500D03E62 /* LatestCommentView.swift */; };
@@ -36,6 +48,7 @@
 		1A995F122456E8220052BD66 /* FeedPostMultilineLabelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A995F112456E8220052BD66 /* FeedPostMultilineLabelCell.swift */; };
 		1A995F142456E83B0052BD66 /* FeedPostFooterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A995F132456E83B0052BD66 /* FeedPostFooterCell.swift */; };
 		1A995F162456EAA70052BD66 /* FeedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A995F152456EAA70052BD66 /* FeedTableViewCell.swift */; };
+		1A9AA8A526F3016F00811065 /* RealmTestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A9AA8A426F3016F00811065 /* RealmTestModel.swift */; };
 		1AA24DB8252B26A400050200 /* PostFlagManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA24DB7252B26A400050200 /* PostFlagManager.swift */; };
 		1AA24DBE252B28C300050200 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA24DBD252B28C300050200 /* ListViewController.swift */; };
 		1AA24DC0252B85B200050200 /* UserQueryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA24DBF252B85B200050200 /* UserQueryView.swift */; };
@@ -43,6 +56,8 @@
 		1AA24DEB252CA74200050200 /* SwiftUIImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA24DEA252CA74200050200 /* SwiftUIImagePicker.swift */; };
 		1AA24DEE252CB07600050200 /* ChannelDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AA24DED252CB07600050200 /* ChannelDetailsView.swift */; };
 		1AB90836252ECCC4001E0310 /* ApiKeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB90835252ECCC4001E0310 /* ApiKeyView.swift */; };
+		1ABDCC9A27B36D1A005FC768 /* MyFollowRealTimeEventController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ABDCC9927B36D1A005FC768 /* MyFollowRealTimeEventController.swift */; };
+		1ABDCC9C27B36D9F005FC768 /* MyFollowRealTimeEventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ABDCC9B27B36D9F005FC768 /* MyFollowRealTimeEventManager.swift */; };
 		1AD291D525260F9300367C99 /* ChannelUpdateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD291D425260F9300367C99 /* ChannelUpdateView.swift */; };
 		1AD291D7252611E500367C99 /* ChannelUpdateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD291D6252611E500367C99 /* ChannelUpdateViewModel.swift */; };
 		1AEAF16B2567909900FF46AB /* AudioMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AEAF16A2567909900FF46AB /* AudioMessageHandler.swift */; };
@@ -113,11 +128,13 @@
 		64EF25C4233094C9009700ED /* AmityKeyboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64EF25C3233094C9009700ED /* AmityKeyboardService.swift */; };
 		7249B1772677480500721D4D /* FollowListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7249B1762677480500721D4D /* FollowListViewController.swift */; };
 		7249B17A26774DE000721D4D /* FollowListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7249B17926774DE000721D4D /* FollowListTableViewCell.swift */; };
+		7265933E27EDC76C00CAD63B /* AmitySDK in Frameworks */ = {isa = PBXBuildFile; productRef = 7265933D27EDC76C00CAD63B /* AmitySDK */; };
 		72865FBD25F9DB0800999EE7 /* UserLevelPushNotificationsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72865FBC25F9DB0800999EE7 /* UserLevelPushNotificationsTableViewController.swift */; };
 		72865FC325FA155400999EE7 /* SwitchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72865FC125FA155400999EE7 /* SwitchTableViewCell.swift */; };
 		72865FEF25FB26B200999EE7 /* UserLevelPushNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72865FEE25FB26B200999EE7 /* UserLevelPushNotificationManager.swift */; };
 		72865FF125FB26D500999EE7 /* UserNotificationModuleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72865FF025FB26D500999EE7 /* UserNotificationModuleViewModel.swift */; };
 		72865FF325FB286300999EE7 /* NotificationModuleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72865FF225FB286300999EE7 /* NotificationModuleTableViewCell.swift */; };
+		7291F91D26C3762700B19C3C /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7291F91C26C3762700B19C3C /* CardView.swift */; };
 		729844C925C96D710026A7B9 /* ChildCommentViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 729844C825C96D710026A7B9 /* ChildCommentViewCell.swift */; };
 		72B1C0AC2678CF6300044EE2 /* FollowInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B1C0AB2678CF6300044EE2 /* FollowInfoViewController.swift */; };
 		787EDE9A268CE83E00D51CDB /* CommunityFeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787EDE99268CE83E00D51CDB /* CommunityFeedViewModel.swift */; };
@@ -126,8 +143,10 @@
 		787EDEA4268D6C8400D51CDB /* CommunityFeedViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 787EDEA2268D6C8400D51CDB /* CommunityFeedViewController.xib */; };
 		787EDEA8268D6E4C00D51CDB /* CommunityFeedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 787EDEA6268D6E4C00D51CDB /* CommunityFeedTableViewCell.swift */; };
 		787EDEA9268D6E4C00D51CDB /* CommunityFeedTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 787EDEA7268D6E4C00D51CDB /* CommunityFeedTableViewCell.xib */; };
-		A02627BB25AC229200D43315 /* Realm.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A02627B925AC229200D43315 /* Realm.xcframework */; };
-		A02627BC25AC229200D43315 /* Realm.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A02627B925AC229200D43315 /* Realm.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		78C9B07426CA4EF400677616 /* FeedPostPollCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78C9B07326CA4EF400677616 /* FeedPostPollCell.swift */; };
+		78C9B07726CAEA1F00677616 /* FeedPostPollAnswerTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78C9B07526CAEA1F00677616 /* FeedPostPollAnswerTableViewCell.swift */; };
+		78C9B07826CAEA1F00677616 /* FeedPostPollAnswerTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 78C9B07626CAEA1F00677616 /* FeedPostPollAnswerTableViewCell.xib */; };
+		A0DBF24527B0BFFA00DA1DDB /* NotificationLogViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DBF24427B0BFFA00DA1DDB /* NotificationLogViewController.swift */; };
 		A0E2B1F526A7E6C400F1C4D5 /* PostQuerySettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E2B1F426A7E6C400F1C4D5 /* PostQuerySettingsPage.swift */; };
 		A0E2B1F726A8005F00F1C4D5 /* PostListPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E2B1F626A8005F00F1C4D5 /* PostListPage.swift */; };
 		A704FC602408BB16002177A1 /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A704FC5F2408BB16002177A1 /* StringExtension.swift */; };
@@ -145,6 +164,7 @@
 		A7AA3DE723ED3A8B004A9B54 /* AmityChannelSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7AA3DE623ED3A8B004A9B54 /* AmityChannelSelectionViewController.swift */; };
 		A7B1842C235839B7001CCB41 /* AmityChatFileViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7B1842B235839B7001CCB41 /* AmityChatFileViewCell.swift */; };
 		A7B1842E23583A6C001CCB41 /* Data+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7B1842D23583A6C001CCB41 /* Data+Extensions.swift */; };
+		D47DEFAC27993329004CB368 /* MentionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D47DEFAB27993329004CB368 /* MentionManager.swift */; };
 		D4EC7B9A260E491E00921A6D /* FeedPostCommentsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4EC7B99260E491E00921A6D /* FeedPostCommentsCell.swift */; };
 		F0A1D9F72093104F0051BAC9 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F0A1D9F62093104E0051BAC9 /* AVKit.framework */; };
 /* End PBXBuildFile section */
@@ -156,8 +176,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				A02627BC25AC229200D43315 /* Realm.xcframework in Embed Frameworks */,
-				1A320908261F21BA00F470D3 /* AmitySDK.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -172,7 +190,6 @@
 		1A17451524D80B7D00D524C8 /* CommunityCategoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityCategoryListView.swift; sourceTree = "<group>"; };
 		1A1CD6D424A5A267002503F4 /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		1A3208C7261E2DA800F470D3 /* UserUpdateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserUpdateManager.swift; sourceTree = "<group>"; };
-		1A320906261F21BA00F470D3 /* AmitySDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = AmitySDK.xcframework; path = ../Frameworks/AmitySDK.xcframework; sourceTree = "<group>"; };
 		1A32431E249366F600BA6408 /* AppProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppProtocols.swift; sourceTree = "<group>"; };
 		1A3CC4F42456A38D008A26D0 /* MainTabViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabViewController.swift; sourceTree = "<group>"; };
 		1A3CC4F82456A575008A26D0 /* Feed.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Feed.storyboard; sourceTree = "<group>"; };
@@ -180,6 +197,20 @@
 		1A3CC4FC2456A5DC008A26D0 /* UIView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extension.swift"; sourceTree = "<group>"; };
 		1A3CC5032456C6BB008A26D0 /* NewUserPostsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewUserPostsViewController.swift; sourceTree = "<group>"; };
 		1A65FC3524613C5F006CBA50 /* UserPostsFeedManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPostsFeedManager.swift; sourceTree = "<group>"; };
+		1A6610D9274D37B3007F4ED1 /* Debouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debouncer.swift; sourceTree = "<group>"; };
+		1A6610DF274DFCBA007F4ED1 /* UserRealTimeEventController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRealTimeEventController.swift; sourceTree = "<group>"; };
+		1A6610E4274DFFF9007F4ED1 /* RealTimeEventHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealTimeEventHeaderCell.swift; sourceTree = "<group>"; };
+		1A6610E5274DFFF9007F4ED1 /* RealTimeEventHeaderCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RealTimeEventHeaderCell.xib; sourceTree = "<group>"; };
+		1A6610E8274E068B007F4ED1 /* UserRealTimeEventManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRealTimeEventManager.swift; sourceTree = "<group>"; };
+		1A6610EA274E1582007F4ED1 /* AppUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUtility.swift; sourceTree = "<group>"; };
+		1A6610EC274E21BA007F4ED1 /* SDKModel+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SDKModel+Extension.swift"; sourceTree = "<group>"; };
+		1A6610F0274E31CC007F4ED1 /* CommunityRealTimeEventController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityRealTimeEventController.swift; sourceTree = "<group>"; };
+		1A6610F2274E3535007F4ED1 /* CommunityRealTimeEventManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityRealTimeEventManager.swift; sourceTree = "<group>"; };
+		1A6610F5274E3C9E007F4ED1 /* CommentRealTimeEventController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentRealTimeEventController.swift; sourceTree = "<group>"; };
+		1A6610F7274E3CA9007F4ED1 /* CommentRealTimeEventManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentRealTimeEventManager.swift; sourceTree = "<group>"; };
+		1A6610FA274E3F93007F4ED1 /* PostRealTimeEventController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostRealTimeEventController.swift; sourceTree = "<group>"; };
+		1A6610FC274E3FBC007F4ED1 /* PostRealTimeEventManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostRealTimeEventManager.swift; sourceTree = "<group>"; };
+		1A733BE627AA472600DC3926 /* FollowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowManager.swift; sourceTree = "<group>"; };
 		1A76C71C25E60DCD00D4FE5E /* CommentCreateTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCreateTestView.swift; sourceTree = "<group>"; };
 		1A78C8F024581B9B00C79010 /* FeedModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedModels.swift; sourceTree = "<group>"; };
 		1A79B0F925F0938500D03E62 /* LatestCommentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatestCommentView.swift; sourceTree = "<group>"; };
@@ -193,6 +224,7 @@
 		1A995F112456E8220052BD66 /* FeedPostMultilineLabelCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPostMultilineLabelCell.swift; sourceTree = "<group>"; };
 		1A995F132456E83B0052BD66 /* FeedPostFooterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPostFooterCell.swift; sourceTree = "<group>"; };
 		1A995F152456EAA70052BD66 /* FeedTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedTableViewCell.swift; sourceTree = "<group>"; };
+		1A9AA8A426F3016F00811065 /* RealmTestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmTestModel.swift; sourceTree = "<group>"; };
 		1AA24DB7252B26A400050200 /* PostFlagManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostFlagManager.swift; sourceTree = "<group>"; };
 		1AA24DBD252B28C300050200 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		1AA24DBF252B85B200050200 /* UserQueryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserQueryView.swift; sourceTree = "<group>"; };
@@ -200,6 +232,8 @@
 		1AA24DEA252CA74200050200 /* SwiftUIImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIImagePicker.swift; sourceTree = "<group>"; };
 		1AA24DED252CB07600050200 /* ChannelDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelDetailsView.swift; sourceTree = "<group>"; };
 		1AB90835252ECCC4001E0310 /* ApiKeyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiKeyView.swift; sourceTree = "<group>"; };
+		1ABDCC9927B36D1A005FC768 /* MyFollowRealTimeEventController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyFollowRealTimeEventController.swift; sourceTree = "<group>"; };
+		1ABDCC9B27B36D9F005FC768 /* MyFollowRealTimeEventManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyFollowRealTimeEventManager.swift; sourceTree = "<group>"; };
 		1AD291D425260F9300367C99 /* ChannelUpdateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelUpdateView.swift; sourceTree = "<group>"; };
 		1AD291D6252611E500367C99 /* ChannelUpdateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelUpdateViewModel.swift; sourceTree = "<group>"; };
 		1AEAF16A2567909900FF46AB /* AudioMessageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMessageHandler.swift; sourceTree = "<group>"; };
@@ -284,6 +318,7 @@
 		72865FEE25FB26B200999EE7 /* UserLevelPushNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLevelPushNotificationManager.swift; sourceTree = "<group>"; };
 		72865FF025FB26D500999EE7 /* UserNotificationModuleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationModuleViewModel.swift; sourceTree = "<group>"; };
 		72865FF225FB286300999EE7 /* NotificationModuleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationModuleTableViewCell.swift; sourceTree = "<group>"; };
+		7291F91C26C3762700B19C3C /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
 		729844C825C96D710026A7B9 /* ChildCommentViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildCommentViewCell.swift; sourceTree = "<group>"; };
 		72B1C0AB2678CF6300044EE2 /* FollowInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowInfoViewController.swift; sourceTree = "<group>"; };
 		787EDE99268CE83E00D51CDB /* CommunityFeedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityFeedViewModel.swift; sourceTree = "<group>"; };
@@ -292,7 +327,10 @@
 		787EDEA2268D6C8400D51CDB /* CommunityFeedViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CommunityFeedViewController.xib; sourceTree = "<group>"; };
 		787EDEA6268D6E4C00D51CDB /* CommunityFeedTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityFeedTableViewCell.swift; sourceTree = "<group>"; };
 		787EDEA7268D6E4C00D51CDB /* CommunityFeedTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CommunityFeedTableViewCell.xib; sourceTree = "<group>"; };
-		A02627B925AC229200D43315 /* Realm.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Realm.xcframework; path = ../Frameworks/Realm.xcframework; sourceTree = "<group>"; };
+		78C9B07326CA4EF400677616 /* FeedPostPollCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPostPollCell.swift; sourceTree = "<group>"; };
+		78C9B07526CAEA1F00677616 /* FeedPostPollAnswerTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPostPollAnswerTableViewCell.swift; sourceTree = "<group>"; };
+		78C9B07626CAEA1F00677616 /* FeedPostPollAnswerTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FeedPostPollAnswerTableViewCell.xib; sourceTree = "<group>"; };
+		A0DBF24427B0BFFA00DA1DDB /* NotificationLogViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationLogViewController.swift; sourceTree = "<group>"; };
 		A0E2B1F426A7E6C400F1C4D5 /* PostQuerySettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostQuerySettingsPage.swift; sourceTree = "<group>"; };
 		A0E2B1F626A8005F00F1C4D5 /* PostListPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListPage.swift; sourceTree = "<group>"; };
 		A704FC5F2408BB16002177A1 /* StringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
@@ -306,6 +344,7 @@
 		A7AA3DE623ED3A8B004A9B54 /* AmityChannelSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmityChannelSelectionViewController.swift; sourceTree = "<group>"; };
 		A7B1842B235839B7001CCB41 /* AmityChatFileViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmityChatFileViewCell.swift; sourceTree = "<group>"; };
 		A7B1842D23583A6C001CCB41 /* Data+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Extensions.swift"; sourceTree = "<group>"; };
+		D47DEFAB27993329004CB368 /* MentionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MentionManager.swift; sourceTree = "<group>"; };
 		D4EC7B99260E491E00921A6D /* FeedPostCommentsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPostCommentsCell.swift; sourceTree = "<group>"; };
 		F0A1D9F42093103F0051BAC9 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		F0A1D9F62093104E0051BAC9 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
@@ -317,10 +356,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7265933E27EDC76C00CAD63B /* AmitySDK in Frameworks */,
 				6437EBE620C791E9007F2F4B /* QuartzCore.framework in Frameworks */,
-				1A320907261F21BA00F470D3 /* AmitySDK.xcframework in Frameworks */,
 				F0A1D9F72093104F0051BAC9 /* AVKit.framework in Frameworks */,
-				A02627BB25AC229200D43315 /* Realm.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,6 +368,7 @@
 		1A143EE624695CD0001107CF /* UserList */ = {
 			isa = PBXGroup;
 			children = (
+				1A6610E1274DFCE7007F4ED1 /* RealTimeEvent */,
 				1A143EE824695CE2001107CF /* UserListManager.swift */,
 				1A143EE924695CE2001107CF /* UserListTableViewCell.swift */,
 				1A143EE724695CE2001107CF /* UserListViewController.swift */,
@@ -362,6 +401,8 @@
 				1AFFECC325380D45004B8663 /* TestController.swift */,
 				1A76C71C25E60DCD00D4FE5E /* CommentCreateTestView.swift */,
 				1A79B0F925F0938500D03E62 /* LatestCommentView.swift */,
+				1A6610EA274E1582007F4ED1 /* AppUtility.swift */,
+				1A6610EC274E21BA007F4ED1 /* SDKModel+Extension.swift */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -413,8 +454,60 @@
 				729844C825C96D710026A7B9 /* ChildCommentViewCell.swift */,
 				1A04C07D24B884670097570B /* FeedPostImageCell.swift */,
 				D4EC7B99260E491E00921A6D /* FeedPostCommentsCell.swift */,
+				78C9B07326CA4EF400677616 /* FeedPostPollCell.swift */,
+				78C9B07526CAEA1F00677616 /* FeedPostPollAnswerTableViewCell.swift */,
+				78C9B07626CAEA1F00677616 /* FeedPostPollAnswerTableViewCell.xib */,
 			);
 			path = Cells;
+			sourceTree = "<group>";
+		};
+		1A6610E1274DFCE7007F4ED1 /* RealTimeEvent */ = {
+			isa = PBXGroup;
+			children = (
+				1A6610F9274E3F87007F4ED1 /* Post */,
+				1A6610F4274E3C90007F4ED1 /* Comment */,
+				1A6610EF274E2FCD007F4ED1 /* Community */,
+				1A6610EE274E2FC7007F4ED1 /* User */,
+				1A6610E4274DFFF9007F4ED1 /* RealTimeEventHeaderCell.swift */,
+				1A6610E5274DFFF9007F4ED1 /* RealTimeEventHeaderCell.xib */,
+			);
+			name = RealTimeEvent;
+			sourceTree = "<group>";
+		};
+		1A6610EE274E2FC7007F4ED1 /* User */ = {
+			isa = PBXGroup;
+			children = (
+				1A6610DF274DFCBA007F4ED1 /* UserRealTimeEventController.swift */,
+				1A6610E8274E068B007F4ED1 /* UserRealTimeEventManager.swift */,
+			);
+			name = User;
+			sourceTree = "<group>";
+		};
+		1A6610EF274E2FCD007F4ED1 /* Community */ = {
+			isa = PBXGroup;
+			children = (
+				1A6610F0274E31CC007F4ED1 /* CommunityRealTimeEventController.swift */,
+				1A6610F2274E3535007F4ED1 /* CommunityRealTimeEventManager.swift */,
+			);
+			name = Community;
+			sourceTree = "<group>";
+		};
+		1A6610F4274E3C90007F4ED1 /* Comment */ = {
+			isa = PBXGroup;
+			children = (
+				1A6610F5274E3C9E007F4ED1 /* CommentRealTimeEventController.swift */,
+				1A6610F7274E3CA9007F4ED1 /* CommentRealTimeEventManager.swift */,
+			);
+			name = Comment;
+			sourceTree = "<group>";
+		};
+		1A6610F9274E3F87007F4ED1 /* Post */ = {
+			isa = PBXGroup;
+			children = (
+				1A6610FA274E3F93007F4ED1 /* PostRealTimeEventController.swift */,
+				1A6610FC274E3FBC007F4ED1 /* PostRealTimeEventManager.swift */,
+			);
+			name = Post;
 			sourceTree = "<group>";
 		};
 		1A78C8EF24581B9100C79010 /* Models */ = {
@@ -423,6 +516,14 @@
 				1A78C8F024581B9B00C79010 /* FeedModels.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		1A9AA8A326F3016500811065 /* Realm */ = {
+			isa = PBXGroup;
+			children = (
+				1A9AA8A426F3016F00811065 /* RealmTestModel.swift */,
+			);
+			path = Realm;
 			sourceTree = "<group>";
 		};
 		1AA24DE9252CA73300050200 /* ImagePicker */ = {
@@ -452,6 +553,7 @@
 				45D38CBA24CABF1600CA957E /* UserFeedItemView.swift */,
 				45920CD324BC3BF100365FA1 /* ViewModel */,
 				45F4EE8F24B825BB00AFC32E /* CommunityView.swift */,
+				7291F91C26C3762700B19C3C /* CardView.swift */,
 				45920CCA24BC060400365FA1 /* CommunityEditorView.swift */,
 				458C5C9B24C984E80000D813 /* CommunityDetailView.swift */,
 				45D4EB6F24DD042000AA4EB4 /* CommunityMemberView.swift */,
@@ -485,6 +587,7 @@
 		637D7020204F26060033A53C /* SampleApp */ = {
 			isa = PBXGroup;
 			children = (
+				1A9AA8A326F3016500811065 /* Realm */,
 				1A3208C6261E2D9600F470D3 /* User */,
 				1A3CC4ED24569563008A26D0 /* Modules */,
 				64B50934229BE3BE001AE203 /* SampleApp.entitlements */,
@@ -607,6 +710,7 @@
 				A704FC5F2408BB16002177A1 /* StringExtension.swift */,
 				1A3CC4FC2456A5DC008A26D0 /* UIView+Extension.swift */,
 				45920CDD24BC56C200365FA1 /* Extensions.swift */,
+				1A6610D9274D37B3007F4ED1 /* Debouncer.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -711,6 +815,7 @@
 			children = (
 				6438BD9F2327AD7000A1CFFB /* GlobalSettings.storyboard */,
 				64E1EAAD22A9153C004DF57D /* MoreTableViewController.swift */,
+				A0DBF24327B0BFD100DA1DDB /* NotificationLogViewController */,
 				64E1EAAF22A9153C004DF57D /* NotificationRegistrationTableViewController */,
 				72865FB825F9D8CD00999EE7 /* UserLevelPushNotification */,
 				64E1EAAE22A9153C004DF57D /* AboutTableViewController */,
@@ -760,6 +865,9 @@
 				7249B1762677480500721D4D /* FollowListViewController.swift */,
 				7249B17926774DE000721D4D /* FollowListTableViewCell.swift */,
 				72B1C0AB2678CF6300044EE2 /* FollowInfoViewController.swift */,
+				1A733BE627AA472600DC3926 /* FollowManager.swift */,
+				1ABDCC9927B36D1A005FC768 /* MyFollowRealTimeEventController.swift */,
+				1ABDCC9B27B36D9F005FC768 /* MyFollowRealTimeEventManager.swift */,
 			);
 			path = FollowList;
 			sourceTree = "<group>";
@@ -785,11 +893,20 @@
 			path = Cell;
 			sourceTree = "<group>";
 		};
+		A0DBF24327B0BFD100DA1DDB /* NotificationLogViewController */ = {
+			isa = PBXGroup;
+			children = (
+				A0DBF24427B0BFFA00DA1DDB /* NotificationLogViewController.swift */,
+			);
+			path = NotificationLogViewController;
+			sourceTree = "<group>";
+		};
 		A0E2B1F326A7E66D00F1C4D5 /* Post */ = {
 			isa = PBXGroup;
 			children = (
 				A0E2B1F626A8005F00F1C4D5 /* PostListPage.swift */,
 				A0E2B1F426A7E6C400F1C4D5 /* PostQuerySettingsPage.swift */,
+				D47DEFAB27993329004CB368 /* MentionManager.swift */,
 			);
 			path = Post;
 			sourceTree = "<group>";
@@ -805,8 +922,6 @@
 		F0A1D9F32093103F0051BAC9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				1A320906261F21BA00F470D3 /* AmitySDK.xcframework */,
-				A02627B925AC229200D43315 /* Realm.xcframework */,
 				6437EBE520C791E9007F2F4B /* QuartzCore.framework */,
 				F0A1D9F62093104E0051BAC9 /* AVKit.framework */,
 				F0A1D9F42093103F0051BAC9 /* AVFoundation.framework */,
@@ -831,6 +946,9 @@
 			dependencies = (
 			);
 			name = SampleApp;
+			packageProductDependencies = (
+				7265933D27EDC76C00CAD63B /* AmitySDK */,
+			);
 			productName = SampleApp;
 			productReference = 637D701E204F26060033A53C /* SampleApp.app */;
 			productType = "com.apple.product-type.application";
@@ -846,9 +964,7 @@
 				TargetAttributes = {
 					637D701D204F26060033A53C = {
 						CreatedOnToolsVersion = 9.2;
-						DevelopmentTeam = 37Z583JR6K;
 						LastSwiftMigration = 0930;
-						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -872,6 +988,9 @@
 				Base,
 			);
 			mainGroup = 637D7015204F26060033A53C;
+			packageReferences = (
+				7265933C27EDC76C00CAD63B /* XCRemoteSwiftPackageReference "Amity-Social-Cloud-SDK-iOS-SwiftPM" */,
+			);
 			productRefGroup = 637D701F204F26060033A53C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -896,7 +1015,9 @@
 				A74193E523597984006D404C /* ChannelSettings.storyboard in Resources */,
 				637D7059204F26670033A53C /* Assets.xcassets in Resources */,
 				1A3CC4F92456A575008A26D0 /* Feed.storyboard in Resources */,
+				1A6610E7274DFFF9007F4ED1 /* RealTimeEventHeaderCell.xib in Resources */,
 				6438BDA02327AD7000A1CFFB /* GlobalSettings.storyboard in Resources */,
+				78C9B07826CAEA1F00677616 /* FeedPostPollAnswerTableViewCell.xib in Resources */,
 				6438BDAE2328DC5B00A1CFFB /* Home.xcassets in Resources */,
 				787EDEA4268D6C8400D51CDB /* CommunityFeedViewController.xib in Resources */,
 				6438BDB02328DCE000A1CFFB /* Chats.xcassets in Resources */,
@@ -915,11 +1036,13 @@
 				1AA24DEB252CA74200050200 /* SwiftUIImagePicker.swift in Sources */,
 				1A143EEA24695CE2001107CF /* UserListViewController.swift in Sources */,
 				1A3CC5042456C6BB008A26D0 /* NewUserPostsViewController.swift in Sources */,
+				1A6610E9274E068B007F4ED1 /* UserRealTimeEventManager.swift in Sources */,
 				64215E37225DBDE00034B04B /* MembershipListDataSource.swift in Sources */,
 				4551E88624BC72C600E44E37 /* CommunityListViewModel.swift in Sources */,
 				A7B1842C235839B7001CCB41 /* AmityChatFileViewCell.swift in Sources */,
 				787EDEA3268D6C8400D51CDB /* CommunityFeedViewController.swift in Sources */,
 				1A995F122456E8220052BD66 /* FeedPostMultilineLabelCell.swift in Sources */,
+				1A6610E0274DFCBA007F4ED1 /* UserRealTimeEventController.swift in Sources */,
 				1AA24DBE252B28C300050200 /* ListViewController.swift in Sources */,
 				6480449922B39375000DD097 /* ChannelLevelPushNotificationManager.swift in Sources */,
 				1AFFECC425380D45004B8663 /* TestController.swift in Sources */,
@@ -929,24 +1052,30 @@
 				64B50936229BE6EC001AE203 /* AppDelegate.swift in Sources */,
 				1A995F162456EAA70052BD66 /* FeedTableViewCell.swift in Sources */,
 				45920CCB24BC060400365FA1 /* CommunityEditorView.swift in Sources */,
+				1A6610EB274E1582007F4ED1 /* AppUtility.swift in Sources */,
 				64269134228A754A00774D64 /* MessageDataSource.swift in Sources */,
 				64054D0622AF683A006E1CEE /* AmityErrorCode.swift in Sources */,
 				72865FBD25F9DB0800999EE7 /* UserLevelPushNotificationsTableViewController.swift in Sources */,
 				64BBACA622B22B60009EC435 /* PushNotificationsTableViewController.swift in Sources */,
+				1A733BE727AA472600DC3926 /* FollowManager.swift in Sources */,
 				646AB6FE22784A8000B71128 /* HomeViewController.swift in Sources */,
 				458C5C9C24C984E80000D813 /* CommunityDetailView.swift in Sources */,
+				1A9AA8A526F3016F00811065 /* RealmTestModel.swift in Sources */,
 				A7A3B3B223B0D1CD00D7D7B4 /* AmityAddReactionsViewController.swift in Sources */,
 				1A8915CE258B4351008EEB01 /* UserPermissionView.swift in Sources */,
 				649676342271B6C800F0B24B /* AmityChatTextTableViewCell.swift in Sources */,
 				A0E2B1F726A8005F00F1C4D5 /* PostListPage.swift in Sources */,
 				A74193E72359A8E2006D404C /* AmityCustomViewController.swift in Sources */,
 				1A32431F249366F600BA6408 /* AppProtocols.swift in Sources */,
+				1ABDCC9A27B36D1A005FC768 /* MyFollowRealTimeEventController.swift in Sources */,
 				646AB71822819D1600B71128 /* DisplayNameButtonController.swift in Sources */,
 				456D83C92490BC12005846E6 /* UserPostCommentsViewController.swift in Sources */,
 				64AAAFC322B9F96600C4784B /* TextInputTableViewCell.swift in Sources */,
 				72865FEF25FB26B200999EE7 /* UserLevelPushNotificationManager.swift in Sources */,
 				A7481E1C23B1CA8100F41F59 /* ReactionViewCell.swift in Sources */,
+				1A6610FB274E3F93007F4ED1 /* PostRealTimeEventController.swift in Sources */,
 				643416E72269D609006C516C /* ChannelTagsDataSource.swift in Sources */,
+				78C9B07426CA4EF400677616 /* FeedPostPollCell.swift in Sources */,
 				1AEC8C6B2522DFB200793B48 /* ChannelFilterView.swift in Sources */,
 				1A65FC3624613C5F006CBA50 /* UserPostsFeedManager.swift in Sources */,
 				72865FC325FA155400999EE7 /* SwitchTableViewCell.swift in Sources */,
@@ -966,9 +1095,11 @@
 				72B1C0AC2678CF6300044EE2 /* FollowInfoViewController.swift in Sources */,
 				64215E33225DA6DC0034B04B /* MembershipListTableViewController.swift in Sources */,
 				45920CCD24BC155A00365FA1 /* AmityManager.swift in Sources */,
+				1A6610DA274D37B3007F4ED1 /* Debouncer.swift in Sources */,
 				1A3CC4F52456A38D008A26D0 /* MainTabViewController.swift in Sources */,
 				64E1EAB622A9153C004DF57D /* PushNotificationRegistrationManager.swift in Sources */,
 				A7AA3DE723ED3A8B004A9B54 /* AmityChannelSelectionViewController.swift in Sources */,
+				1ABDCC9C27B36D9F005FC768 /* MyFollowRealTimeEventManager.swift in Sources */,
 				643416E42269CED4006C516C /* ChannelTagsTableViewController.swift in Sources */,
 				645D36E5228C03CE003F19E0 /* ConnectionStatusLEDViewController.swift in Sources */,
 				64EF25C4233094C9009700ED /* AmityKeyboardService.swift in Sources */,
@@ -977,24 +1108,32 @@
 				72865FF325FB286300999EE7 /* NotificationModuleTableViewCell.swift in Sources */,
 				A0E2B1F526A7E6C400F1C4D5 /* PostQuerySettingsPage.swift in Sources */,
 				1AFA446F252E260500ED1941 /* CommunityParticipationView.swift in Sources */,
+				1A6610FD274E3FBC007F4ED1 /* PostRealTimeEventManager.swift in Sources */,
 				64054D0B22AFB009006E1CEE /* CommentsDataSource.swift in Sources */,
+				1A6610F1274E31CC007F4ED1 /* CommunityRealTimeEventController.swift in Sources */,
 				7249B17A26774DE000721D4D /* FollowListTableViewCell.swift in Sources */,
 				64B7821622F9667600DC223C /* ParentFilterPreferenceViewController.swift in Sources */,
+				1A6610F3274E3535007F4ED1 /* CommunityRealTimeEventManager.swift in Sources */,
+				A0DBF24527B0BFFA00DA1DDB /* NotificationLogViewController.swift in Sources */,
 				1A3208C8261E2DA800F470D3 /* UserUpdateManager.swift in Sources */,
 				787EDE9A268CE83E00D51CDB /* CommunityFeedViewModel.swift in Sources */,
 				A7B1842E23583A6C001CCB41 /* Data+Extensions.swift in Sources */,
 				64054D0422AF681D006E1CEE /* AmityChannelType.swift in Sources */,
 				64BBACA322B220DD009EC435 /* ChannelSettingsTableViewController.swift in Sources */,
+				7291F91D26C3762700B19C3C /* CardView.swift in Sources */,
 				1AEAF16B2567909900FF46AB /* AudioMessageHandler.swift in Sources */,
 				6439125E20EC882D002B19F6 /* NSString+Amity.m in Sources */,
 				645C934022FAD22500BB932A /* AmityChatViewController.swift in Sources */,
 				1A78C8F124581B9B00C79010 /* FeedModels.swift in Sources */,
 				64AAAFC522B9FA9D00C4784B /* CreateChannelTableViewController.swift in Sources */,
+				1A6610E6274DFFF9007F4ED1 /* RealTimeEventHeaderCell.swift in Sources */,
 				A7481E1923B1C13900F41F59 /* AmityReactionsViewController.swift in Sources */,
 				45F4EE9024B825BB00AFC32E /* CommunityView.swift in Sources */,
 				1AD291D7252611E500367C99 /* ChannelUpdateViewModel.swift in Sources */,
+				1A6610ED274E21BA007F4ED1 /* SDKModel+Extension.swift in Sources */,
 				72865FF125FB26D500999EE7 /* UserNotificationModuleViewModel.swift in Sources */,
 				64C87AC7225EF621003B6E87 /* SampleAppTableViewCell.swift in Sources */,
+				1A6610F6274E3C9E007F4ED1 /* CommentRealTimeEventController.swift in Sources */,
 				787EDEA8268D6E4C00D51CDB /* CommunityFeedTableViewCell.swift in Sources */,
 				6480449322B38EA4000DD097 /* PushNotificationState.swift in Sources */,
 				A739ADC423B9B547008FBE12 /* ReactionDatasource.swift in Sources */,
@@ -1004,6 +1143,7 @@
 				456D83CB2490DEC6005846E6 /* CommentViewCell.swift in Sources */,
 				1A79B0FA25F0938500D03E62 /* LatestCommentView.swift in Sources */,
 				64269132228A70E900774D64 /* FlagManager.swift in Sources */,
+				1A6610F8274E3CA9007F4ED1 /* CommentRealTimeEventManager.swift in Sources */,
 				646B55AD22F02D290030C91F /* TagManager.swift in Sources */,
 				A743ED94237E5CAC0086D59A /* AmityEditMessageViewController.swift in Sources */,
 				1AA24DE7252CA65800050200 /* UIKitImagePicker.swift in Sources */,
@@ -1018,7 +1158,9 @@
 				1A3CC4FD2456A5DC008A26D0 /* UIView+Extension.swift in Sources */,
 				1A3CC4FB2456A5A6008A26D0 /* UserPostsFeedViewController.swift in Sources */,
 				648E1A3C22C9F8310064CF8B /* SortingPreferenceTableViewController.swift in Sources */,
+				D47DEFAC27993329004CB368 /* MentionManager.swift in Sources */,
 				6419F5AB2276B6220028F738 /* ChannelListTableViewCellConfigurator.swift in Sources */,
+				78C9B07726CAEA1F00677616 /* FeedPostPollAnswerTableViewCell.swift in Sources */,
 				1AD291D525260F9300367C99 /* ChannelUpdateView.swift in Sources */,
 				45D38CBC24CABF1600CA957E /* UserFeedItemHeaderView.swift in Sources */,
 				64E1EAB422A9153C004DF57D /* MoreTableViewController.swift in Sources */,
@@ -1154,7 +1296,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = SampleApp/SampleApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 37Z583JR6K;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1171,7 +1313,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1.1;
+				MARKETING_VERSION = 5.12.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ekoenterprise.ekochatsample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "b9e36c8f-bd19-48bc-a757-ade174b8bde8";
@@ -1191,7 +1333,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = SampleApp/SampleApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 37Z583JR6K;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1204,7 +1346,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1.1;
+				MARKETING_VERSION = 5.12.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ekoenterprise.ekochatsample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "2bd1268a-3211-4eb3-b00c-6f15490b2cb5";
@@ -1238,6 +1380,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		7265933C27EDC76C00CAD63B /* XCRemoteSwiftPackageReference "Amity-Social-Cloud-SDK-iOS-SwiftPM" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AmityCo/Amity-Social-Cloud-SDK-iOS-SwiftPM";
+			requirement = {
+				kind = exactVersion;
+				version = 5.13.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		7265933D27EDC76C00CAD63B /* AmitySDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7265933C27EDC76C00CAD63B /* XCRemoteSwiftPackageReference "Amity-Social-Cloud-SDK-iOS-SwiftPM" */;
+			productName = AmitySDK;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 637D7016204F26060033A53C /* Project object */;
 }

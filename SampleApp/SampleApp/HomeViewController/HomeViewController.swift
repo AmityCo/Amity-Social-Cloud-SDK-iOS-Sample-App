@@ -10,7 +10,7 @@ import UIKit
 import AmitySDK
 import UserNotifications
 
-final class HomeViewController: UIViewController, ChannelsTableViewControllerDelegate, MoreTableViewControllerDelegate, AmityClientErrorDelegate, ChannelCreator {
+final class HomeViewController: UIViewController, ChannelsTableViewControllerDelegate, MoreTableViewControllerDelegate, AmityClientErrorDelegate, ChannelCreator, AmityClientDelegate {
     
     @IBOutlet private weak var displayNameButton: UIButton!
     @IBOutlet private weak var totalMessageCountLabel: UILabel!
@@ -22,6 +22,7 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
     var client: AmityClient = AmityManager.shared.client!
     lazy var channelRepository = AmityChannelRepository(client: client)
     lazy var fileRepository = AmityFileRepository(client: client)
+    lazy var pushNotificationManager = PushNotificationRegistrationManager(client: client)
     var channelType: AmityChannelType = .standard
     
     private var channelListViewController: ChannelListTableViewController!
@@ -45,11 +46,20 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
                 }
         }
     }
+    
+    func didChangeConnectionStatus(status: AmityConnectionStatus) {
+        Log.add(info: "🔥 Delegate: Connection Status Changed \(status)")
+    }
+    
+    func didReceiveError(error: Error) {
+        Log.add(info: "🔥 Delegate: Erorr Received \(error)")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         client.clientErrorDelegate = self
+        client.delegate = self
         
         trackConnectionStatus()
         trackUnreadCount()
@@ -59,8 +69,7 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
             login(with: "victimIOS", displayName: "iOS User 1")
         }
 
-        displayNameController = DisplayNameButtonController(displayNameButton: displayNameButton,
-                                                            userObject: client.currentUser!)
+        displayNameController = DisplayNameButtonController(displayNameButton: displayNameButton)
         unreadCountController = UnreadCountLabelController(unreadCountLabel: totalMessageCountLabel,
                                                            repository: channelRepository)
     }
@@ -93,6 +102,9 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
 
     private func trackConnectionStatus() {
         connectionStatusObservationToken = client.observe(\.connectionStatus) { [weak self] client, _ in
+            
+            Log.add(info: "🔥🔥🔥 Connection Status Observed.... 🔥🔥🔥")
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
                 if let currentUser = client.currentUser {
                     self?.displayNameController.observe(userObject: currentUser)
@@ -137,7 +149,11 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
 
         let loginAction = UIAlertAction(title: "Login", style: .default, handler: { _ in
             guard let userlId = alertController.textFields?.first?.text else { return }
-            self.client.unregisterDevice()
+            self.pushNotificationManager.unregisterUser { _ in
+            }
+            self.pushNotificationManager.unregisterDevice { _ in
+            }
+            self.client.logout()
             self.login(with: userlId, displayName: nil)
         })
         alertController.addAction(loginAction)
@@ -189,9 +205,12 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
     }
 
     private func login(with userId: String, displayName: String?) {
-        
         Log.add(info: "Registering device. \(userId) displayName: \(String(describing: displayName))")
-        client.registerDevice(withUserId: userId, displayName: displayName, authToken: nil)
+        client.login(userId: userId, displayName: displayName, authToken: nil) { [weak self] success, error in
+            if let err = error {
+                self?.displayOkAlert(title: "Login Error", message: "\(err)")
+            }
+        }
         UserDefaults.standard.set(userId, forKey: "userId")
     }
 
@@ -218,7 +237,7 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
             builder.setTags(["ch-live","ios-sdk"])
             builder.setMetadata(["sdk_type":"ios"])
             
-            channelObject = channelRepository.createChannel().live(with: builder)
+            channelObject = channelRepository.createChannel(with: builder)
             
         case .community:
             Log.add(info: "Creating community channel")
@@ -233,7 +252,7 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
             builder.setTags(["ch-comm","ios-sdk"])
             builder.setMetadata(["sdk_type":"ios"])
             
-            channelObject = channelRepository.createChannel().community(with: builder)
+            channelObject = channelRepository.createChannel(with: builder)
             
         case .conversation:
             Log.add(info: "Creating conversation channel")
@@ -244,7 +263,7 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
             builder.setTags(["ch-conv","ios-sdk"])
             builder.setMetadata(["sdk_type":"ios"])
             
-            channelObject = channelRepository.createChannel().conversation(with: builder)
+            channelObject = channelRepository.createChannel(with: builder)
             
         default:
             Log.add(info: "Private & Standard channel types are depreciated.")
@@ -285,11 +304,14 @@ final class HomeViewController: UIViewController, ChannelsTableViewControllerDel
             
             if let imageData = imageData {
                 
-                let updater = self?.channelRepository.updateChannel(channelId)
-                updater?.setAvatar(imageData)
-                self?.updateToken = updater?.update().observe({ [weak self] (liveObject, error) in
+                let builder = AmityChannelUpdateBuilder(channelId: channelId)
+                builder.setAvatar(imageData)
+                
+                self?.updateToken = self?.channelRepository.updateChannel(with: builder).observe({ [weak self] (liveObject, error) in
                     
-                    guard let liveChannel = liveObject.object else { return }
+                    guard liveObject.object != nil else {
+                        return
+                    }
                     
                     Log.add(info: "Channel avatar updated")
                     

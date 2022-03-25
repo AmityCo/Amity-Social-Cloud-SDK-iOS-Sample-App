@@ -6,7 +6,7 @@
 //  Copyright © 2019 David Zhang. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 /// Updates the given `UILable` `text` with the current unread count
 final class UnreadCountLabelController {
